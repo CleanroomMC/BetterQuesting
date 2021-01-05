@@ -53,17 +53,17 @@ public class NetQuestSync {
             if (server == null) return;
 
             for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {
-                sendSync(player, IDs, false, true); // Progression only this pass
+                sendSync(player, IDs, false, true, true); // Progression only this pass
             }
         }
     }
 
     @Deprecated
     public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] questIDs, boolean config, boolean progress) {
-        sendSync(player, questIDs, null, config, progress);
+        sendSync(player, questIDs, config, progress, false);
     }
 
-    public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] questIDs, @Nullable int[] resetIDs, boolean config, boolean progress) {
+    public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] questIDs, boolean config, boolean progress, boolean resetCompletion) {
         if ((!config && !progress) || (questIDs != null && questIDs.length <= 0)) return;
 
         // Offload this to another thread as it could take a while to build
@@ -78,13 +78,13 @@ public class NetQuestSync {
                 if (config) tag.setTag("config", entry.getValue().writeToNBT(new NBTTagCompound(), true));
                 if (progress)
                     tag.setTag("progress", entry.getValue().writeProgressToNBT(new NBTTagCompound(), pidList));
-                if (resetIDs != null) tag.setIntArray("resets", resetIDs);
                 tag.setInteger("questID", entry.getID());
                 dataList.appendTag(tag);
             }
 
             NBTTagCompound payload = new NBTTagCompound();
             payload.setBoolean("merge", !config || questIDs != null);
+            payload.setBoolean("resetCompletion", resetCompletion);
             payload.setTag("data", dataList);
 
             if (player == null) {
@@ -115,9 +115,11 @@ public class NetQuestSync {
     private static void onClient(NBTTagCompound message) {
         NBTTagList data = message.getTagList("data", 10);
         boolean merge = message.getBoolean("merge");
-        if (!merge) QuestDatabase.INSTANCE.reset();
-
-        for (int i = 0; i < data.tagCount(); i++) {
+        boolean resetCompletion = message.getBoolean("resetCompletion");
+        if(!merge) QuestDatabase.INSTANCE.reset();
+        
+        for(int i = 0; i < data.tagCount(); i++)
+        {
             NBTTagCompound tag = data.getCompoundTagAt(i);
             if (!tag.hasKey("questID", 99)) continue;
             int questID = tag.getInteger("questID");
@@ -132,7 +134,7 @@ public class NetQuestSync {
             if (tag.hasKey("progress", 10) && quest != null) {
                 // TODO: Fix this properly
                 // If there we're not running the LAN server off this client then we overwrite always
-                quest.readProgressFromNBT(tag.getCompoundTag("progress"), merge || Minecraft.getMinecraft().isIntegratedServerRunning());
+                quest.readProgressFromNBT(tag.getCompoundTag("progress"), !resetCompletion && (merge || Minecraft.getMinecraft().isIntegratedServerRunning()));
             }
         }
 
