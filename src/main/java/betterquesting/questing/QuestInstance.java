@@ -20,6 +20,7 @@ import betterquesting.questing.rewards.RewardStorage;
 import betterquesting.questing.tasks.TaskStorage;
 import betterquesting.storage.PropertyContainer;
 import betterquesting.storage.QuestSettings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.*;
@@ -330,23 +331,31 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-	public EnumQuestState getState(UUID uuid)
-	{
-		if(this.isComplete(uuid))
-		{
-			if(this.hasClaimed(uuid))
-			{
+	public EnumQuestState getState(EntityPlayer player)	{
+
+		UUID uuid = QuestingAPI.getQuestingUUID(player);
+
+		if(this.isComplete(uuid)) {
+			if(this.hasClaimed(uuid)) {
 				return EnumQuestState.COMPLETED;
-			} else
-			{
+			}
+			else if(this.canClaim(player)) {
 				return EnumQuestState.UNCLAIMED;
 			}
-		} else if(this.isUnlocked(uuid))
-		{
+			else {
+				return EnumQuestState.REPEATABLE;
+			}
+		}
+		else if(this.isUnlocked(uuid)) {
 			return EnumQuestState.UNLOCKED;
 		}
 		
 		return EnumQuestState.LOCKED;
+	}
+
+	@Override
+	public EnumQuestState getState(UUID uuid) {
+		return getState(Minecraft.getMinecraft().player);
 	}
 	
 	@Override

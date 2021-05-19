@@ -17,7 +17,12 @@ import java.util.UUID;
 
 public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer
 {
+	/**
+	 * Deprecated, use the player version and then fetch UUID from the QuestingAPI
+	 */
 	EnumQuestState getState(UUID uuid);
+
+	EnumQuestState getState(EntityPlayer player);
 	
 	@Nullable
 	NBTTagCompound getCompletionInfo(UUID uuid);
