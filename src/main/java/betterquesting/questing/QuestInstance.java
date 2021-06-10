@@ -189,28 +189,25 @@ public class QuestInstance implements IQuest
             return entry != null && entry.getBoolean("claimed");
         }
 	}
-	
+
 	@Override
-	public boolean canClaim(EntityPlayer player)
-	{
-	    UUID pID = QuestingAPI.getQuestingUUID(player);
+	public boolean canClaimBasically(EntityPlayer player) {
+		UUID pID = QuestingAPI.getQuestingUUID(player);
 		NBTTagCompound entry = getCompletionInfo(pID);
-		
-		if(entry == null || hasClaimed(pID) || canSubmit(player))
-		{
-			return false;
-		} else
-		{
-		    DBEntry<IQuest> dbe = new DBEntry<>(QuestDatabase.INSTANCE.getID(this), this);
-			for(DBEntry<IReward> rew : rewards.getEntries())
-			{
-				if(!rew.getValue().canClaim(player, dbe))
-				{
-					return false;
-				}
+
+		return entry != null && !hasClaimed(pID) && !canSubmit(player);
+	}
+
+	@Override
+	public boolean canClaim(EntityPlayer player) {
+		if (!canClaimBasically(player)) return false;
+		DBEntry<IQuest> dbe = new DBEntry<>(QuestDatabase.INSTANCE.getID(this), this);
+		for (DBEntry<IReward> rew : rewards.getEntries()) {
+			if (!rew.getValue().canClaim(player, dbe)) {
+				return false;
 			}
 		}
-		
+
 		return true;
 	}
 	
@@ -329,27 +326,21 @@ public class QuestInstance implements IQuest
 			return getCompletionInfo(uuid) != null;
 		}
 	}
-	
+
 	@Override
-	public EnumQuestState getState(EntityPlayer player)	{
-
+	public EnumQuestState getState(EntityPlayer player) {
 		UUID uuid = QuestingAPI.getQuestingUUID(player);
-
-		if(this.isComplete(uuid)) {
-			if(this.hasClaimed(uuid)) {
-				return EnumQuestState.COMPLETED;
-			}
-			else if(this.canClaim(player)) {
+		if (this.isComplete(uuid)) {
+			if (canClaimBasically(player)) {
 				return EnumQuestState.UNCLAIMED;
-			}
-			else {
+			} else if (this.getProperty(NativeProps.REPEAT_TIME) > -1 && !this.hasClaimed(uuid)) {
 				return EnumQuestState.REPEATABLE;
 			}
-		}
-		else if(this.isUnlocked(uuid)) {
+			return EnumQuestState.COMPLETED;
+		} else if (this.isUnlocked(uuid)) {
 			return EnumQuestState.UNLOCKED;
 		}
-		
+
 		return EnumQuestState.LOCKED;
 	}
 

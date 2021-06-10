@@ -113,14 +113,11 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		{
 			list.add(TextFormatting.GREEN + QuestTranslation.translate("betterquesting.tooltip.complete"));
 
-			boolean hasClaimed = quest.hasClaimed(playerID);
-			boolean canClaim = quest.canClaim(player);
-			
-			if(!hasClaimed && canClaim)
+			if(quest.canClaimBasically(player))
 			{
 				list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.rewards_pending"));
 			}
-			else if(!hasClaimed) {
+			else if(!quest.hasClaimed(playerID)) {
 				list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeatable"));
 			}
 			else if(quest.getProperty(NativeProps.REPEAT_TIME) > 0)
