@@ -311,8 +311,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     }
 
 
-        private void claimAll() {
-        if(cvQuest.getQuestButtons().size() <= 0) return;
+    private void claimAll() {
+        if(cvQuest.getQuestButtons().isEmpty()) {
+            return;
+        }
         List<Integer> claimIdList = new ArrayList<>();
         for(PanelButtonQuest pbQuest : cvQuest.getQuestButtons()) {
             IQuest q = pbQuest.getStoredValue().getValue();
