@@ -1,5 +1,7 @@
 package betterquesting.core.proxies;
 
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
@@ -13,6 +15,13 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
 import betterquesting.misc.QuestResourcesFile;
 import betterquesting.misc.QuestResourcesFolder;
+import bq_standard.client.theme.BQSTextures;
+import bq_standard.core.BQ_Standard;
+import bq_standard.importers.AdvImporter;
+import bq_standard.importers.NativeFileImporter;
+import bq_standard.importers.ftbq.FTBQQuestImporter;
+import bq_standard.importers.hqm.HQMBagImporter;
+import bq_standard.importers.hqm.HQMQuestImporter;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelBakery;
@@ -89,8 +98,9 @@ public class ClientProxy extends CommonProxy
 		registerItemModel(BetterQuesting.extraLife, 1, BetterQuesting.MODID + ":heart_half");
 		registerItemModel(BetterQuesting.extraLife, 2, BetterQuesting.MODID + ":heart_quarter");
 		registerItemModel(BetterQuesting.guideBook);
-		
-		ThemeRegistry.INSTANCE.loadResourceThemes();
+        registerItemModelSubtypes(BQ_Standard.lootChest, 0, 104, BQ_Standard.lootChest.getRegistryName().toString());
+
+        ThemeRegistry.INSTANCE.loadResourceThemes();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -112,6 +122,22 @@ public class ClientProxy extends CommonProxy
 
 		ModelLoader.setCustomModelResourceLocation(item, meta, model);
 	}
+
+    @SideOnly(Side.CLIENT)
+    private void registerItemModelSubtypes(Item item, int metaStart, int metaEnd, String name)
+    {
+        if(metaStart > metaEnd)
+        {
+            int tmp = metaStart;
+            metaStart = metaEnd;
+            metaEnd = tmp;
+        }
+
+        for(int m = metaStart; m <= metaEnd; m++)
+        {
+            registerItemModel(item, m, name);
+        }
+    }
 	
 	@SideOnly(Side.CLIENT)
 	public static void registerItemModel(Item item)
@@ -131,4 +157,20 @@ public class ClientProxy extends CommonProxy
 		
 		ModelLoader.setCustomModelResourceLocation(item, meta, model);
 	}
+
+    @Override
+    public void registerExpansion()
+    {
+        super.registerExpansion();
+
+        QuestingAPI.getAPI(ApiReference.IMPORT_REG).registerImporter(NativeFileImporter.INSTANCE);
+
+        QuestingAPI.getAPI(ApiReference.IMPORT_REG).registerImporter(HQMQuestImporter.INSTANCE);
+        QuestingAPI.getAPI(ApiReference.IMPORT_REG).registerImporter(HQMBagImporter.INSTANCE);
+
+        QuestingAPI.getAPI(ApiReference.IMPORT_REG).registerImporter(FTBQQuestImporter.INSTANCE);
+        QuestingAPI.getAPI(ApiReference.IMPORT_REG).registerImporter(AdvImporter.INSTANCE);
+
+        BQSTextures.registerTextures();
+    }
 }

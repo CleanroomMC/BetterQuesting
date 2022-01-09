@@ -1,6 +1,7 @@
 package betterquesting.core;
 
 import betterquesting.api.placeholders.ItemPlaceholder;
+import bq_standard.core.BQ_Standard;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -66,13 +67,14 @@ public class RegEventHandler
     	ALL_BLOCKS.add(b.setRegistryName(res));
     	ALL_ITEMS.add(new ItemBlock(b).setRegistryName(res));
     }
-    
-    public static void registerItem(Item i, String name)
-    {
-    	ResourceLocation res = new ResourceLocation(BetterQuesting.MODID + ":" + name);
-    	ALL_ITEMS.add(i.setRegistryName(res));
+
+    public static void registerItems() {
+        ALL_ITEMS.add(ItemPlaceholder.placeholder.setRegistryName(BetterQuesting.MODID, "placeholder"));
+        ALL_ITEMS.add(BetterQuesting.extraLife.setRegistryName(BetterQuesting.MODID, "extra_life"));
+        ALL_ITEMS.add(BetterQuesting.guideBook.setRegistryName(BetterQuesting.MODID, "guide_book"));
+        ALL_ITEMS.add(BQ_Standard.lootChest.setRegistryName(BQ_Standard.MODID, "loot_chest"));
     }
-    
+
     public static void addShapelessRecipe(String name, String group, ItemStack stack, Object... ing)
     {
     	ResourceLocation rName = new ResourceLocation(BetterQuesting.MODID, name);
@@ -96,13 +98,9 @@ public class RegEventHandler
     	
     	setupRecipes = true;
     }
-	
-	// SETUP ALL THE THINGS
+
 	static {
-    	registerItem(ItemPlaceholder.placeholder, "placeholder");
-    	registerItem(BetterQuesting.extraLife, "extra_life");
-    	registerItem(BetterQuesting.guideBook, "guide_book");
-    	
+    	registerItems();
     	registerBlock(BetterQuesting.submitStation, "submit_station");
 	}
 }
