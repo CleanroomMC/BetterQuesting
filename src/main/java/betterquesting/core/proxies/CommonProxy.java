@@ -10,11 +10,10 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
 import betterquesting.handlers.EventHandler;
 import betterquesting.handlers.GuiHandler;
-import bq_standard.core.BQ_Standard;
-import bq_standard.network.handlers.*;
-import bq_standard.rewards.factory.*;
-import bq_standard.rewards.loot.LootRegistry;
-import bq_standard.tasks.factory.*;
+import betterquesting.network.handlers.*;
+import betterquesting.questing.rewards.factory.*;
+import betterquesting.questing.rewards.loot.LootRegistry;
+import betterquesting.questing.tasks.factory.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -76,6 +75,6 @@ public class CommonProxy
         NetLootImport.registerHandler();
         NetTaskInteract.registerHandler();
 
-        BQ_Standard.lootChest.setCreativeTab(QuestingAPI.getAPI(ApiReference.CREATIVE_TAB));
+        BetterQuesting.lootChest.setCreativeTab(QuestingAPI.getAPI(ApiReference.CREATIVE_TAB));
     }
 }

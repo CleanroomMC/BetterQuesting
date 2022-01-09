@@ -15,13 +15,12 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
 import betterquesting.misc.QuestResourcesFile;
 import betterquesting.misc.QuestResourcesFolder;
-import bq_standard.client.theme.BQSTextures;
-import bq_standard.core.BQ_Standard;
-import bq_standard.importers.AdvImporter;
-import bq_standard.importers.NativeFileImporter;
-import bq_standard.importers.ftbq.FTBQQuestImporter;
-import bq_standard.importers.hqm.HQMBagImporter;
-import bq_standard.importers.hqm.HQMQuestImporter;
+import betterquesting.client.themes.BQSTextures;
+import betterquesting.importers.AdvImporter;
+import betterquesting.importers.NativeFileImporter;
+import betterquesting.importers.ftbq.FTBQQuestImporter;
+import betterquesting.importers.hqm.HQMBagImporter;
+import betterquesting.importers.hqm.HQMQuestImporter;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelBakery;
@@ -98,7 +97,7 @@ public class ClientProxy extends CommonProxy
 		registerItemModel(BetterQuesting.extraLife, 1, BetterQuesting.MODID + ":heart_half");
 		registerItemModel(BetterQuesting.extraLife, 2, BetterQuesting.MODID + ":heart_quarter");
 		registerItemModel(BetterQuesting.guideBook);
-        registerItemModelSubtypes(BQ_Standard.lootChest, 0, 104, BQ_Standard.lootChest.getRegistryName().toString());
+        registerItemModelSubtypes(BetterQuesting.lootChest, 0, 104, BetterQuesting.lootChest.getRegistryName().toString());
 
         ThemeRegistry.INSTANCE.loadResourceThemes();
 	}

@@ -14,11 +14,12 @@ import betterquesting.handlers.ConfigHandler;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.items.ItemExtraLife;
 import betterquesting.items.ItemGuideBook;
+import betterquesting.items.ItemLootChest;
 import betterquesting.network.PacketQuesting;
 import betterquesting.network.PacketTypeRegistry;
-import bq_standard.commands.BQS_Commands;
-import bq_standard.commands.BqsComDumpAdvancements;
-import bq_standard.handlers.LootSaveLoad;
+import betterquesting.commands.bqs.BQS_Commands;
+import betterquesting.commands.bqs.BqsComDumpAdvancements;
+import betterquesting.handlers.LootSaveLoad;
 import net.minecraft.block.Block;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
@@ -50,6 +51,9 @@ public class BetterQuesting
     public static final String NAME = "BetterQuesting";
     public static final String FORMAT = "2.0.0";
 
+    // Used for some legacy compat
+    public static final String MODID_STD = "bq_standard";
+
     public static boolean hasJEI = false;
     
     // TODO: Possibly make use of this in future
@@ -67,6 +71,7 @@ public class BetterQuesting
 	
 	public static Item extraLife = new ItemExtraLife();
 	public static Item guideBook = new ItemGuideBook();
+    public static Item lootChest = new ItemLootChest();
 	
 	public static Block submitStation = new BlockSubmitStation();
     

@@ -1,5 +1,6 @@
 package betterquesting.handlers;
 
+import betterquesting.advancement.AdvListenerManager;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
@@ -30,15 +31,12 @@ import betterquesting.network.handlers.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.party.PartyInvitations;
 import betterquesting.questing.party.PartyManager;
+import betterquesting.questing.tasks.*;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
-import bq_standard.advancment_hacks.AdvListenerManager;
-import bq_standard.handlers.LootSaveLoad;
-import bq_standard.handlers.PlayerContainerListener;
-import bq_standard.network.handlers.NetLootSync;
-import bq_standard.network.handlers.NetTaskInteract;
-import bq_standard.tasks.*;
+import betterquesting.network.handlers.NetLootSync;
+import betterquesting.network.handlers.NetTaskInteract;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
