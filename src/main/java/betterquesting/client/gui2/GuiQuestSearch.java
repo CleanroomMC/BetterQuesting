@@ -21,6 +21,9 @@ import net.minecraft.client.gui.GuiScreen;
 import java.util.function.Consumer;
 
 public class GuiQuestSearch extends GuiScreenCanvas {
+
+    private PanelTextField<String> searchBox;
+
     public GuiQuestSearch(GuiScreen parent) {
         super(parent);
     }
@@ -42,8 +45,6 @@ public class GuiQuestSearch extends GuiScreenCanvas {
         createSearchBox(cvInner);
     }
 
-
-
     private void createExitButton(CanvasEmpty cvInner) {
         PanelButton btnExit = new PanelButton(
                 new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0),
@@ -55,7 +56,7 @@ public class GuiQuestSearch extends GuiScreenCanvas {
     }
 
     private void createSearchBox(CanvasEmpty cvInner) {
-        PanelTextField<String> searchBox = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 8, -32), 0), "", FieldFilterString.INSTANCE);
+        searchBox = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 8, -32), 0), "", FieldFilterString.INSTANCE);
         searchBox.setWatermark("Search...");
         searchBox.lockFocus(true);
         cvInner.addPanel(searchBox);
@@ -93,5 +94,9 @@ public class GuiQuestSearch extends GuiScreenCanvas {
 
     private void acceptCallback(QuestSearchEntry questSearchEntry){
         if (callback != null) callback.accept(questSearchEntry);
+    }
+
+    public boolean isSearchFocused() {
+        return searchBox != null && searchBox.isFocused();
     }
 }
