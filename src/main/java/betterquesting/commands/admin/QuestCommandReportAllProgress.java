@@ -10,7 +10,9 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import javax.annotation.Nonnull;
@@ -68,6 +70,7 @@ public class QuestCommandReportAllProgress extends QuestCommandBase {
         uuid = this.findPlayerID(server, sender, args[1]);
 
         if (uuid == null) {
+            sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.check.no_player_match").setStyle(new Style().setColor(TextFormatting.RED)));
             throw this.getException(command);
         }
 

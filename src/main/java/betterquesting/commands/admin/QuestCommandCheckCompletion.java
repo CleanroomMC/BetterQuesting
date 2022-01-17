@@ -10,7 +10,9 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import javax.annotation.Nonnull;
@@ -72,6 +74,7 @@ public class QuestCommandCheckCompletion extends QuestCommandBase {
         uuid = this.findPlayerID(server, sender, args[1]);
 
         if (uuid == null) {
+            sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.check.no_player_match").setStyle(new Style().setColor(TextFormatting.RED)));
             throw this.getException(command);
         }
 
@@ -79,7 +82,10 @@ public class QuestCommandCheckCompletion extends QuestCommandBase {
 
         int id = Integer.parseInt(args[2].trim());
         IQuest quest = QuestDatabase.INSTANCE.getValue(id);
-        if (quest == null) throw getException(command);
+        if (quest == null) {
+            sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.check.no_id_match").setStyle(new Style().setColor(TextFormatting.RED)));
+            throw getException(command);
+        }
         sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.check." + quest.isComplete(uuid), pName, new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
     }
 
