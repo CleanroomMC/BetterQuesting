@@ -71,7 +71,7 @@ public class BQ_CopyProgress extends CommandBase {
                     questsCompleted++;
                 }
             }
-            sender.sendMessage(new TextComponentString("Completed " + questsCompleted + " for " + addUUID));
+            sender.sendMessage(new TextComponentString("Completed " + questsCompleted + " for " + addPlayer.getDisplayNameString()));
         }
     }
 }
