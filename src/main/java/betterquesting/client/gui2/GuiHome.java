@@ -69,7 +69,6 @@ public class GuiHome extends GuiScreenCanvas
 	public void initPanel() {
 		super.initPanel();
 
-		GuiHome.bookmark = this;
 		// If we come to home gui - we set skip home to false
 		if (BQ_Settings.skipHome) {
 			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip Home", false).set(false);
