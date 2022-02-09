@@ -37,6 +37,7 @@ import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh {
@@ -161,7 +162,13 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             canvasPreReq.addPanel(btnEdit);
 
             PanelButtonStorage<DBEntry<IQuest>> btnType = new PanelButtonStorage<>(new GuiRectangle(width - 32, i * 16, 16, 16, 0), 6, "", arrReq.get(i));
-            btnType.setIcon(quest.getRequirementType(arrReq.get(i).getID()).getIcon().getTexture());
+            int arrReqID = arrReq.get(i).getID();
+            btnType.setIcon(quest.getRequirementType(arrReqID).getIcon().getTexture());
+            if (quest.getRequirementType(arrReqID) == IQuest.RequirementType.NORMAL)
+                btnType.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.visible_always")));
+            else if (quest.getRequirementType(arrReqID) == IQuest.RequirementType.IMPLICIT)
+                btnType.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.visible_implicit")));
+            else btnType.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.visible_hidden")));
             canvasPreReq.addPanel(btnType);
 
             PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", arrReq.get(i));
