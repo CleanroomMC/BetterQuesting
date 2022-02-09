@@ -106,12 +106,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         super.initPanel();
 
         GuiHome.bookmark = this;
-        // If we move to quest gui - we set skip home to true
-        if (!BQ_Settings.skipHome) {
-            ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip Home", false).set(true);
-            ConfigHandler.config.save();
-            BQ_Settings.skipHome = true;
-        }
 
         if (selectedLineId >= 0) {
             selectedLine = QuestLineDatabase.INSTANCE.getValue(selectedLineId);

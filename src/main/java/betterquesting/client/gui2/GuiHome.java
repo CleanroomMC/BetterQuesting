@@ -30,7 +30,6 @@ import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
 import betterquesting.client.gui3.GuiStatus;
-import betterquesting.handlers.ConfigHandler;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.handlers.NetChapterSync;
 import betterquesting.network.handlers.NetQuestSync;
@@ -68,13 +67,6 @@ public class GuiHome extends GuiScreenCanvas
 	@Override
 	public void initPanel() {
 		super.initPanel();
-
-		// If we come to home gui - we set skip home to false
-		if (BQ_Settings.skipHome) {
-			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip Home", false).set(false);
-			ConfigHandler.config.save();
-			BQ_Settings.skipHome = false;
-		}
 
 		PEventBroadcaster.INSTANCE.register((Consumer<PanelEvent>)this::onButtonPress, PEventButton.class);
 
