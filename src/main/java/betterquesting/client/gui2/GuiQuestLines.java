@@ -91,7 +91,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private static boolean trayLock;
     private static boolean viewMode;
     private int questsCompleted = 0;
-
+    private int totalQuests = 0;
+    
     private final List<PanelButtonStorage<DBEntry<IQuestLine>>> btnListRef = new ArrayList<>();
 
     public GuiQuestLines(GuiScreen parent) {
@@ -347,7 +348,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
             refreshQuestCompletion();
             txTitle.setText(QuestTranslation.translate(selectedLine.getUnlocalisedName()));
-            completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, selectedLine.getEntries().size()));
+            completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
             icoChapter.setTexture(new OreDictTexture(1F, selectedLine.getProperty(NativeProps.ICON), false, true), null);
         }
 
@@ -528,9 +529,17 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         }
 
         questsCompleted = 0;
+        totalQuests = 0;
 
         for(DBEntry<IQuestLineEntry> entry : selectedLine.getEntries()) {
             IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(entry.getID());
+
+            if(quest.getProperty(NativeProps.LOGIC_QUEST) == EnumLogic.XOR) {
+                // Subtract the number of requirements - 1 to simulate only doing 1 task for XOR requirements
+                totalQuests = totalQuests - Math.max(0, quest.getRequirements().length - 1);
+            }
+
+            totalQuests++;
 
             if(quest.isComplete(playerUUId)) {
                 questsCompleted++;
@@ -548,7 +557,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         cvQuest.setQuestLine(q.getValue());
         icoChapter.setTexture(new OreDictTexture(1F, q.getValue().getProperty(NativeProps.ICON), false, true), null);
         txTitle.setText(QuestTranslation.translate(q.getValue().getUnlocalisedName()));
-        completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, selectedLine.getEntries().size()));
+        refreshQuestCompletion();
+        completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
 
         if(!trayLock)
         {
@@ -581,7 +591,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         if (selectedLine != null) {
 
             refreshQuestCompletion();
-            completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, selectedLine.getEntries().size()));
+            completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
             txTitle.setText(QuestTranslation.translate(selectedLine.getUnlocalisedName()));
             icoChapter.setTexture(new OreDictTexture(1F, selectedLine.getProperty(NativeProps.ICON), false, true), null);
         } else {
