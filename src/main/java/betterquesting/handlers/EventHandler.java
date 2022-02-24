@@ -93,7 +93,8 @@ public class EventHandler {
                 mc.displayGuiScreen(GuiHome.bookmark);
             } else {
                 GuiScreen guiToDisplay = ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE);
-                guiToDisplay = new GuiQuestLines(guiToDisplay);
+                if (BQ_Settings.useBookmark && BQ_Settings.skipHome)
+                    guiToDisplay = new GuiQuestLines(guiToDisplay);
                 mc.displayGuiScreen(guiToDisplay);
             }
         }
