@@ -7,6 +7,7 @@ import betterquesting.api2.client.gui.panels.CanvasMinimum;
 import betterquesting.api2.client.gui.panels.content.PanelItemSlot;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.core.BetterQuesting;
 import betterquesting.questing.rewards.RewardItem;
 
 public class PanelRewardItem extends CanvasMinimum {
@@ -28,6 +29,7 @@ public class PanelRewardItem extends CanvasMinimum {
         for (int i = 0; i < reward.items.size(); i++) {
             BigItemStack stack = reward.items.get(i);
             PanelItemSlot is = new PanelItemSlot(new GuiRectangle(0, i * 18, 18, 18, 0), -1, stack, true);
+            if (BetterQuesting.hasJEI) is.setCallback(value -> is.lookupRecipe(value.getBaseStack(), false));
             this.addPanel(is);
 
             this.addPanel(new PanelTextBox(new GuiRectangle(22, i * 18 + 4, listWidth - 22, 14, 0), stack.stackSize + " " + stack.getBaseStack().getDisplayName()).setColor(PresetColor.TEXT_MAIN.getColor()));

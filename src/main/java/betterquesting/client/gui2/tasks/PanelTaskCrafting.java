@@ -17,14 +17,9 @@ import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.TaskCrafting;
-import mezz.jei.Internal;
-import mezz.jei.api.recipe.IFocus.Mode;
-import mezz.jei.gui.Focus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.common.Optional.Method;
 
 import java.util.UUID;
 
@@ -65,7 +60,7 @@ public class PanelTaskCrafting extends CanvasMinimum {
             BigItemStack stack = task.requiredItems.get(i);
 
             PanelItemSlot slot = new PanelItemSlot(new GuiRectangle(0, i * 28 + 24, 28, 28, 0), -1, stack, false, true);
-            if (BetterQuesting.hasJEI) slot.setCallback(value -> lookupRecipe(value.getBaseStack()));
+            if (BetterQuesting.hasJEI) slot.setCallback(value -> slot.lookupRecipe(value.getBaseStack(), true));
             this.addPanel(slot);
 
             StringBuilder sb = new StringBuilder();
@@ -87,11 +82,5 @@ public class PanelTaskCrafting extends CanvasMinimum {
             this.addPanel(text);
         }
         recalculateSizes();
-    }
-
-    @Method(modid = "jei")
-    private void lookupRecipe(ItemStack stack) {
-        if (stack == null || stack.isEmpty() || Internal.getRuntime() == null) return;
-        Internal.getRuntime().getRecipesGui().show(new Focus<>(Mode.OUTPUT, stack));
     }
 }

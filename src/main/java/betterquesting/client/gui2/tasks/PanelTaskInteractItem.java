@@ -16,12 +16,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.client.themes.BQSTextures;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.TaskInteractItem;
-import mezz.jei.Internal;
-import mezz.jei.api.recipe.IFocus.Mode;
-import mezz.jei.gui.Focus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.Optional.Method;
 
 import java.util.UUID;
 
@@ -49,8 +44,8 @@ public class PanelTaskInteractItem extends CanvasMinimum {
         this.addPanel(targetSlot);
 
         if (BetterQuesting.hasJEI) {
-            itemSlot.setCallback(value -> lookupRecipe(value.getBaseStack()));
-            targetSlot.setCallback(value -> lookupRecipe(value.getBaseStack()));
+            itemSlot.setCallback(value -> itemSlot.lookupRecipe(value.getBaseStack(), true));
+            targetSlot.setCallback(value -> targetSlot.lookupRecipe(value.getBaseStack(), true));
         }
 
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, centerWidth - 8, 0, 16, 16, 0), PresetIcon.ICON_RIGHT.getTexture()));
@@ -71,11 +66,5 @@ public class PanelTaskInteractItem extends CanvasMinimum {
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, centerWidth + 16, 56, 8, 8, 0), task.onHit ? txTick : txCross));
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, centerWidth + 40, 56, 8, 8, 0), task.onInteract ? txTick : txCross));
         recalculateSizes();
-    }
-
-    @Method(modid = "jei")
-    private void lookupRecipe(ItemStack stack) {
-        if (stack == null || stack.isEmpty() || Internal.getRuntime() == null) return;
-        Internal.getRuntime().getRecipesGui().show(new Focus<>(Mode.OUTPUT, stack));
     }
 }

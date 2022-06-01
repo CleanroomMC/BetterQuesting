@@ -10,12 +10,18 @@ import betterquesting.api2.client.gui.resources.textures.LayeredTexture;
 import betterquesting.api2.client.gui.resources.textures.OreDictTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import mezz.jei.Internal;
+import mezz.jei.api.recipe.IFocus.Mode;
+import mezz.jei.config.KeyBindings;
+import mezz.jei.gui.Focus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.oredict.OreDictionary;
+import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +69,7 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
 
     @Override
     public List<String> getTooltip(int mx, int my) {
-        if (getStoredValue() != null && getTransform().contains(mx, my)) {
+        if (getStoredValue() != null && isHovered()) {
             BigItemStack ttStack = getStoredValue();
 
             if (oreDict && oreVariants.size() > 0) {
@@ -119,5 +125,29 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
                 oreVariants.add(bStack);
             }
         }
+    }
+
+    @Override
+    public boolean onKeyTyped(char c, int keycode) {
+        if (!Keyboard.getEventKeyState()) return false;
+        if (!isHovered()) return false;
+
+        final boolean showRecipe = KeyBindings.showRecipe.isActiveAndMatches(keycode);
+        final boolean showUses = KeyBindings.showUses.isActiveAndMatches(keycode);
+        if (showRecipe || showUses) {
+            lookupRecipe(getStoredValue().getBaseStack(), showRecipe);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Looks up the recipes or uses of the target item in JEI.
+     */
+    @Method(modid = "jei")
+    public void lookupRecipe(ItemStack stack, boolean showRecipe) {
+        if (stack == null || stack.isEmpty() || Internal.getRuntime() == null) return;
+        Mode mode = showRecipe ? Mode.OUTPUT : Mode.INPUT;
+        Internal.getRuntime().getRecipesGui().show(new Focus<>(mode, stack));
     }
 }
