@@ -138,14 +138,13 @@ public class SaveLoadHandler {
         for (Future<Void> future : allFutures) {
             try {
                 future.get();
+                isDirty = false;
             } catch (InterruptedException e) {
                 BetterQuesting.logger.warn("Saving interrupted!", e);
             } catch (ExecutionException e) {
                 BetterQuesting.logger.warn("Saving failed!", e.getCause());
             }
         }
-
-        isDirty = false;
     }
 
     public void unloadDatabases() {
@@ -176,16 +175,14 @@ public class SaveLoadHandler {
         QuestDatabase.INSTANCE.reset();
         QuestLineDatabase.INSTANCE.reset();
 
-        boolean useDef = !fileDatabase.exists();
-
         int packVer = 0;
         String packName = "";
 
         File fileDefaultDatabase = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
 
-        if (useDef) // LOAD DEFAULTS
-        {
+        if (!fileDatabase.exists()) {
             isDirty = true;
+            fileDatabase = fileDefaultDatabase;
         } else {
             JsonObject defTmp = JsonHelper.ReadFromFile(fileDefaultDatabase);
             QuestSettings tmpSettings = new QuestSettings();
@@ -194,7 +191,7 @@ public class SaveLoadHandler {
             packName = tmpSettings.getProperty(NativeProps.PACK_NAME);
         }
 
-        JsonObject json = JsonHelper.ReadFromFile(useDef ? fileDefaultDatabase : fileDatabase);
+        JsonObject json = JsonHelper.ReadFromFile(fileDatabase);
 
         NBTTagCompound nbt = NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound(), true);
 
@@ -202,13 +199,13 @@ public class SaveLoadHandler {
         String buildVer = nbt.getString("build");
         String currVer = Loader.instance().activeModContainer().getVersion();
 
-        if (!currVer.equalsIgnoreCase(buildVer) && !useDef) // RUN BACKUPS
+        if (!currVer.equalsIgnoreCase(buildVer)) // RUN BACKUPS
         {
             String fsVer = JsonHelper.makeFileNameSafe(buildVer);
 
             if (fsVer.length() <= 0) fsVer = "pre-251";
 
-            BetterQuesting.logger.warn("BetterQuesting has been updated to from \"" + fsVer + "\" to \"" + currVer + "\"! Creating backups...");
+            BetterQuesting.logger.warn("BetterQuesting has been updated to from \"{}\" to \"{}\"! Creating backups...", fsVer, currVer);
 
             JsonHelper.CopyPaste(fileDatabase, new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestDatabase_backup_" + fsVer + ".json"));
             JsonHelper.CopyPaste(fileProgress, new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestProgress_backup_" + fsVer + ".json"));
@@ -227,7 +224,6 @@ public class SaveLoadHandler {
             legacyLoader.readFromJson(json);
         }
 
-        if (useDef) QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false); // Force edit off
         hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
     }
 
@@ -243,11 +239,11 @@ public class SaveLoadHandler {
             }
         }
 
-        getPlayerProgressFiles().forEach(file -> {
+        for (File file : getPlayerProgressFiles()) {
             JsonObject json = JsonHelper.ReadFromFile(file);
             NBTTagCompound nbt = NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound(), true);
             QuestDatabase.INSTANCE.readProgressFromNBT(nbt.getTagList("questProgress", 10), true);
-        });
+        }
     }
 
     private void loadParties() {
@@ -276,23 +272,23 @@ public class SaveLoadHandler {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void checkLegacyFiles(File rootDir) {
         if (new File(rootDir, "QuestDatabase.json").exists() && !fileDatabase.exists()) {
-            File legFileDat = new File(rootDir, "QuestDatabase.json");
-            File legFilePro = new File(rootDir, "QuestProgress.json");
-            File legFilePar = new File(rootDir, "QuestingParties.json");
-            File legFileLiv = new File(rootDir, "LifeDatabase.json");
-            File legFileNam = new File(rootDir, "NameCache.json");
+            File legacyDatabase = new File(rootDir, "QuestDatabase.json");
+            File legacyProgress = new File(rootDir, "QuestProgress.json");
+            File legacyParties = new File(rootDir, "QuestingParties.json");
+            File legacyLives = new File(rootDir, "LifeDatabase.json");
+            File legacyNames = new File(rootDir, "NameCache.json");
 
-            JsonHelper.CopyPaste(legFileDat, fileDatabase);
-            JsonHelper.CopyPaste(legFilePro, fileProgress);
-            JsonHelper.CopyPaste(legFilePar, fileParties);
-            JsonHelper.CopyPaste(legFileLiv, fileLives);
-            JsonHelper.CopyPaste(legFileNam, fileNames);
+            JsonHelper.CopyPaste(legacyDatabase, fileDatabase);
+            JsonHelper.CopyPaste(legacyProgress, fileProgress);
+            JsonHelper.CopyPaste(legacyParties, fileParties);
+            JsonHelper.CopyPaste(legacyLives, fileLives);
+            JsonHelper.CopyPaste(legacyNames, fileNames);
 
-            legFileDat.delete();
-            legFilePro.delete();
-            legFilePar.delete();
-            legFileLiv.delete();
-            legFileNam.delete();
+            legacyDatabase.delete();
+            legacyProgress.delete();
+            legacyParties.delete();
+            legacyLives.delete();
+            legacyNames.delete();
         }
     }
 
@@ -313,7 +309,9 @@ public class SaveLoadHandler {
         final List<Future<Void>> futures = dirtyPlayers.stream().map(this::savePlayerProgress).collect(Collectors.toList());
         dirtyPlayers.clear();
         return futures;
-    }private Future<Void> saveParties() {
+    }
+
+    private Future<Void> saveParties() {
         NBTTagCompound json = new NBTTagCompound();
 
         json.setTag("parties", PartyManager.INSTANCE.writeToNBT(new NBTTagList(), null));
