@@ -10,6 +10,7 @@ import betterquesting.api2.client.gui.resources.textures.LayeredTexture;
 import betterquesting.api2.client.gui.resources.textures.OreDictTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.core.BetterQuesting;
 import mezz.jei.Internal;
 import mezz.jei.api.recipe.IFocus.Mode;
 import mezz.jei.config.KeyBindings;
@@ -128,7 +129,20 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
     }
 
     @Override
+    public void onButtonClick() {
+        if (getCallback() != null) getCallback().setValue(getStoredValue());
+        else if (BetterQuesting.hasJEI) lookupRecipe(getStoredValue().getBaseStack(), true);
+    }
+
+    @Override
+    public void onRightButtonClick() {
+        if (getCallback() != null) getCallback().setValue(getStoredValue());
+        else if (BetterQuesting.hasJEI) lookupRecipe(getStoredValue().getBaseStack(), false);
+    }
+
+    @Override
     public boolean onKeyTyped(char c, int keycode) {
+        if (!BetterQuesting.hasJEI) return false;
         if (!Keyboard.getEventKeyState()) return false;
         if (!isHovered()) return false;
 

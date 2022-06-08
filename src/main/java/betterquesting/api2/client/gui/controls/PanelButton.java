@@ -208,7 +208,7 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
     @Override
     public boolean onMouseClick(int mx, int my, int click) {
-        pendingRelease = isActive() && click == 0 && isHovered();
+        pendingRelease = isActive() && (click == 0 || click == 1) && isHovered();
 
         return (click == 0 || click == 1) && isHovered();
     }
@@ -221,11 +221,12 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
         pendingRelease = false;
 
-        boolean clicked = isActive() && click == 0 && isHovered() && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
+        boolean clicked = isActive() && isHovered() && (click == 1 || (click == 0 && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this))));
 
         if (clicked) {
             Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            onButtonClick();
+            if (click == 0) onButtonClick();
+            else if (click == 1) onRightButtonClick();
         }
 
         return clicked;
@@ -253,6 +254,9 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
     @Override
     public void onButtonClick() {
         if (clickAction != null) clickAction.accept(this);
+    }
+
+    public void onRightButtonClick() {
     }
 
     @Override

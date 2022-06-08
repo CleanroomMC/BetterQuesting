@@ -15,7 +15,6 @@ import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.TaskCrafting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
@@ -60,7 +59,6 @@ public class PanelTaskCrafting extends CanvasMinimum {
             BigItemStack stack = task.requiredItems.get(i);
 
             PanelItemSlot slot = new PanelItemSlot(new GuiRectangle(0, i * 28 + 24, 28, 28, 0), -1, stack, false, true);
-            if (BetterQuesting.hasJEI) slot.setCallback(value -> slot.lookupRecipe(value.getBaseStack(), true));
             this.addPanel(slot);
 
             StringBuilder sb = new StringBuilder();

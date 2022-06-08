@@ -14,7 +14,6 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.client.themes.BQSTextures;
-import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.TaskInteractItem;
 import net.minecraft.client.Minecraft;
 
@@ -42,11 +41,6 @@ public class PanelTaskInteractItem extends CanvasMinimum {
 
         PanelItemSlot targetSlot = new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, centerWidth + 16, 0, 32, 32, 0), -1, task.targetBlock.getItemStack(), false, true);
         this.addPanel(targetSlot);
-
-        if (BetterQuesting.hasJEI) {
-            itemSlot.setCallback(value -> itemSlot.lookupRecipe(value.getBaseStack(), true));
-            targetSlot.setCallback(value -> targetSlot.lookupRecipe(value.getBaseStack(), true));
-        }
 
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, centerWidth - 8, 0, 16, 16, 0), PresetIcon.ICON_RIGHT.getTexture()));
         UUID playerID = QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player);

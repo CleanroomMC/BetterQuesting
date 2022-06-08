@@ -11,7 +11,6 @@ import betterquesting.api2.client.gui.panels.content.PanelItemSlot;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.TaskRetrieval;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextFormatting;
@@ -46,7 +45,6 @@ public class PanelTaskRetrieval extends CanvasMinimum {
             BigItemStack stack = task.requiredItems.get(i);
 
             PanelItemSlot slot = new PanelItemSlot(new GuiRectangle(0, i * 32 + 16, 28, 28, 0), -1, stack, false, true);
-            if (BetterQuesting.hasJEI) slot.setCallback(value -> slot.lookupRecipe(value.getBaseStack(), true));
             this.addPanel(slot);
 
             StringBuilder sb = new StringBuilder();

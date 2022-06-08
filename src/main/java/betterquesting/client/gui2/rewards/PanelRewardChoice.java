@@ -11,7 +11,6 @@ import betterquesting.api2.client.gui.panels.content.PanelItemSlot;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.storage.DBEntry;
-import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.NetRewardChoice;
 import betterquesting.questing.rewards.RewardChoice;
 import net.minecraft.client.Minecraft;
@@ -39,7 +38,6 @@ public class PanelRewardChoice extends CanvasMinimum {
         UUID uuid = QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player);
         int sel = reward.getSelecton(uuid);
         PanelItemSlot slot = new PanelItemSlot(new GuiTransform(new Vector4f(0F, 0F, 0F, 0F), 0, 0, 32, 32, 0), -1, sel < 0 ? null : reward.choices.get(sel));
-        if (BetterQuesting.hasJEI) slot.setCallback(value -> slot.lookupRecipe(value.getBaseStack(), false));
         this.addPanel(slot);
 
         final int qID = quest.getID();

@@ -10,7 +10,6 @@ import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
-import betterquesting.core.BetterQuesting;
 import betterquesting.questing.rewards.RewardRecipe;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.crafting.CraftingManager;
@@ -60,7 +59,6 @@ public class PanelRewardRecipe extends CanvasEmpty {
 
             BigItemStack stack = new BigItemStack(rec.getRecipeOutput());
             PanelItemSlot is = new PanelItemSlot(new GuiRectangle(x * iconSize, y * iconSize, iconSize, iconSize, 0), -1, stack, true);
-            if (BetterQuesting.hasJEI) is.setCallback(value -> is.lookupRecipe(value.getBaseStack(), false));
             cvList.addPanel(is);
         }
 
