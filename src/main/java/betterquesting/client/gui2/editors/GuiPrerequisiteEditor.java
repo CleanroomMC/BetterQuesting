@@ -174,7 +174,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 
             PanelButtonStorage<DBEntry<IQuest>> btnUp = new PanelButtonStorage<>(new GuiRectangle(width - 32, i * 16, 16, 16, 0), 7, "", arrReq.get(i));
             btnUp.setIcon(PresetIcon.ICON_UP.getTexture());
-            btnUp.setActive(i > 0);
+            btnUp.setActive(arrReq.size() > 1);
             canvasPreReq.addPanel(btnUp);
 
             PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", arrReq.get(i));
@@ -239,15 +239,15 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 
     private void reorderReq(IQuest quest, int id) {
         int[] orig = quest.getRequirements();
-        if (orig.length <= 0) return;
 
         int indexToShift = -1;
         for (int i = 0; i < orig.length; i++) if (orig[i] == id) indexToShift = i;
-        if (indexToShift <= 0) return;
+        if (indexToShift < 0) return;
 
+        int indexFrom = (indexToShift - 1 + orig.length) % orig.length;
         int tmp = orig[indexToShift];
-        orig[indexToShift] = orig[indexToShift - 1];
-        orig[indexToShift - 1] = tmp;
+        orig[indexToShift] = orig[indexFrom];
+        orig[indexFrom] = tmp;
 
         quest.setRequirements(orig);
     }
