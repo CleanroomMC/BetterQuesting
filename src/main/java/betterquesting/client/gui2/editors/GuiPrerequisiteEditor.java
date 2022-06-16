@@ -241,7 +241,12 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         int[] orig = quest.getRequirements();
 
         int indexToShift = -1;
-        for (int i = 0; i < orig.length; i++) if (orig[i] == id) indexToShift = i;
+        for (int i = 0; i < orig.length; i++) {
+            if (orig[i] == id) {
+                indexToShift = i;
+                break;
+            }
+        }
         if (indexToShift < 0) return;
 
         int indexFrom = (indexToShift - 1 + orig.length) % orig.length;
