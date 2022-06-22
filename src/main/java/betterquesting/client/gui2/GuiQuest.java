@@ -126,6 +126,29 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             rectReward = new GuiTransform(new Vector4f(0F, 0.5F, 0.5F, 1F), new GuiPadding(0, 0, 8, 16), 0);
             rectReward.setParent(cvInner.getTransform());
 
+            CanvasEmpty canvasRewardPopup = new CanvasEmpty(rectReward) {
+                @Override
+                public boolean onMouseClick(int mx, int my, int click) {
+                    if(click != 1) {
+                        return false;
+                    }
+
+                    if(rectReward.contains(mx, my) && QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player)) {
+                        PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, 76, 16), true);
+                        GuiRewardEditor editor = new GuiRewardEditor(new GuiQuest(parent, questID), quest);
+                        Runnable action = () -> mc.displayGuiScreen(editor);
+                        popup.addButton(QuestTranslation.translate("betterquesting.context.add_reward"), null, action);
+                        openPopup(popup);
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            };
+
+            cvInner.addPanel(canvasRewardPopup);
+
             refreshRewardPanel();
         } else {
             refreshDescPanel(false);
@@ -150,14 +173,6 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
                     GuiTaskEditor editor = new GuiTaskEditor(new GuiQuest(parent, questID), quest);
                     Runnable action = () -> mc.displayGuiScreen(editor);
                     popup.addButton(QuestTranslation.translate("betterquesting.context.add_task"), null, action);
-                    openPopup(popup);
-                    return true;
-                }
-                else if(rectReward.contains(mx, my) && QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player)) {
-                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, 76, 16), true);
-                    GuiRewardEditor editor = new GuiRewardEditor(new GuiQuest(parent, questID), quest);
-                    Runnable action = () -> mc.displayGuiScreen(editor);
-                    popup.addButton(QuestTranslation.translate("betterquesting.context.add_reward"), null, action);
                     openPopup(popup);
                     return true;
                 }
