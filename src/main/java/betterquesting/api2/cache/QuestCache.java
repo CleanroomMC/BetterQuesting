@@ -217,16 +217,22 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
 
         EnumQuestVisibility vis = quest.getProperty(NativeProps.VISIBILITY);
 
-        if (QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || vis == EnumQuestVisibility.ALWAYS || BQ_Settings.viewMode) // Always shown or in edit mode, or in view mode
-        {
+        if (QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player)) {
             return true;
+        } else if (vis == EnumQuestVisibility.SECRET) {
+            return quest.isComplete(uuid) || quest.isUnlocked(uuid);
         } else if (vis == EnumQuestVisibility.HIDDEN) {
             return false;
+        } else if (BQ_Settings.viewMode) { // SECRET and HIDDEN override view mode, all other quests should be visible
+            return true;
+        } else if (vis == EnumQuestVisibility.ALWAYS) {
+            return true;
         } else if (vis == EnumQuestVisibility.UNLOCKED) {
             return quest.isComplete(uuid) || quest.isUnlocked(uuid);
+        } else if (vis == EnumQuestVisibility.COMPLETED) {
+            return quest.isComplete(uuid);
         } else if (vis == EnumQuestVisibility.NORMAL) {
-            if (quest.isComplete(uuid) || quest.isUnlocked(uuid)) // Complete or pending
-            {
+            if (quest.isComplete(uuid) || quest.isUnlocked(uuid)) { // Complete or pending
                 return true;
             }
 
@@ -238,8 +244,6 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
             }
 
             return true;
-        } else if (vis == EnumQuestVisibility.COMPLETED) {
-            return quest.isComplete(uuid);
         } else if (vis == EnumQuestVisibility.CHAIN) {
             if (quest.getRequirements().length <= 0) {
                 return true;
