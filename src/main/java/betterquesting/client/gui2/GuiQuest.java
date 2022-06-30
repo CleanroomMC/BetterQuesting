@@ -116,8 +116,11 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
                     popup.addButton(QuestTranslation.translate("betterquesting.context.add_reward"), null, action);
                     openPopup(popup);
 
-                    refreshDescPanel(true);
-                    refreshRewardPanel();
+                    // Try to make sure that players have added rewards via the popup, instead of opening the popup, and then clicking off
+                    if(quest.getRewards().size() > 0) {
+                        refreshDescPanel(true);
+                        refreshRewardPanel();
+                    }
                     return true;
 
                 }
