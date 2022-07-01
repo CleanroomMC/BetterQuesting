@@ -66,10 +66,11 @@ public class QuestCommandDefaults extends QuestCommandBase {
             qFile = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
         }
 
-
         if (args[1].equalsIgnoreCase("save")) {
             boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
+
             NBTTagCompound base = new NBTTagCompound();
+
             QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false);
             base.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
             QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
