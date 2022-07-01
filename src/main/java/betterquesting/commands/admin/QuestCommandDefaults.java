@@ -68,6 +68,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
         if (args[1].equalsIgnoreCase("save")) {
             NBTTagCompound base = new NBTTagCompound();
+            QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false);
             base.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
             base.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
             base.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
