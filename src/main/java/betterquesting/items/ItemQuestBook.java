@@ -11,6 +11,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 
@@ -24,6 +26,7 @@ public class ItemQuestBook extends Item {
 
     @Nonnull
     @Override
+    @SideOnly(Side.CLIENT)
     public ActionResult<ItemStack> onItemRightClick(@Nonnull World world, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
 
         ItemStack stack = player.getHeldItem(hand);
