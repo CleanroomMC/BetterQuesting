@@ -49,7 +49,7 @@ import org.apache.logging.log4j.Logger;
 public class BetterQuesting {
     public static final String VERSION = "@VERSION@";
     public static final String MODID = "betterquesting";
-    public static final String NAME = "BetterQuesting";
+    public static final String NAME = "BetterQuestingUnofficial";
     public static final String FORMAT = "2.0.0";
 
     // Used for some legacy compat
