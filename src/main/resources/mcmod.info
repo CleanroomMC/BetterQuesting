@@ -1,16 +1,16 @@
 [
   {
     "modid": "betterquesting",
-    "name": "Better Questing",
-    "description": "A new and improved questing mod for Minecraft pack creators",
+    "name": "Better Questing Unofficial",
+    "description": "A continuation of the popular Questing Mod, Better Questing",
     "version": "${version}",
     "mcversion": "${mcversion}",
-    "url": "",
+    "url": "https://github.com/CleanroomMC/BetterQuesting",
     "updateUrl": "",
     "authorList": [
-      "Funwayguy"
+      "Funwayguy", "CleanroomMC team"
     ],
-    "credits": "Thank you Patreons for all your support <3",
+    "credits": "Funwayguy for the original implementation, the GT:NH developers for many implemented features, and fonnymunkey for ideas from his BQ addon",
     "logoFile": "title.png",
     "screenshots": [],
     "dependencies": []
