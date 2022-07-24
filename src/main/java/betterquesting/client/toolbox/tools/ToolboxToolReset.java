@@ -3,8 +3,10 @@ package betterquesting.client.toolbox.tools;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
+import betterquesting.api2.utils.DirtyPlayerMarker;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.handlers.NetQuestEdit;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import org.lwjgl.input.Keyboard;
@@ -30,14 +32,23 @@ public class ToolboxToolReset implements IToolboxTool {
 
     @Override
     public boolean onMouseClick(int mx, int my, int click) {
-        if (click != 0 || !gui.getTransform().contains(mx, my)) return false;
 
-        PanelButtonQuest btn = gui.getButtonAt(mx, my);
+        if (click != 0 || !gui.getTransform().contains(mx, my)) {
+            return false;
+        }
 
-        if (btn == null) return false;
-        if (PanelToolController.selected.size() > 0 && !PanelToolController.selected.contains(btn)) return false;
+        PanelButtonQuest resetButton = gui.getButtonAt(mx, my);
 
-        List<PanelButtonQuest> btnList = PanelToolController.selected.size() > 0 ? PanelToolController.selected : Collections.singletonList(btn);
+        if (resetButton == null) {
+            return false;
+        }
+
+        if (PanelToolController.selected.size() > 0 && !PanelToolController.selected.contains(resetButton)) {
+            return false;
+        }
+
+        List<PanelButtonQuest> btnList = PanelToolController.selected.size() > 0 ? PanelToolController.selected : Collections.singletonList(resetButton);
+
         int[] questIDs = new int[btnList.size()];
 
         for (int i = 0; i < btnList.size(); i++) {
@@ -49,6 +60,7 @@ public class ToolboxToolReset implements IToolboxTool {
         payload.setBoolean("state", false);
         payload.setInteger("action", 2);
         NetQuestEdit.sendEdit(payload);
+        DirtyPlayerMarker.markDirty(Minecraft.getMinecraft().player.getUniqueID());
 
         return true;
     }
@@ -92,6 +104,7 @@ public class ToolboxToolReset implements IToolboxTool {
         payload.setBoolean("state", false);
         payload.setInteger("action", 2);
         NetQuestEdit.sendEdit(payload);
+        DirtyPlayerMarker.markDirty(Minecraft.getMinecraft().player.getUniqueID());
 
         return true;
     }
