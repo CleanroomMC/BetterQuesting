@@ -98,6 +98,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
                 if (loader == null) {
                     QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"));
+                    QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false);
                     QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), false);
                     QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), false);
                 } else {

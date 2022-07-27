@@ -224,6 +224,7 @@ public class SaveLoadHandler {
             legacyLoader.readFromJson(json);
         }
 
+        QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false); // don't enable edit mode on startup
         hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
     }
 
