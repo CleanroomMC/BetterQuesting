@@ -25,7 +25,6 @@ import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.gui2.GuiQuestLines;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.items.ItemQuestBook;
 import betterquesting.network.handlers.*;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.party.PartyInvitations;
@@ -46,8 +45,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.GameType;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -102,6 +104,36 @@ public class EventHandler {
                 if (BQ_Settings.useBookmark && BQ_Settings.skipHome)
                     guiToDisplay = new GuiQuestLines(guiToDisplay);
                 mc.displayGuiScreen(guiToDisplay);
+            }
+        }
+    }
+
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onClientChatReceived(ClientChatReceivedEvent event) {
+        if (event.getMessage() != null) {
+            String text = event.getMessage().getFormattedText();
+            int index = text.indexOf("betterquesting.msg.share_quest:");
+            if (index != -1) {
+                int lastIndex = index + "betterquesting.msg.share_quest:".length();
+                int endIndex = lastIndex;
+                int questId = 0;
+                for (int i = lastIndex; i < text.length(); i++) {
+                    int digit = Character.getNumericValue(text.charAt(i));
+                    if (digit < 0) {
+                        break;
+                    }
+                    endIndex++;
+                    questId = (questId * 10) + digit;
+                }
+                String questName = QuestDatabase.INSTANCE.getValue(questId).getProperty(NativeProps.NAME);
+                ITextComponent translated = new TextComponentTranslation("betterquesting.msg.share_quest", questId, questName);
+                ITextComponent newMessage = new TextComponentString(text.substring(0, index) + translated.getFormattedText() + text.substring(endIndex));
+                Style newMessageStyle = newMessage.getStyle()
+                        .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bq_user show " + questId))
+                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("betterquesting.msg.share_quest_hover_text", questName)));
+                event.setMessage(newMessage.setStyle(newMessageStyle));
             }
         }
     }

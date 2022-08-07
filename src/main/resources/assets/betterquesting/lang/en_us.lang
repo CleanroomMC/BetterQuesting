@@ -57,6 +57,7 @@ betterquesting.btn.visible_hidden=Always hide dependency line
 betterquesting.btn.visible_always=Always show dependency line
 betterquesting.btn.visible_implicit=Hover to show dependency line
 betterquesting.btn.view_mode=View Mode
+betterquesting.btn.share_quest=Share to Chat
 
 betterquesting.home.exit=Exit
 betterquesting.home.quests=Quests
@@ -107,6 +108,8 @@ betterquesting.notice.update=Quest Updated
 betterquesting.notice.unlock=Quest Unlocked
 
 betterquesting.msg.heart_disabled=Hardcore lives are not enabled. Use "/bq_admin hardcore" to toggle it
+betterquesting.msg.share_quest=§b[Quest: #%d - %s§b]
+betterquesting.msg.share_quest_hover_text=§aClick to View Quest: %s
 
 key.betterquesting.quests=Open Quests
 key.betterquesting.party=Party Manager
