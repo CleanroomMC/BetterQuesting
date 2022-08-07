@@ -1,4 +1,4 @@
-package betterquesting.commands.user;
+package betterquesting.commands.client;
 
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.gui2.GuiQuest;

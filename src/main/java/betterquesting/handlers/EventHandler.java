@@ -131,7 +131,7 @@ public class EventHandler {
                 ITextComponent translated = new TextComponentTranslation("betterquesting.msg.share_quest", questId, questName);
                 ITextComponent newMessage = new TextComponentString(text.substring(0, index) + translated.getFormattedText() + text.substring(endIndex));
                 Style newMessageStyle = newMessage.getStyle()
-                        .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bq_user show " + questId))
+                        .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bq_client show " + questId))
                         .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("betterquesting.msg.share_quest_hover_text", questName)));
                 event.setMessage(newMessage.setStyle(newMessageStyle));
             }

@@ -1,38 +1,27 @@
 package betterquesting.commands;
 
-import betterquesting.commands.user.QuestCommandHelp;
-import betterquesting.commands.user.QuestCommandRefresh;
-import betterquesting.commands.user.QuestCommandSPHardcore;
+import betterquesting.commands.client.QuestCommandShow;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.server.permission.DefaultPermissionLevel;
-import net.minecraftforge.server.permission.PermissionAPI;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class BQ_CommandUser extends CommandBase {
+public class BQ_CommandClient extends CommandBase {
     private final List<QuestCommandBase> coms = new ArrayList<>();
 
-    public BQ_CommandUser() {
-        PermissionAPI.registerNode("betterquesting.command.user", DefaultPermissionLevel.ALL, "user commmand permission");
-
-        coms.add(new QuestCommandHelp());
-        coms.add(new QuestCommandRefresh());
-        coms.add(new QuestCommandSPHardcore());
+    public BQ_CommandClient() {
+        coms.add(new QuestCommandShow());
     }
 
     @Override
     public String getName() {
-        return "bq_user";
+        return "bq_client";
     }
 
     @Override
@@ -41,17 +30,12 @@ public class BQ_CommandUser extends CommandBase {
     }
 
     @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-        return !(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, "betterquesting.command.user");
-    }
-
-    @Override
     public String getUsage(ICommandSender sender) {
         StringBuilder txt = new StringBuilder();
 
         for (int i = 0; i < coms.size(); i++) {
             QuestCommandBase c = coms.get(i);
-            txt.append("/bq_user ").append(c.getCommand());
+            txt.append("/bq_client ").append(c.getCommand());
 
             if (c.getUsageSuffix().length() > 0) {
                 txt.append(" ").append(c.getUsageSuffix());
@@ -65,25 +49,18 @@ public class BQ_CommandUser extends CommandBase {
         return txt.toString();
     }
 
-    /**
-     * Adds the strings available in this command to the given list of tab completion options.
-     */
     @Override
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] strings, BlockPos pos) {
         if (strings.length == 1) {
             List<String> base = new ArrayList<>();
             for (QuestCommandBase c : coms) {
-                if (!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) {
-                    base.add(c.getCommand());
-                }
+                base.add(c.getCommand());
             }
             return getListOfStringsMatchingLastWord(strings, base.toArray(new String[0]));
         } else if (strings.length > 1) {
             for (QuestCommandBase c : coms) {
                 if (c.getCommand().equalsIgnoreCase(strings[0])) {
-                    if (!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) {
-                        return c.autoComplete(server, sender, strings);
-                    }
+                    return c.autoComplete(server, sender, strings);
                 }
             }
         }
@@ -99,18 +76,11 @@ public class BQ_CommandUser extends CommandBase {
 
         for (QuestCommandBase c : coms) {
             if (c.getCommand().equalsIgnoreCase(args[0])) {
-                if (!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) {
-                    if (c.validArgs(args)) {
-                        c.runCommand(server, this, sender, args);
-                        return;
-                    } else {
-                        throw c.getException(this);
-                    }
-                } else {
-                    TextComponentTranslation cc = new TextComponentTranslation("commands.generic.permission");
-                    cc.getStyle().setColor(TextFormatting.RED);
-                    sender.sendMessage(cc);
+                if (c.validArgs(args)) {
+                    c.runCommand(server, this, sender, args);
                     return;
+                } else {
+                    throw c.getException(this);
                 }
             }
         }
@@ -135,4 +105,5 @@ public class BQ_CommandUser extends CommandBase {
 
         return false;
     }
+
 }
