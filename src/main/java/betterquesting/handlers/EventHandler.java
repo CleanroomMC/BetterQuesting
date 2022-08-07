@@ -127,12 +127,19 @@ public class EventHandler {
                     endIndex++;
                     questId = (questId * 10) + digit;
                 }
-                String questName = QuestDatabase.INSTANCE.getValue(questId).getProperty(NativeProps.NAME);
+                IQuest quest = QuestDatabase.INSTANCE.getValue(questId);
+                String questName = quest.getProperty(NativeProps.NAME);
                 ITextComponent translated = new TextComponentTranslation("betterquesting.msg.share_quest", questId, questName);
                 ITextComponent newMessage = new TextComponentString(text.substring(0, index) + translated.getFormattedText() + text.substring(endIndex));
-                Style newMessageStyle = newMessage.getStyle()
-                        .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bq_client show " + questId))
-                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("betterquesting.msg.share_quest_hover_text", questName)));
+                Style newMessageStyle;
+                if (quest.isUnlocked(QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player))) {
+                    newMessageStyle = newMessage.getStyle()
+                            .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bq_client show " + questId))
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("betterquesting.msg.share_quest_hover_text_success")));
+                } else {
+                    newMessageStyle = newMessage.getStyle()
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("betterquesting.msg.share_quest_hover_text_failure")));
+                }
                 event.setMessage(newMessage.setStyle(newMessageStyle));
             }
         }
