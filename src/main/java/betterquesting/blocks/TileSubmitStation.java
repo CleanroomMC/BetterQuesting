@@ -11,6 +11,7 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.QuestSettings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ISidedInventory;
@@ -228,7 +229,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 
     @Override
     public void update() {
-        if (world.isRemote || !isSetup() || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) return;
+        if (world.isRemote || !isSetup() || QuestSettings.INSTANCE.getEditMode(Minecraft.getMinecraft().player)) return;
 
         long wtt = world.getTotalWorldTime();
         if (wtt % 5 == 0 && owner != null) {

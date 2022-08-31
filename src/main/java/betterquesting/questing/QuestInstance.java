@@ -115,7 +115,7 @@ public class QuestInstance implements IQuest {
             return;
         }
 
-        if (isUnlocked(playerID) || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) {
+        if (isUnlocked(playerID) || QuestSettings.INSTANCE.getEditMode(player)) {
             int done = 0;
             boolean update = false;
 
@@ -137,7 +137,7 @@ public class QuestInstance implements IQuest {
             // Note: Tasks can mark the quest dirty themselves if progress changed but hasn't fully completed.
             if (tasks.size() <= 0 || qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size())) {
                 // State won't be auto updated in edit mode so we force change it here and mark it for re-sync
-                if (QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
+                if (QuestSettings.INSTANCE.getEditMode(player))
                     setComplete(playerID, System.currentTimeMillis());
                 qc.markQuestDirty(questID);
             } else if (update && qInfo.getProperty(NativeProps.SIMULTANEOUS)) {

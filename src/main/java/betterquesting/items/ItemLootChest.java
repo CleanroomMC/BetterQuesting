@@ -9,6 +9,8 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.NetLootClaim;
 import betterquesting.questing.rewards.loot.LootGroup;
 import betterquesting.questing.rewards.loot.LootRegistry;
+import betterquesting.storage.QuestSettings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -228,7 +230,7 @@ public class ItemLootChest extends Item {
 
         NBTTagCompound tag = stack.getTagCompound();
         boolean hideTooltip = tag == null || !tag.getBoolean("hideLootInfo");
-        if (hideTooltip && !QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE)) return;
+        if (hideTooltip && !QuestSettings.INSTANCE.getEditMode(Minecraft.getMinecraft().player)) return;
 
         if (stack.getItemDamage() == 104) {
             if (tag == null) return;
