@@ -131,13 +131,13 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
     @Override
     public void onButtonClick() {
         if (getCallback() != null) getCallback().setValue(getStoredValue());
-        else if (BetterQuesting.hasJEI) lookupRecipe(getStoredValue().getBaseStack(), true);
+        else if (BetterQuesting.hasJEI && getStoredValue() != null) lookupRecipe(getStoredValue().getBaseStack(), true);
     }
 
     @Override
     public void onRightButtonClick() {
         if (getCallback() != null) getCallback().setValue(getStoredValue());
-        else if (BetterQuesting.hasJEI) lookupRecipe(getStoredValue().getBaseStack(), false);
+        else if (BetterQuesting.hasJEI && getStoredValue() != null) lookupRecipe(getStoredValue().getBaseStack(), false);
     }
 
     @Override
@@ -145,6 +145,7 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
         if (!BetterQuesting.hasJEI) return false;
         if (!Keyboard.getEventKeyState()) return false;
         if (!isHovered()) return false;
+        if (getStoredValue() == null) return false;
 
         final boolean showRecipe = KeyBindings.showRecipe.isActiveAndMatches(keycode);
         final boolean showUses = KeyBindings.showUses.isActiveAndMatches(keycode);
