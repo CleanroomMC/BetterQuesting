@@ -131,13 +131,13 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
     @Override
     public void onButtonClick() {
         if (getCallback() != null) getCallback().setValue(getStoredValue());
-        else if (BetterQuesting.hasJEI) lookupRecipe(getStoredValue().getBaseStack(), true);
+        else if (BetterQuesting.hasJEI && getStoredValue() != null) lookupRecipe(getStoredValue().getBaseStack(), true);
     }
 
     @Override
     public void onRightButtonClick() {
         if (getCallback() != null) getCallback().setValue(getStoredValue());
-        else if (BetterQuesting.hasJEI) lookupRecipe(getStoredValue().getBaseStack(), false);
+        else if (BetterQuesting.hasJEI && getStoredValue() != null) lookupRecipe(getStoredValue().getBaseStack(), false);
     }
 
     @Override
