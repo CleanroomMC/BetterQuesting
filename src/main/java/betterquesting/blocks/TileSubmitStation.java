@@ -229,15 +229,21 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 
     @Override
     public void update() {
-        if (world.isRemote || !isSetup() || QuestSettings.INSTANCE.getEditMode(Minecraft.getMinecraft().player)) return;
+
+        MinecraftServer server = world.getMinecraftServer();
+        EntityPlayerMP player = null;
+
+        if(owner != null) {
+            player = server == null ? null : server.getPlayerList().getPlayerByUUID(owner);
+        }
+
+        if (world.isRemote || !isSetup() || (player != null && QuestSettings.INSTANCE.getEditMode(player))) return;
 
         long wtt = world.getTotalWorldTime();
         if (wtt % 5 == 0 && owner != null) {
             if (wtt % 20 == 0) qCached = null; // Reset and lookup quest again once every second
             DBEntry<IQuest> q = getQuest();
             IItemTask t = getItemTask();
-            MinecraftServer server = world.getMinecraftServer();
-            EntityPlayerMP player = server == null ? null : server.getPlayerList().getPlayerByUUID(owner);
             QuestCache qc = player == null ? null : player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
 
             // Check quest & task is present. Check input is populated and output is clear.
