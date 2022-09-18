@@ -32,6 +32,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 
+import java.util.Collections;
+
 public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh {
     private final int questID;
     private IQuest quest;
@@ -201,6 +203,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
                 vis = visList[(vis.ordinal() + 1) % visList.length];
                 quest.setProperty(NativeProps.VISIBILITY, vis);
                 ((PanelButton) btn).setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + vis);
+                ((PanelButton) btn).setTooltip(Collections.singletonList(QuestTranslation.translate("betterquest.btn.show." + vis.toString().toLowerCase())));
                 SendChanges();
                 break;
             }

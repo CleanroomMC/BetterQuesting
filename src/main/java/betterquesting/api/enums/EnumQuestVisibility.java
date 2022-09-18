@@ -6,5 +6,9 @@ public enum EnumQuestVisibility {
     NORMAL,
     COMPLETED,
     CHAIN,
-    ALWAYS
+    ALWAYS;
+
+    public String getTooltip(EnumQuestVisibility vis) {
+        return String.format("betterquesting.btn.show.%s", vis);
+    }
 }
