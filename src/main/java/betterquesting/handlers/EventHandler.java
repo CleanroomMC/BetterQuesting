@@ -15,6 +15,7 @@ import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
+import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.cache.QuestCache.QResetTime;
 import betterquesting.api2.client.gui.themes.gui_args.GArgsNone;
 import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
@@ -24,6 +25,7 @@ import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.gui2.GuiQuestLines;
 import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.commands.client.QuestCommandShow;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.*;
 import betterquesting.questing.QuestDatabase;
@@ -35,6 +37,7 @@ import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -128,11 +131,17 @@ public class EventHandler {
                     questId = (questId * 10) + digit;
                 }
                 IQuest quest = QuestDatabase.INSTANCE.getValue(questId);
+                if (quest == null) {
+                    event.setMessage(new TextComponentTranslation("betterquesting.msg.share_quest_invalid", String.valueOf(questId)));
+                    return;
+                }
                 String questName = quest.getProperty(NativeProps.NAME);
                 ITextComponent translated = new TextComponentTranslation("betterquesting.msg.share_quest", questId, questName);
                 ITextComponent newMessage = new TextComponentString(text.substring(0, index) + translated.getFormattedText() + text.substring(endIndex));
                 Style newMessageStyle;
-                if (quest.isUnlocked(QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player))) {
+                EntityPlayerSP player = Minecraft.getMinecraft().player;
+                if (QuestCache.isQuestShown(quest, QuestingAPI.getQuestingUUID(player), player)) {
+                    QuestCommandShow.sentViaClick = true;
                     newMessageStyle = newMessage.getStyle()
                             .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bq_client show " + questId))
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("betterquesting.msg.share_quest_hover_text_success")));

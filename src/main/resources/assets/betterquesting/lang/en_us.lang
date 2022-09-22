@@ -109,6 +109,7 @@ betterquesting.notice.unlock=Quest Unlocked
 
 betterquesting.msg.heart_disabled=Hardcore lives are not enabled. Use "/bq_admin hardcore" to toggle it
 betterquesting.msg.share_quest=§b[Quest: #%d - %s§b]
+betterquesting.msg.share_quest_invalid=§cCannot view Quest %s
 betterquesting.msg.share_quest_hover_text_success=§aClick to View Quest
 betterquesting.msg.share_quest_hover_text_failure=§cQuest is Currently Inaccessible
 
