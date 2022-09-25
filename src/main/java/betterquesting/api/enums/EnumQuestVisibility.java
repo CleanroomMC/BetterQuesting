@@ -9,6 +9,6 @@ public enum EnumQuestVisibility {
     ALWAYS;
 
     public String getTooltip(EnumQuestVisibility vis) {
-        return String.format("betterquesting.btn.show.%s", vis);
+        return String.format("betterquesting.btn.show.%s", vis.toString().toLowerCase());
     }
 }

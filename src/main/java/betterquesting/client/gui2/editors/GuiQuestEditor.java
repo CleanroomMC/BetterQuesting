@@ -62,6 +62,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             if (!flDesc.isFocused()) flDesc.setText(quest.getProperty(NativeProps.DESC));
             btnLogic.setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
             btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + quest.getProperty(NativeProps.VISIBILITY));
+            btnVis.setTooltip(Collections.singletonList(QuestTranslation.translate(quest.getProperty(NativeProps.VISIBILITY).getTooltip(quest.getProperty(NativeProps.VISIBILITY)))));
         }
     }
 
@@ -126,6 +127,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         cvBackground.addPanel(btnIco);
 
         btnVis = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, -100, 48, 100, 16, 0), 5, QuestTranslation.translate("betterquesting.btn.show") + ": " + quest.getProperty(NativeProps.VISIBILITY));
+        btnVis.setTooltip(Collections.singletonList(QuestTranslation.translate(quest.getProperty(NativeProps.VISIBILITY).getTooltip(quest.getProperty(NativeProps.VISIBILITY)))));
         cvBackground.addPanel(btnVis);
 
         btnLogic = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 0, 48, 100, 16, 0), 6, QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
@@ -203,7 +205,6 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
                 vis = visList[(vis.ordinal() + 1) % visList.length];
                 quest.setProperty(NativeProps.VISIBILITY, vis);
                 ((PanelButton) btn).setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + vis);
-                ((PanelButton) btn).setTooltip(Collections.singletonList(QuestTranslation.translate("betterquest.btn.show." + vis.toString().toLowerCase())));
                 SendChanges();
                 break;
             }
