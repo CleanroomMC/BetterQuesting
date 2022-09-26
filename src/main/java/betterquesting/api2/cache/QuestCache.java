@@ -217,7 +217,10 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
 
         EnumQuestVisibility vis = quest.getProperty(NativeProps.VISIBILITY);
 
-        if (QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || vis == EnumQuestVisibility.ALWAYS || BQ_Settings.viewMode) // Always shown or in edit mode, or in view mode
+        if (QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) ||
+                (BQ_Settings.viewMode && !quest.getProperty(NativeProps.IGNORES_VIEW_MODE) ||
+                vis == EnumQuestVisibility.ALWAYS)
+        ) // Always shown or in edit mode, or in view mode if not overridden
         {
             return true;
         } else if (vis == EnumQuestVisibility.HIDDEN) {

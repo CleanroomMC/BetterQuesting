@@ -25,6 +25,7 @@ public class NativeProps {
     public static final IPropertyType<Boolean> AUTO_CLAIM = new PropertyTypeBoolean(new ResourceLocation("betterquesting:autoClaim"), false);
     public static final IPropertyType<Boolean> LOCKED_PROGRESS = new PropertyTypeBoolean(new ResourceLocation("betterquesting:lockedProgress"), false);
     public static final IPropertyType<Boolean> SIMULTANEOUS = new PropertyTypeBoolean(new ResourceLocation("betterquesting:simultaneous"), false);
+    public static final IPropertyType<Boolean> IGNORES_VIEW_MODE = new PropertyTypeBoolean(new ResourceLocation("betterquesting:ignoresView"), false);
 
     public static final IPropertyType<EnumQuestVisibility> VISIBILITY = new PropertyTypeEnum<>(new ResourceLocation("betterquesting:visibility"), findVisibility());
     public static final IPropertyType<EnumLogic> LOGIC_TASK = new PropertyTypeEnum<>(new ResourceLocation("betterquesting:taskLogic"), EnumLogic.AND);
