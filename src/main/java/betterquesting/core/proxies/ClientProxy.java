@@ -12,6 +12,7 @@ import betterquesting.client.themes.BQSTextures;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.client.toolbox.ToolboxTabMain;
+import betterquesting.commands.BQ_CommandClient;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
 import betterquesting.importers.AdvImporter;
@@ -28,6 +29,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -154,5 +156,7 @@ public class ClientProxy extends CommonProxy {
         QuestingAPI.getAPI(ApiReference.IMPORT_REG).registerImporter(AdvImporter.INSTANCE);
 
         BQSTextures.registerTextures();
+
+        ClientCommandHandler.instance.registerCommand(new BQ_CommandClient());
     }
 }

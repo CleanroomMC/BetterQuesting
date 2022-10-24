@@ -30,6 +30,12 @@ betterquesting.btn.new=Add New
 betterquesting.btn.import=Import
 betterquesting.btn.logic=Logic
 betterquesting.btn.show=Show
+betterquesting.btn.show.hidden=Not visible to the player
+betterquesting.btn.show.unlocked=Visible to the player when the quest can be completed, or all prior quests are completed
+betterquesting.btn.show.normal=Visible to the player when the quest is completed or unlocked
+betterquesting.btn.show.completed=Visible to the player when completed
+betterquesting.btn.show.chain=Visible to the player when all prerequisites have been completed
+betterquesting.btn.show.always=Always visible to the player
 betterquesting.btn.claim=Claim
 betterquesting.btn.detect_submit=Detect/Submit
 betterquesting.btn.add_remove_quests=Add/Remove Quests
@@ -57,6 +63,7 @@ betterquesting.btn.visible_hidden=Always hide dependency line
 betterquesting.btn.visible_always=Always show dependency line
 betterquesting.btn.visible_implicit=Hover to show dependency line
 betterquesting.btn.view_mode=View Mode
+betterquesting.btn.share_quest=Share to Chat
 
 betterquesting.home.exit=Exit
 betterquesting.home.quests=Quests
@@ -107,6 +114,10 @@ betterquesting.notice.update=Quest Updated
 betterquesting.notice.unlock=Quest Unlocked
 
 betterquesting.msg.heart_disabled=Hardcore lives are not enabled. Use "/bq_admin hardcore" to toggle it
+betterquesting.msg.share_quest=§b[Quest: #%d - %s§b]
+betterquesting.msg.share_quest_invalid=§cCannot view Quest %s
+betterquesting.msg.share_quest_hover_text_success=§aClick to View Quest
+betterquesting.msg.share_quest_hover_text_failure=§cQuest is Currently Inaccessible
 
 key.betterquesting.quests=Open Quests
 key.betterquesting.party=Party Manager

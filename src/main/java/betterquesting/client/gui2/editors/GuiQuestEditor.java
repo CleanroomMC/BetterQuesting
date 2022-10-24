@@ -32,6 +32,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 
+import java.util.Collections;
+
 public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh {
     private final int questID;
     private IQuest quest;
@@ -60,6 +62,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             if (!flDesc.isFocused()) flDesc.setText(quest.getProperty(NativeProps.DESC));
             btnLogic.setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
             btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + quest.getProperty(NativeProps.VISIBILITY));
+            btnVis.setTooltip(Collections.singletonList(QuestTranslation.translate(String.format("betterquesting.btn.show.%s", quest.getProperty(NativeProps.VISIBILITY).toString().toLowerCase()))));
         }
     }
 
@@ -124,6 +127,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         cvBackground.addPanel(btnIco);
 
         btnVis = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, -100, 48, 100, 16, 0), 5, QuestTranslation.translate("betterquesting.btn.show") + ": " + quest.getProperty(NativeProps.VISIBILITY));
+        btnVis.setTooltip(Collections.singletonList(QuestTranslation.translate(String.format("betterquesting.btn.show.%s", quest.getProperty(NativeProps.VISIBILITY).toString().toLowerCase()))));
         cvBackground.addPanel(btnVis);
 
         btnLogic = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 0, 48, 100, 16, 0), 6, QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));

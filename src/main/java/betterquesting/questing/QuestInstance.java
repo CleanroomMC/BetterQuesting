@@ -68,6 +68,7 @@ public class QuestInstance implements IQuest {
         setupValue(NativeProps.MAIN, false);
         setupValue(NativeProps.GLOBAL_SHARE, false);
         setupValue(NativeProps.SIMULTANEOUS, false);
+        setupValue(NativeProps.IGNORES_VIEW_MODE, false);
         setupValue(NativeProps.VISIBILITY, NativeProps.VISIBILITY.getDefault());
     }
 

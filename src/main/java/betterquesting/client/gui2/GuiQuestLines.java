@@ -52,9 +52,11 @@ import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Tuple;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -173,7 +175,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
 
-        completionText = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(214, 12, 0, -24), 0), "");
+        completionText = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(214, 12, -154, -24), 0), "");
         completionText.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(completionText);
 
@@ -320,22 +322,39 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         CanvasEmpty cvQuestPopup = new CanvasEmpty(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0)) {
             @Override
             public boolean onMouseClick(int mx, int my, int click) {
-                if (cvQuest.getQuestLine() == null || !this.getTransform().contains(mx, my)) return false;
-                if (canEdit && click == 1) {
-                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, RenderUtils.getStringWidth(QuestTranslation.translate("betterquesting.btn.designer"), Minecraft.getMinecraft().fontRenderer) + 12, cvQuest.getButtonAt(mx, my) != null ? 32 : 16), true);
-
-                    if (cvQuest.getButtonAt(mx, my) != null) {
-                        GuiQuestEditor editor = new GuiQuestEditor(new GuiQuestLines(parent), cvQuest.getButtonAt(mx, my).getStoredValue().getID());
-                        Runnable actionEditor = () -> mc.displayGuiScreen(editor);
-                        popup.addButton(QuestTranslation.translate("betterquesting.btn.edit"), null, actionEditor);
+                if (cvQuest.getQuestLine() == null || !this.getTransform().contains(mx, my)) {
+                    return false;
+                }
+                if (click == 1) {
+                    FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+                    boolean questExistsUnderMouse = cvQuest.getButtonAt(mx, my) != null;
+                    int maxWidth = questExistsUnderMouse ? RenderUtils.getStringWidth(QuestTranslation.translate("betterquesting.btn.share_quest"), fr) : 0;
+                    if (canEdit) {
+                        maxWidth = Math.max(maxWidth, Math.max(RenderUtils.getStringWidth(QuestTranslation.translate("betterquesting.btn.edit"), fr),
+                                RenderUtils.getStringWidth(QuestTranslation.translate("betterquesting.btn.designer"), fr)));
                     }
-
-                    GuiDesigner designer = new GuiDesigner(new GuiQuestLines(parent), cvQuest.getQuestLine());
-                    Runnable actionDesigner = () -> mc.displayGuiScreen(designer);
-                    popup.addButton(QuestTranslation.translate("betterquesting.btn.designer"), null, actionDesigner);
+                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, maxWidth + 12, questExistsUnderMouse ? 48 : 16), true);
+                    if (canEdit) {
+                        if (questExistsUnderMouse) {
+                            GuiQuestEditor editor = new GuiQuestEditor(new GuiQuestLines(parent), cvQuest.getButtonAt(mx, my).getStoredValue().getID());
+                            Runnable actionEditor = () -> mc.displayGuiScreen(editor);
+                            popup.addButton(QuestTranslation.translate("betterquesting.btn.edit"), null, actionEditor);
+                        }
+                        GuiDesigner designer = new GuiDesigner(new GuiQuestLines(parent), cvQuest.getQuestLine());
+                        Runnable actionDesigner = () -> mc.displayGuiScreen(designer);
+                        popup.addButton(QuestTranslation.translate("betterquesting.btn.designer"), null, actionDesigner);
+                    }
+                    if (questExistsUnderMouse) {
+                        Runnable questSharer = () -> {
+                            mc.player.sendChatMessage("betterquesting.msg.share_quest:" + cvQuest.getButtonAt(mx, my).getStoredValue().getID());
+                            mc.displayGuiScreen(null);
+                        };
+                        popup.addButton(QuestTranslation.translate("betterquesting.btn.share_quest"), null, questSharer);
+                    }
                     openPopup(popup);
                     return true;
-                } else return false;
+                }
+                return false;
             }
         };
         cvFrame.addPanel(cvQuest);

@@ -4,6 +4,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
+import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.handlers.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.NameCache;
@@ -80,6 +81,8 @@ public class QuestCommandReset extends QuestCommandBase {
                 }
             }
 
+            SaveLoadHandler.INSTANCE.markDirty();
+
             if (uuid != null) {
                 sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_all", pName));
                 if (player != null) NetQuestSync.sendSync(player, null, false, true);
@@ -95,10 +98,12 @@ public class QuestCommandReset extends QuestCommandBase {
 
                 if (uuid != null) {
                     quest.resetUser(uuid, true); // Clear progress and state
+                    SaveLoadHandler.INSTANCE.markDirty();
                     sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
                     if (player != null) NetQuestSync.sendSync(player, new int[]{id}, false, true);
                 } else {
                     quest.resetUser(null, true);
+                    SaveLoadHandler.INSTANCE.markDirty();
                     sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
                     NetQuestSync.quickSync(id, false, true);
                 }
