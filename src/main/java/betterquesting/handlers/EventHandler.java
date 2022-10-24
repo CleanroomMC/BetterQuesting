@@ -25,7 +25,6 @@ import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.gui2.GuiQuestLines;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.items.ItemQuestBook;
 import betterquesting.network.handlers.*;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.party.PartyInvitations;
@@ -47,6 +46,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.GameType;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -128,7 +128,7 @@ public class EventHandler {
 
         EntityPlayerMP player = (EntityPlayerMP) event.getEntityLiving();
         betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-        boolean editMode = QuestSettings.INSTANCE.getEditMode(player);
+        boolean editMode = QuestSettings.INSTANCE.getEditMode();
 
         if (qc == null) return;
 
@@ -265,6 +265,12 @@ public class EventHandler {
                 LootSaveLoad.INSTANCE.SaveLoot();
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onWorldLoad(WorldEvent.Load event) {
+        GameRules rules = event.getWorld().getGameRules();
+        if (!rules.hasRule(QuestSettings.EDIT_MODE)) rules.addGameRule(QuestSettings.EDIT_MODE, "false", GameRules.ValueType.BOOLEAN_VALUE);
     }
 
     @SubscribeEvent
@@ -600,7 +606,7 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onEntityLiving(LivingUpdateEvent event) {
-        if (!(event.getEntityLiving() instanceof EntityPlayer) || event.getEntityLiving().world.isRemote || event.getEntityLiving().ticksExisted % 20 != 0 || QuestSettings.INSTANCE.getEditMode((EntityPlayer) event.getEntityLiving()))
+        if (!(event.getEntityLiving() instanceof EntityPlayer) || event.getEntityLiving().world.isRemote || event.getEntityLiving().ticksExisted % 20 != 0 || QuestSettings.INSTANCE.getEditMode())
             return;
 
         EntityPlayer player = (EntityPlayer) event.getEntityLiving();

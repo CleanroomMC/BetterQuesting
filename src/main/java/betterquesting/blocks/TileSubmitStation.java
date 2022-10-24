@@ -1,6 +1,5 @@
 package betterquesting.blocks;
 
-import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.IFluidTask;
 import betterquesting.api.questing.tasks.IItemTask;
@@ -11,7 +10,6 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.QuestSettings;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ISidedInventory;
@@ -237,7 +235,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
             player = server == null ? null : server.getPlayerList().getPlayerByUUID(owner);
         }
 
-        if (world.isRemote || !isSetup() || (player != null && QuestSettings.INSTANCE.getEditMode(player))) return;
+        if (world.isRemote || !isSetup() || (player != null && QuestSettings.INSTANCE.getEditMode())) return;
 
         long wtt = world.getTotalWorldTime();
         if (wtt % 5 == 0 && owner != null) {

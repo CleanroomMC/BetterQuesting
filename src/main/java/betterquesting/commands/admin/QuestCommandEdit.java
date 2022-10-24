@@ -1,17 +1,12 @@
 package betterquesting.commands.admin;
 
-import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.handlers.NetSettingSync;
 import betterquesting.storage.QuestSettings;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
@@ -42,7 +37,7 @@ public class QuestCommandEdit extends QuestCommandBase {
 
     @Override
     public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException {
-        boolean flag = !QuestSettings.INSTANCE.getEditMode((EntityPlayer) sender);
+        boolean flag = !QuestSettings.INSTANCE.getEditMode();
 
         if (args.length == 2) {
             try {
@@ -58,9 +53,9 @@ public class QuestCommandEdit extends QuestCommandBase {
             }
         }
 
-        QuestSettings.INSTANCE.setEditMode((EntityPlayer) sender, flag);
+        QuestSettings.INSTANCE.setEditMode(flag);
 
-        sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.edit", new TextComponentTranslation(QuestSettings.INSTANCE.getEditMode((EntityPlayer) sender) ? "options.on" : "options.off")));
+        sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.edit", new TextComponentTranslation(QuestSettings.INSTANCE.getEditMode() ? "options.on" : "options.off")));
 
         SaveLoadHandler.INSTANCE.markDirty();
         NetSettingSync.sendSync(null);
