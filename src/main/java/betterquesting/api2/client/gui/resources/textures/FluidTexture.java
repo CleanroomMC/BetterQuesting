@@ -74,10 +74,6 @@ public class FluidTexture implements IGuiTexture {
         float r = (fCol >> 16 & 255) / 255F;
         float g = (fCol >> 8 & 255) / 255F;
         float b = (fCol & 255) / 255F;
-        a = a + color.getAlpha() / 2F;
-        r = r + color.getRed() / 2F;
-        g = g + color.getGreen() / 2F;
-        b = b + color.getBlue() / 2F;
         GlStateManager.color(r, g, b, a);
 
         // TODO: Add tiling option
@@ -103,7 +99,7 @@ public class FluidTexture implements IGuiTexture {
     private void drawTexturedModalRect(double xCoord, double yCoord, double zDepth, TextureAtlasSprite textureSprite, double widthIn, double heightIn) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         bufferbuilder.pos(xCoord, yCoord + heightIn, zDepth).tex(textureSprite.getMinU(), textureSprite.getMaxV()).endVertex();
         bufferbuilder.pos(xCoord + widthIn, yCoord + heightIn, zDepth).tex(textureSprite.getMaxU(), textureSprite.getMaxV()).endVertex();
         bufferbuilder.pos(xCoord + widthIn, yCoord, zDepth).tex(textureSprite.getMaxU(), textureSprite.getMinV()).endVertex();
