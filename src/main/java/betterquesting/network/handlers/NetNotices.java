@@ -3,6 +3,7 @@ package betterquesting.network.handlers;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.client.QuestNotification;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -16,7 +17,7 @@ import javax.annotation.Nullable;
 
 public class NetNotices {
     // TODO: Convert over to inbox system in future
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:notification");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"notification");
 
     public static void registerHandler() {
         if (BetterQuesting.proxy.isClient()) {

@@ -6,6 +6,7 @@ import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.core.ModReference;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
@@ -60,8 +61,8 @@ public class ComponentRegistry {
 
         NBTTagCompound refTag = new NBTTagCompound();
         //refTag.setString("texture", PresetTexture.PANEL_MAIN.getKey().toString());
-        register(new ResourceLocation("betterquesting", "canvas_textured"), (rect, tag) -> new CanvasTextured(rect, PresetTexture.PANEL_MAIN.getTexture()), refTag);
-        register(new ResourceLocation("betterquesting", "panel_button"), (rect, tag) -> {
+        register(new ResourceLocation(ModReference.MODID, "canvas_textured"), (rect, tag) -> new CanvasTextured(rect, PresetTexture.PANEL_MAIN.getTexture()), refTag);
+        register(new ResourceLocation(ModReference.MODID, "panel_button"), (rect, tag) -> {
             return new PanelButton(rect, -1, "New Button");
         }, refTag);
     }

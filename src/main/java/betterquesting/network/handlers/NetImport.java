@@ -7,6 +7,7 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
@@ -28,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class NetImport {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:import");
+	private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"import");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetImport::onServer);

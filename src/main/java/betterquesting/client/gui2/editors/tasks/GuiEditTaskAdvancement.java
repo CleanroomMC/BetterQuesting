@@ -25,6 +25,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.core.ModReference;
 import betterquesting.questing.tasks.TaskAdvancement;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.DisplayInfo;
@@ -112,7 +113,7 @@ public class GuiEditTaskAdvancement extends GuiScreenCanvas implements IVolatile
         });
     }
 
-    private static final ResourceLocation QUEST_EDIT = new ResourceLocation("betterquesting:quest_edit"); // TODO: Really need to make the native packet types accessible in the API
+    private static final ResourceLocation QUEST_EDIT = new ResourceLocation(ModReference.MODID,"quest_edit"); // TODO: Really need to make the native packet types accessible in the API
 
     private void sendChanges() {
         task.advID = selected;

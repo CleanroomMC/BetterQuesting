@@ -8,13 +8,13 @@ import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.PolyTexture;
 import betterquesting.api2.registry.IFactoryData;
-import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
 
 public class FactoryPolyTextureR implements IFactoryData<IGuiTexture, JsonObject> {
     public static final FactoryPolyTextureR INSTANCE = new FactoryPolyTextureR();
-    private static final ResourceLocation ID_NAME = new ResourceLocation(BetterQuesting.MODID, "poly_regular");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "poly_regular");
 
     @Override
     public IGuiTexture loadFromData(JsonObject data) {

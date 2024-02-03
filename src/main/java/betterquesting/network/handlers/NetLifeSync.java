@@ -2,6 +2,7 @@ package betterquesting.network.handlers;
 
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.storage.LifeDatabase;
@@ -16,7 +17,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class NetLifeSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:life_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"life_sync");
 
     public static void registerHandler() {
         if (BetterQuesting.proxy.isClient()) {

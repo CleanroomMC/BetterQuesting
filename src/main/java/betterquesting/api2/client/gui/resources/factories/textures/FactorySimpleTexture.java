@@ -6,6 +6,7 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.registry.IFactoryData;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
@@ -13,7 +14,7 @@ import net.minecraft.util.ResourceLocation;
 public class FactorySimpleTexture implements IFactoryData<IGuiTexture, JsonObject> {
     public static final FactorySimpleTexture INSTANCE = new FactorySimpleTexture();
 
-    private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "texture_simple");
+    private static final ResourceLocation RES_ID = new ResourceLocation(ModReference.MODID, "texture_simple");
 
     @Override
     public SimpleTexture loadFromData(JsonObject data) {

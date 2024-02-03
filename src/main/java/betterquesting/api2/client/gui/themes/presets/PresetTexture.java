@@ -7,7 +7,7 @@ import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture.SliceMode;
 import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import net.minecraft.util.ResourceLocation;
 
 public enum PresetTexture {
@@ -77,14 +77,14 @@ public enum PresetTexture {
 
     TOOLTIP_BG("tooltip_bg");
 
-    public static final ResourceLocation TX_SIMPLE = new ResourceLocation(BetterQuesting.MODID, "textures/gui/simple_frames.png");
-    public static final ResourceLocation TX_QUEST = new ResourceLocation(BetterQuesting.MODID, "textures/gui/quest_frames.png");
-    public static final ResourceLocation TX_NULL = new ResourceLocation(BetterQuesting.MODID, "textures/gui/null_texture.png");
+    public static final ResourceLocation TX_SIMPLE = new ResourceLocation(ModReference.MODID, "textures/gui/simple_frames.png");
+    public static final ResourceLocation TX_QUEST = new ResourceLocation(ModReference.MODID, "textures/gui/quest_frames.png");
+    public static final ResourceLocation TX_NULL = new ResourceLocation(ModReference.MODID, "textures/gui/null_texture.png");
 
     private final ResourceLocation key;
 
     PresetTexture(String key) {
-        this.key = new ResourceLocation(BetterQuesting.MODID, key);
+        this.key = new ResourceLocation(ModReference.MODID, key);
     }
 
     public IGuiTexture getTexture() {

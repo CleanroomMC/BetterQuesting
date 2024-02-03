@@ -15,6 +15,7 @@ import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.commands.BQ_CommandClient;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
+import betterquesting.core.ModReference;
 import betterquesting.importers.AdvImporter;
 import betterquesting.importers.NativeFileImporter;
 import betterquesting.importers.ftbq.FTBQQuestImporter;
@@ -78,7 +79,7 @@ public class ClientProxy extends CommonProxy {
 
         RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new PlaceholderRenderFactory());
 
-        ToolboxRegistry.INSTANCE.registerToolTab(new ResourceLocation(BetterQuesting.MODID, "main"), ToolboxTabMain.INSTANCE);
+        ToolboxRegistry.INSTANCE.registerToolTab(new ResourceLocation(ModReference.MODID, "main"), ToolboxTabMain.INSTANCE);
     }
 
     @Override
@@ -87,9 +88,9 @@ public class ClientProxy extends CommonProxy {
 
         registerBlockModel(BetterQuesting.submitStation);
         registerItemModel(ItemPlaceholder.placeholder);
-        registerItemModel(BetterQuesting.extraLife, 0, BetterQuesting.MODID + ":heart_full");
-        registerItemModel(BetterQuesting.extraLife, 1, BetterQuesting.MODID + ":heart_half");
-        registerItemModel(BetterQuesting.extraLife, 2, BetterQuesting.MODID + ":heart_quarter");
+        registerItemModel(BetterQuesting.extraLife, 0, ModReference.MODID + ":heart_full");
+        registerItemModel(BetterQuesting.extraLife, 1, ModReference.MODID + ":heart_half");
+        registerItemModel(BetterQuesting.extraLife, 2, ModReference.MODID + ":heart_quarter");
         registerItemModel(BetterQuesting.guideBook);
         registerItemModelSubtypes(BetterQuesting.lootChest, 0, 104, BetterQuesting.lootChest.getRegistryName().toString());
         registerItemModel(BetterQuesting.questBook);

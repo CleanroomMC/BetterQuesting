@@ -3,6 +3,7 @@ package betterquesting.api2.supporter;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.client.themes.ResourceTheme;
+import betterquesting.core.ModReference;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -48,7 +49,7 @@ public class SupporterAPI {
 
             int format = JsonHelper.GetNumber(manifest, "format", 0).intValue();
             ResourceLocation parID = manifest.has("parentID") ? new ResourceLocation(JsonHelper.GetString(manifest, "parentID", "minecraft:null")) : null;
-            ResourceLocation thmID = new ResourceLocation(JsonHelper.GetString(manifest, "themeID", "betterquesting:untitled"));
+            ResourceLocation thmID = new ResourceLocation(JsonHelper.GetString(manifest, "themeID", ModReference.MODID+":untitled"));
             String thmName = JsonHelper.GetString(manifest, "themeName", "Untitled Theme");
 
             ResourceTheme theme = new ResourceTheme(parID, thmID, thmName);

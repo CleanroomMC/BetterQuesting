@@ -5,6 +5,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.blocks.TileSubmitStation;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
@@ -20,7 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.UUID;
 
 public class NetStationEdit {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:station_edit");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"station_edit");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetStationEdit::onServer);

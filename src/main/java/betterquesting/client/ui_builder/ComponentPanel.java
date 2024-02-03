@@ -5,6 +5,7 @@ import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.INBTSaveLoad;
+import betterquesting.core.ModReference;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -19,7 +20,7 @@ import java.util.List;
 public class ComponentPanel implements INBTSaveLoad<NBTTagCompound> {
     // Purely for organisational purposes
     public String refName = "New Panel";
-    public String panelType = "betterquesting:canvas_empty";
+    public String panelType = ModReference.MODID+":canvas_empty";
 
     // Usually these two are the same but not always
     public int cvParentID = -1; // ID of the canvas we're contained within
@@ -73,7 +74,7 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound> {
         GuiPadding padding = new GuiPadding(transTag.getInteger("pad_left"), transTag.getInteger("pad_top"), transTag.getInteger("pad_right"), transTag.getInteger("pad_bottom"));
         GuiTransform transform = new GuiTransform(anchor, padding, transTag.getInteger("depth"));
 
-        ResourceLocation res = StringUtils.isNullOrEmpty(panelType) ? new ResourceLocation("betterquesting:canvas_empty") : new ResourceLocation(panelType);
+        ResourceLocation res = StringUtils.isNullOrEmpty(panelType) ? new ResourceLocation(ModReference.MODID,"canvas_empty") : new ResourceLocation(panelType);
         return ComponentRegistry.INSTANCE.createNew(res, transform, panelData);
     }
 

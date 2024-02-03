@@ -4,13 +4,14 @@ import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.lines.LineTaxiCab;
 import betterquesting.api2.registry.IFactoryData;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
 
 public class FactoryLineTaxiCab implements IFactoryData<IGuiLine, JsonObject> {
     public static final FactoryLineTaxiCab INSTANCE = new FactoryLineTaxiCab();
 
-    private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "line_manhattan");
+    private static final ResourceLocation RES_ID = new ResourceLocation(ModReference.MODID, "line_manhattan");
 
     @Override
     public LineTaxiCab loadFromData(JsonObject data) {

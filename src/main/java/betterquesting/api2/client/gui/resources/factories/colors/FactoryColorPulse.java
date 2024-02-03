@@ -7,13 +7,14 @@ import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.registry.IFactoryData;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
 
 public class FactoryColorPulse implements IFactoryData<IGuiColor, JsonObject> {
     public static final FactoryColorPulse INSTANCE = new FactoryColorPulse();
 
-    private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "color_pulse");
+    private static final ResourceLocation RES_ID = new ResourceLocation(ModReference.MODID, "color_pulse");
 
     @Override
     public GuiColorPulse loadFromData(JsonObject data) {

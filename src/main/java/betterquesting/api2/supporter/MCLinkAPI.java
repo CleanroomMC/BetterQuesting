@@ -3,6 +3,7 @@ package betterquesting.api2.supporter;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.supporter.mc_link.McLinkEndpoint;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -99,7 +100,7 @@ public class MCLinkAPI {
         String mcVersion = "1.12.2";
         String branding = "Forge";
 
-        StringBuilder sb = new StringBuilder(BetterQuesting.NAME);
+        StringBuilder sb = new StringBuilder(ModReference.NAME);
         sb.append('/').append(modVersion.replaceAll("[;()\n\r]", ""));
         sb.append(" (APIv").append(1).append("; ");
         sb.append("MCv").append(mcVersion.replaceAll("[;()\n\r]", "")).append("; ");

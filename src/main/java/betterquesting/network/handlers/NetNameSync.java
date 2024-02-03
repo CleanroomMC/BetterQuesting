@@ -5,6 +5,7 @@ import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.party.PartyManager;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class NetNameSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:name_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"name_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetNameSync::onServer);

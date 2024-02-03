@@ -1,5 +1,7 @@
 package betterquesting.api.storage;
 
+import betterquesting.core.ModReference;
+
 import java.io.File;
 
 /**
@@ -15,7 +17,7 @@ public class BQ_Settings {
     public static boolean useBookmark = true;
     public static boolean skipHome = true;
 
-    public static String curTheme = "betterquesting:light";
+    public static String curTheme = ModReference.MODID+":light";
     public static int guiWidth = -1;
     public static int guiHeight = -1;
     public static boolean questNotices = true;

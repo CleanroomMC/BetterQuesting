@@ -1,6 +1,6 @@
 package betterquesting.api2.utils;
 
-import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.player.EnumPlayerModelParts;
@@ -23,7 +23,7 @@ public class EntityPlayerPreview extends EntityOtherPlayerMP {
 
     public EntityPlayerPreview(World worldIn, GameProfile gameProfileIn) {
         super(worldIn, gameProfileIn);
-        this.resource = new ResourceLocation(BetterQuesting.MODID, "textures/skin_cache/" + gameProfileIn.getName());
+        this.resource = new ResourceLocation(ModReference.MODID, "textures/skin_cache/" + gameProfileIn.getName());
         this.getDataManager().set(PLAYER_MODEL_FLAG, (byte) 1);
     }
 

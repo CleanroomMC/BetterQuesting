@@ -3,6 +3,7 @@ package betterquesting.commands;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.command.CommandBase;
@@ -21,7 +22,7 @@ import java.util.UUID;
 
 public class BQ_CopyProgress extends CommandBase {
 
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:quest_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"quest_sync");
 
     private static final String COMMAND_NAME = "bq_copyquests";
     private static final String COMMAND_USAGE = "/bq_copyquests [toPlayer] <fromPlayer>";

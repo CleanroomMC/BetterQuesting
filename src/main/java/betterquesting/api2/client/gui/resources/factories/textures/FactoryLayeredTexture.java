@@ -9,6 +9,7 @@ import betterquesting.api2.client.gui.resources.textures.LayeredTexture;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.registry.IFactoryData;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,7 +21,7 @@ import java.util.List;
 public class FactoryLayeredTexture implements IFactoryData<IGuiTexture, JsonObject> {
     public static final FactoryLayeredTexture INSTANCE = new FactoryLayeredTexture();
 
-    private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "texture_layered");
+    private static final ResourceLocation RES_ID = new ResourceLocation(ModReference.MODID, "texture_layered");
     private static final IGuiTexture NULL_TX = new SimpleTexture(PresetTexture.TX_NULL, new GuiRectangle(0, 0, 16, 16)).maintainAspect(false);
 
     @Override

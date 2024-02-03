@@ -1,6 +1,7 @@
 package betterquesting.misc;
 
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResourcePack;
@@ -91,7 +92,7 @@ public class QuestResourcesFolder implements IResourcePack {
     @Nonnull
     @Override
     public String getPackName() {
-        return BetterQuesting.NAME + "_folders";
+        return ModReference.NAME + "_folders";
     }
 
     private void logNameNotLowercase(String name, String file) {

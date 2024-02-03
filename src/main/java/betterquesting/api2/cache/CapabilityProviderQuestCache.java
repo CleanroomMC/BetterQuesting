@@ -1,5 +1,6 @@
 package betterquesting.api2.cache;
 
+import betterquesting.core.ModReference;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -13,7 +14,7 @@ import javax.annotation.Nullable;
 public class CapabilityProviderQuestCache implements ICapabilityProvider, ICapabilitySerializable<NBTTagCompound> {
     @CapabilityInject(QuestCache.class)
     public static Capability<QuestCache> CAP_QUEST_CACHE;
-    public static final ResourceLocation LOC_QUEST_CACHE = new ResourceLocation("betterquesting", "quest_cache");
+    public static final ResourceLocation LOC_QUEST_CACHE = new ResourceLocation(ModReference.MODID, "quest_cache");
 
     private final QuestCache cache = new QuestCache();
 

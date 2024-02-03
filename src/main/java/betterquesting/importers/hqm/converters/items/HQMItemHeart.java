@@ -1,6 +1,7 @@
 package betterquesting.importers.hqm.converters.items;
 
 import betterquesting.api.utils.BigItemStack;
+import betterquesting.core.ModReference;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -9,7 +10,7 @@ public class HQMItemHeart implements HQMItem {
     private final Item bqHeart;
 
     public HQMItemHeart() {
-        bqHeart = Item.REGISTRY.getObject(new ResourceLocation("betterquesting:extra_life"));
+        bqHeart = Item.REGISTRY.getObject(new ResourceLocation(ModReference.MODID,"extra_life"));
     }
 
     @Override

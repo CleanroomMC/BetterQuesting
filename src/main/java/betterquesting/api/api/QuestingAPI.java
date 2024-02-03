@@ -1,5 +1,6 @@
 package betterquesting.api.api;
 
+import betterquesting.core.ModReference;
 import net.minecraft.entity.player.EntityPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,7 +56,7 @@ public class QuestingAPI {
 
     public static Logger getLogger() {
         if (logger == null) {
-            logger = LogManager.getLogger("betterquesting");
+            logger = LogManager.getLogger(ModReference.MODID);
         }
 
         return logger;

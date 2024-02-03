@@ -9,6 +9,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.party.PartyInvitations;
@@ -29,7 +30,7 @@ import org.apache.logging.log4j.Level;
 import java.util.UUID;
 
 public class NetPartyAction {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:party_action");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"party_action");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetPartyAction::onServer);
