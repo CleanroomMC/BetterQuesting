@@ -1,5 +1,6 @@
 package betterquesting.client.gui2.editors;
 
+import betterquesting.TextEditorFrame;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumLogic;
@@ -58,9 +59,11 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             mc.displayGuiScreen(this.parent);
         } else {
             pnTitle.setText(QuestTranslation.translate("betterquesting.title.edit_quest", QuestTranslation.translate(quest.getProperty(NativeProps.NAME))));
-            if (!flName.isFocused()) flName.setText(quest.getProperty(NativeProps.NAME));
-            if (!flDesc.isFocused()) flDesc.setText(quest.getProperty(NativeProps.DESC));
-            btnLogic.setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
+            if (!flName.isFocused())
+                flName.setText(quest.getProperty(NativeProps.NAME));
+            if (!flDesc.isFocused())
+                flDesc.setText(quest.getProperty(NativeProps.DESC));
+            btnLogic.setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_TASK));
             btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + quest.getProperty(NativeProps.VISIBILITY));
             btnVis.setTooltip(Collections.singletonList(QuestTranslation.translate(String.format("betterquesting.btn.show.%s", quest.getProperty(NativeProps.VISIBILITY).toString().toLowerCase()))));
         }
@@ -130,7 +133,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         btnVis.setTooltip(Collections.singletonList(QuestTranslation.translate(String.format("betterquesting.btn.show.%s", quest.getProperty(NativeProps.VISIBILITY).toString().toLowerCase()))));
         cvBackground.addPanel(btnVis);
 
-        btnLogic = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 0, 48, 100, 16, 0), 6, QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
+        btnLogic = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 0, 48, 100, 16, 0), 6, QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_TASK));
         cvBackground.addPanel(btnLogic);
 
         PanelButton btnAdv = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, -100, 64, 200, 16, 0), 4, QuestTranslation.translate("betterquesting.btn.advanced"));
@@ -211,9 +214,9 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             case 6: // Logic
             {
                 EnumLogic[] logicList = EnumLogic.values();
-                EnumLogic logic = quest.getProperty(NativeProps.LOGIC_QUEST);
+                EnumLogic logic = quest.getProperty(NativeProps.LOGIC_TASK);
                 logic = logicList[(logic.ordinal() + 1) % logicList.length];
-                quest.setProperty(NativeProps.LOGIC_QUEST, logic);
+                quest.setProperty(NativeProps.LOGIC_TASK, logic);
                 ((PanelButton) btn).setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + logic);
                 SendChanges();
                 break;

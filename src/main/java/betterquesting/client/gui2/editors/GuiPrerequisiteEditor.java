@@ -2,6 +2,7 @@ package betterquesting.client.gui2.editors;
 
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -46,6 +47,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 
     private CanvasQuestDatabase canvasDB;
     private CanvasScrolling canvasPreReq;
+    private PanelButton btnLogic;
 
     public GuiPrerequisiteEditor(GuiScreen parent, IQuest quest) {
         super(parent);
@@ -64,6 +66,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 
         canvasDB.refreshSearch();
         refreshReqCanvas();
+        btnLogic.setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
     }
 
     @Override
@@ -80,8 +83,11 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.pre_requisites")).setAlignment(1);
         panTxt.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(panTxt);
+        btnLogic = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -116, 8, 100, 16, 0), 8, QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
+        cvBackground.addPanel(btnLogic);
 
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
+
 
         // === RIGHT SIDE ===
 
@@ -229,11 +235,21 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>) btn).getStoredValue();
             reorderReq(quest, entry.getID());
             SendChanges();
+        } else if (btn.getButtonID() == 8) { // Logic
+            EnumLogic[] logicList = EnumLogic.values();
+            EnumLogic logic = quest.getProperty(NativeProps.LOGIC_QUEST);
+            logic = logicList[(logic.ordinal() + 1) % logicList.length];
+            quest.setProperty(NativeProps.LOGIC_QUEST, logic);
+            ((PanelButton) btn).setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + logic);
+            SendChanges();
         }
     }
 
     private boolean containsReq(IQuest quest, int id) {
-        for (int reqID : quest.getRequirements()) if (id == reqID) return true;
+        for (int reqID : quest.getRequirements()) {
+            if (id == reqID)
+                return true;
+        }
         return false;
     }
 
@@ -247,7 +263,8 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
                 break;
             }
         }
-        if (indexToShift < 0) return;
+        if (indexToShift < 0)
+            return;
 
         int indexFrom = (indexToShift - 1 + orig.length) % orig.length;
         int tmp = orig[indexToShift];
@@ -259,23 +276,27 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 
     private void removeReq(IQuest quest, int id) {
         int[] orig = quest.getRequirements();
-        if (orig.length <= 0) return;
+        if (orig.length <= 0)
+            return;
         boolean hasRemoved = false;
         int[] rem = new int[orig.length - 1];
         for (int i = 0; i < orig.length; i++) {
             if (!hasRemoved && orig[i] == id) {
                 hasRemoved = true;
                 continue;
-            } else if (!hasRemoved && i >= rem.length) break;
+            } else if (!hasRemoved && i >= rem.length)
+                break;
 
             rem[!hasRemoved ? i : (i - 1)] = orig[i];
         }
 
-        if (hasRemoved) quest.setRequirements(rem);
+        if (hasRemoved)
+            quest.setRequirements(rem);
     }
 
     private void addReq(IQuest quest, int id) {
-        if (containsReq(quest, id)) return;
+        if (containsReq(quest, id))
+            return;
         int[] orig = quest.getRequirements();
         int[] added = Arrays.copyOf(orig, orig.length + 1);
         added[orig.length] = id;
