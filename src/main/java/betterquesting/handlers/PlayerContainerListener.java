@@ -50,7 +50,10 @@ public class PlayerContainerListener implements IContainerListener {
 
     @Override
     public void sendSlotContents(@Nonnull Container container, int i, @Nonnull ItemStack itemStack) {
-        updateTasks();
+        // Ignore changes outside of main inventory (e.g. crafting grid and armor)
+        if (i >= 9 && i <= 44) {
+            updateTasks();
+        }
     }
 
     @Override
