@@ -97,9 +97,9 @@ public class BetterQuesting {
     public void init(FMLInitializationEvent event) {
         FluidRegistry.registerFluid(FluidPlaceholder.fluidPlaceholder);
 
-        GameRegistry.registerTileEntity(TileSubmitStation.class, new ResourceLocation(ModReference.MODID + ":submit_station"));
+        GameRegistry.registerTileEntity(TileSubmitStation.class, new ResourceLocation(ModReference.MODID , "submit_station"));
 
-        EntityRegistry.registerModEntity(new ResourceLocation(ModReference.MODID + ":placeholder"), EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
+        EntityRegistry.registerModEntity(new ResourceLocation(ModReference.MODID , "placeholder"), EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
     }
 
     @EventHandler

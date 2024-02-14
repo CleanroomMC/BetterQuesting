@@ -88,9 +88,9 @@ public class ClientProxy extends CommonProxy {
 
         registerBlockModel(BetterQuesting.submitStation);
         registerItemModel(ItemPlaceholder.placeholder);
-        registerItemModel(BetterQuesting.extraLife, 0, ModReference.MODID + ":heart_full");
-        registerItemModel(BetterQuesting.extraLife, 1, ModReference.MODID + ":heart_half");
-        registerItemModel(BetterQuesting.extraLife, 2, ModReference.MODID + ":heart_quarter");
+        registerItemModel(BetterQuesting.extraLife, 0, new ResourceLocation( ModReference.MODID, "heart_full").toString());
+        registerItemModel(BetterQuesting.extraLife, 1, new ResourceLocation( ModReference.MODID, "heart_half").toString());
+        registerItemModel(BetterQuesting.extraLife, 2, new ResourceLocation( ModReference.MODID, "heart_quarter").toString());
         registerItemModel(BetterQuesting.guideBook);
         registerItemModelSubtypes(BetterQuesting.lootChest, 0, 104, BetterQuesting.lootChest.getRegistryName().toString());
         registerItemModel(BetterQuesting.questBook);

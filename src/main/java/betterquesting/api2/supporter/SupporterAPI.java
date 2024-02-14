@@ -49,7 +49,7 @@ public class SupporterAPI {
 
             int format = JsonHelper.GetNumber(manifest, "format", 0).intValue();
             ResourceLocation parID = manifest.has("parentID") ? new ResourceLocation(JsonHelper.GetString(manifest, "parentID", "minecraft:null")) : null;
-            ResourceLocation thmID = new ResourceLocation(JsonHelper.GetString(manifest, "themeID", ModReference.MODID+":untitled"));
+            ResourceLocation thmID = new ResourceLocation(JsonHelper.GetString(manifest, "themeID", new ResourceLocation(ModReference.MODID, "untitled").toString()));
             String thmName = JsonHelper.GetString(manifest, "themeName", "Untitled Theme");
 
             ResourceTheme theme = new ResourceTheme(parID, thmID, thmName);

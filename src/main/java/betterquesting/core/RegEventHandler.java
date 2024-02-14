@@ -55,7 +55,7 @@ public class RegEventHandler {
     }
 
     public static void registerBlock(Block b, String name) {
-        ResourceLocation res = new ResourceLocation(ModReference.MODID + ":" + name);
+        ResourceLocation res = new ResourceLocation(ModReference.MODID ,  name);
         ALL_BLOCKS.add(b.setRegistryName(res));
         ALL_ITEMS.add(new ItemBlock(b).setRegistryName(res));
     }

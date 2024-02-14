@@ -53,7 +53,7 @@ public class NativeProps {
     public static final IPropertyType<Integer> LIVES_DEF = new PropertyTypeInteger(new ResourceLocation(ModReference.MODID,"livesDef"), 3);
     public static final IPropertyType<Integer> LIVES_MAX = new PropertyTypeInteger(new ResourceLocation(ModReference.MODID,"livesMax"), 10);
 
-    public static final IPropertyType<String> HOME_IMAGE = new PropertyTypeString(new ResourceLocation(ModReference.MODID,"home_image"), ModReference.MODID+":textures/gui/default_title.png");
+    public static final IPropertyType<String> HOME_IMAGE = new PropertyTypeString(new ResourceLocation(ModReference.MODID,"home_image"), new ResourceLocation(ModReference.MODID,"textures/gui/default_title.png").toString());
     public static final IPropertyType<Float> HOME_ANC_X = new PropertyTypeFloat(new ResourceLocation(ModReference.MODID,"home_anchor_x"), 0.5F);
     public static final IPropertyType<Float> HOME_ANC_Y = new PropertyTypeFloat(new ResourceLocation(ModReference.MODID,"home_anchor_y"), 0F);
     public static final IPropertyType<Integer> HOME_OFF_X = new PropertyTypeInteger(new ResourceLocation(ModReference.MODID,"home_offset_x"), -128);

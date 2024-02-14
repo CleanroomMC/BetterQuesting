@@ -20,7 +20,7 @@ import java.util.List;
 public class ComponentPanel implements INBTSaveLoad<NBTTagCompound> {
     // Purely for organisational purposes
     public String refName = "New Panel";
-    public String panelType = ModReference.MODID+":canvas_empty";
+    public String panelType = new ResourceLocation(ModReference.MODID, "canvas_empty").toString();
 
     // Usually these two are the same but not always
     public int cvParentID = -1; // ID of the canvas we're contained within
