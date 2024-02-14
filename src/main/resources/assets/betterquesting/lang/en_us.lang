@@ -29,6 +29,7 @@ betterquesting.btn.edit=Edit
 betterquesting.btn.new=Add New
 betterquesting.btn.import=Import
 betterquesting.btn.logic=Logic
+betterquesting.btn.task_logic=Task Logic: %s
 betterquesting.btn.show=Show
 betterquesting.btn.show.hidden=Not visible to the player
 betterquesting.btn.show.unlocked=Visible to the player when the quest can be completed, or all prior quests are completed

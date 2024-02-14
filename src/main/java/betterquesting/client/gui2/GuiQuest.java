@@ -38,6 +38,7 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.tasks.TaskRetrieval;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.HashMap;
@@ -366,7 +367,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         int yOffset = 0;
         List<DBEntry<ITask>> entries = quest.getTasks().getEntries();
         if (entries.size() > 1) {
-            PanelTextBox logicTitle = new PanelTextBox(new GuiTransform(new Vector4f(), 0, yOffset, rectTask.getWidth(), 12, 0), "Task Logic : " + quest.getProperty(NativeProps.LOGIC_TASK));
+            PanelTextBox logicTitle = new PanelTextBox(new GuiTransform(new Vector4f(), 0, yOffset, rectTask.getWidth(), 12, 0), I18n.format("betterquesting.btn.task_logic",quest.getProperty(NativeProps.LOGIC_TASK)));
             logicTitle.setColor(PresetColor.TEXT_HEADER.getColor());
             csTask.addPanel(logicTitle);
             yOffset += 12;
