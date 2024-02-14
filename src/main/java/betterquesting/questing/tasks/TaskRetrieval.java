@@ -74,6 +74,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     public void detect(ParticipantInfo pInfo, DBEntry<IQuest> quest) {
         if (isComplete(pInfo.UUID)) return;
 
+        // List of (player uuid, [progress per required item])
         final List<Tuple<UUID, int[]>> progress = getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
         boolean updated = false;
 
@@ -141,11 +142,15 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         }
 
         if (updated) setBulkProgress(progress);
-        checkAndComplete(pInfo, quest, updated);
+        // Reuse progress
+        checkAndComplete(pInfo, quest, updated, progress);
     }
 
     private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, boolean resync) {
-        final List<Tuple<UUID, int[]>> progress = getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
+        checkAndComplete(pInfo, quest, resync, getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS));
+    }
+
+    private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, boolean resync, List<Tuple<UUID, int[]>> progress) {
         boolean updated = resync;
 
         topLoop:

@@ -62,13 +62,6 @@ public class PlayerContainerListener implements IContainerListener {
     }
 
     private void updateTasks() {
-        ParticipantInfo pInfo = new ParticipantInfo(player);
-
-        for (DBEntry<IQuest> entry : QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookup(pInfo.getSharedQuests())) {
-            for (DBEntry<ITask> task : entry.getValue().getTasks().getEntries()) {
-                if (task.getValue() instanceof ITaskInventory)
-                    ((ITaskInventory) task.getValue()).onInventoryChange(entry, pInfo);
-            }
-        }
+        EventHandler.schedulePlayerInventoryCheck(player);
     }
 }
