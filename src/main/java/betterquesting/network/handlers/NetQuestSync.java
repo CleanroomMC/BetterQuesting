@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class NetQuestSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"quest_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "quest_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetQuestSync::onServer);

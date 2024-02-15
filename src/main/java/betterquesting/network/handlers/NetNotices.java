@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 
 public class NetNotices {
     // TODO: Convert over to inbox system in future
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"notification");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "notification");
 
     public static void registerHandler() {
         if (BetterQuesting.proxy.isClient()) {

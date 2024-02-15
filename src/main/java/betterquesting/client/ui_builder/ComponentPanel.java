@@ -74,7 +74,7 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound> {
         GuiPadding padding = new GuiPadding(transTag.getInteger("pad_left"), transTag.getInteger("pad_top"), transTag.getInteger("pad_right"), transTag.getInteger("pad_bottom"));
         GuiTransform transform = new GuiTransform(anchor, padding, transTag.getInteger("depth"));
 
-        ResourceLocation res = StringUtils.isNullOrEmpty(panelType) ? new ResourceLocation(ModReference.MODID,"canvas_empty") : new ResourceLocation(panelType);
+        ResourceLocation res = StringUtils.isNullOrEmpty(panelType) ? new ResourceLocation(ModReference.MODID, "canvas_empty") : new ResourceLocation(panelType);
         return ComponentRegistry.INSTANCE.createNew(res, transform, panelData);
     }
 

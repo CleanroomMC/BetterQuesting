@@ -25,7 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 
 public class NetChapterEdit {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"chapter_edit");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "chapter_edit");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetChapterEdit::onServer);

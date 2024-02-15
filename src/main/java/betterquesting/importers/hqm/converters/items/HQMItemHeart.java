@@ -10,7 +10,7 @@ public class HQMItemHeart implements HQMItem {
     private final Item bqHeart;
 
     public HQMItemHeart() {
-        bqHeart = Item.REGISTRY.getObject(new ResourceLocation(ModReference.MODID,"extra_life"));
+        bqHeart = Item.REGISTRY.getObject(new ResourceLocation(ModReference.MODID, "extra_life"));
     }
 
     @Override

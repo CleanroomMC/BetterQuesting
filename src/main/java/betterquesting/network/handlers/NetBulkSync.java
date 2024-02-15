@@ -28,7 +28,7 @@ import java.util.UUID;
 
 public class NetBulkSync // Clears local data and negotiates a full resync with the server
 {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"main_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "main_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetBulkSync::onServer);

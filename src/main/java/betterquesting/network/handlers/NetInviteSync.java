@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.UUID;
 
 public class NetInviteSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"invite_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "invite_sync");
 
     public static void registerHandler() {
         if (BetterQuesting.proxy.isClient()) {

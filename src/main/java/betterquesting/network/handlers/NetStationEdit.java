@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.UUID;
 
 public class NetStationEdit {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"station_edit");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "station_edit");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetStationEdit::onServer);

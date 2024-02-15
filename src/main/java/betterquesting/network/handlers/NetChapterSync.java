@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class NetChapterSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"chapter_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "chapter_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetChapterSync::onServer);

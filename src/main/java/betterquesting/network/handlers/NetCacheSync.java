@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 
 public class NetCacheSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"cache_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "cache_sync");
 
     public static void registerHandler() {
         if (BetterQuesting.proxy.isClient()) {

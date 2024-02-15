@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class NetQuestEdit {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"quest_edit");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "quest_edit");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetQuestEdit::onServer);

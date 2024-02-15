@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public class NetQuestAction {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"quest_action");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "quest_action");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetQuestAction::onServer);

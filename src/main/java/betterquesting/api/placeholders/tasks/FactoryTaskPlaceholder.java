@@ -8,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 public class FactoryTaskPlaceholder implements IFactoryData<TaskPlaceholder, NBTTagCompound> {
     public static final FactoryTaskPlaceholder INSTANCE = new FactoryTaskPlaceholder();
 
-    private final ResourceLocation ID = new ResourceLocation(ModReference.MODID,"placeholder");
+    private final ResourceLocation ID = new ResourceLocation(ModReference.MODID, "placeholder");
 
     private FactoryTaskPlaceholder() {
     }

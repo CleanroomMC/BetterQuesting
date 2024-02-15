@@ -30,7 +30,7 @@ import org.apache.logging.log4j.Level;
 import java.util.UUID;
 
 public class NetPartyAction {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"party_action");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "party_action");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetPartyAction::onServer);

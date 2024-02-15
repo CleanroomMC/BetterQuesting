@@ -102,7 +102,7 @@ public class GuiEditTaskHunt extends GuiScreenCanvas implements IVolatileScreen 
         });
     }
 
-    private static final ResourceLocation QUEST_EDIT = new ResourceLocation(ModReference.MODID,"quest_edit"); // TODO: Really need to make the native packet types accessible in the API
+    private static final ResourceLocation QUEST_EDIT = new ResourceLocation(ModReference.MODID, "quest_edit"); // TODO: Really need to make the native packet types accessible in the API
 
     private void sendChanges() {
         NBTTagCompound payload = new NBTTagCompound();

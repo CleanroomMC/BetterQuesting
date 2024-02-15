@@ -28,7 +28,7 @@ import java.util.UUID;
 
 // Ignore the invite system here. We'll deal wih that elsewhere
 public class NetPartySync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID,"party_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "party_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetPartySync::onServer);
