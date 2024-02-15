@@ -7,6 +7,7 @@ import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.BQThreadedIO;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestLineDatabase;
@@ -23,7 +24,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class NetChapterSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:chapter_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "chapter_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetChapterSync::onServer);

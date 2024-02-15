@@ -3,15 +3,20 @@ package betterquesting.network.handlers;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.*;
+import betterquesting.api.questing.IQuest.RequirementType;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -28,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class NetImport {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:import");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "import");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetImport::onServer);
@@ -43,7 +48,8 @@ public class NetImport {
 
     private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message) {
         EntityPlayerMP sender = message.getSecond();
-        if (sender.getServer() == null) return;
+        if (sender.getServer() == null)
+            return;
 
         boolean isOP = sender.getServer().getPlayerList().canSendCommands(sender.getGameProfile());
 
@@ -71,8 +77,18 @@ public class NetImport {
                     oldIDs[n] = remapped.get(oldIDs[n]);
                 }
             }
+            Int2ObjectMap<RequirementType> remappedRequirementTypes = new Int2ObjectArrayMap<>();
+            for (int old_req : entry.getValue().getRequirements()) {
+                RequirementType requirementType = entry.getValue().getRequirementType(old_req);
+                if (requirementType != RequirementType.NORMAL) {
+                    remappedRequirementTypes.put(remapped.getOrDefault(old_req, old_req), requirementType);
+                }
+            }
 
             entry.getValue().setRequirements(oldIDs);
+            for (Entry<RequirementType> e : remappedRequirementTypes.int2ObjectEntrySet()) {
+                entry.getValue().setRequirementType(e.getIntKey(), e.getValue());
+            }
 
             QuestDatabase.INSTANCE.add(remapped.get(entry.getID()), entry.getValue());
         }
@@ -121,7 +137,9 @@ public class NetImport {
         int[] nxtIDs = new int[num];
 
         if (listDB.size() <= 0 || listDB.get(listDB.size() - 1).getID() == listDB.size() - 1) {
-            for (int i = 0; i < num; i++) nxtIDs[i] = listDB.size() + i;
+            for (int i = 0; i < num; i++) {
+                nxtIDs[i] = listDB.size() + i;
+            }
             return nxtIDs;
         }
 

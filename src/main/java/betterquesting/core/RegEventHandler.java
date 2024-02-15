@@ -55,22 +55,22 @@ public class RegEventHandler {
     }
 
     public static void registerBlock(Block b, String name) {
-        ResourceLocation res = new ResourceLocation(BetterQuesting.MODID + ":" + name);
+        ResourceLocation res = new ResourceLocation(ModReference.MODID,  name);
         ALL_BLOCKS.add(b.setRegistryName(res));
         ALL_ITEMS.add(new ItemBlock(b).setRegistryName(res));
     }
 
     public static void registerItems() {
-        ALL_ITEMS.add(ItemPlaceholder.placeholder.setRegistryName(BetterQuesting.MODID, "placeholder"));
-        ALL_ITEMS.add(BetterQuesting.extraLife.setRegistryName(BetterQuesting.MODID, "extra_life"));
-        ALL_ITEMS.add(BetterQuesting.guideBook.setRegistryName(BetterQuesting.MODID, "guide_book"));
+        ALL_ITEMS.add(ItemPlaceholder.placeholder.setRegistryName(ModReference.MODID, "placeholder"));
+        ALL_ITEMS.add(BetterQuesting.extraLife.setRegistryName(ModReference.MODID, "extra_life"));
+        ALL_ITEMS.add(BetterQuesting.guideBook.setRegistryName(ModReference.MODID, "guide_book"));
         ALL_ITEMS.add(BetterQuesting.lootChest.setRegistryName(BetterQuesting.MODID_STD, "loot_chest"));
-        ALL_ITEMS.add(BetterQuesting.questBook.setRegistryName(BetterQuesting.MODID, "quest_book"));
+        ALL_ITEMS.add(BetterQuesting.questBook.setRegistryName(ModReference.MODID, "quest_book"));
     }
 
     public static void addShapelessRecipe(String name, String group, ItemStack stack, Object... ing) {
-        ResourceLocation rName = new ResourceLocation(BetterQuesting.MODID, name);
-        ResourceLocation rGroup = new ResourceLocation(BetterQuesting.MODID, group);
+        ResourceLocation rName = new ResourceLocation(ModReference.MODID, name);
+        ResourceLocation rGroup = new ResourceLocation(ModReference.MODID, group);
 
         ALL_RECIPES.add(new ShapelessOreRecipe(rGroup, stack, ing).setRegistryName(rName));
     }

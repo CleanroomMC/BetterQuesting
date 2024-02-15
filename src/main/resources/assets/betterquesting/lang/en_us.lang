@@ -29,6 +29,7 @@ betterquesting.btn.edit=Edit
 betterquesting.btn.new=Add New
 betterquesting.btn.import=Import
 betterquesting.btn.logic=Logic
+betterquesting.btn.task_logic=Task Logic: %s
 betterquesting.btn.show=Show
 betterquesting.btn.show.hidden=Not visible to the player
 betterquesting.btn.show.unlocked=Visible to the player when the quest can be completed, or all prior quests are completed
@@ -89,6 +90,7 @@ betterquesting.gui.key=Key Name
 betterquesting.gui.no_key=No Key
 betterquesting.gui.duplicate_key=Duplicate Key
 betterquesting.gui.yes_always=Yes, always
+betterquesting.gui.formatting_buttons=Formattings
 
 betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
 betterquesting.tooltip.complete=COMPLETE

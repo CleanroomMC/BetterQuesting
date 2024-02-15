@@ -28,6 +28,7 @@ betterquesting.btn.edit=Изменить
 betterquesting.btn.new=Добавить
 betterquesting.btn.import=Импорт
 betterquesting.btn.logic=Логика
+betterquesting.btn.task_logic=Логика задания: %s
 betterquesting.btn.show=Показать
 betterquesting.btn.claim=Запросить
 betterquesting.btn.detect_submit=Обнаружить/Отправить

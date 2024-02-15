@@ -1,6 +1,7 @@
 package betterquesting.misc;
 
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -129,7 +130,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable {
     @Nonnull
     @Override
     public String getPackName() {
-        return BetterQuesting.NAME + "_files";
+        return ModReference.NAME + "_files";
     }
 
     private List<ZipFile> getZipFiles() {

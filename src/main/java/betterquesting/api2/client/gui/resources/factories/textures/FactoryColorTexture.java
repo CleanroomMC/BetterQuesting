@@ -9,6 +9,7 @@ import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.ColorTexture;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.registry.IFactoryData;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
@@ -16,7 +17,7 @@ import net.minecraft.util.ResourceLocation;
 public class FactoryColorTexture implements IFactoryData<IGuiTexture, JsonObject> {
     public static final FactoryColorTexture INSTANCE = new FactoryColorTexture();
 
-    private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "texture_color");
+    private static final ResourceLocation RES_ID = new ResourceLocation(ModReference.MODID, "texture_color");
 
     @Override
     public ColorTexture loadFromData(JsonObject data) {

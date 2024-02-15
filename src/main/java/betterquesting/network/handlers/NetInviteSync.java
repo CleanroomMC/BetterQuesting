@@ -5,6 +5,7 @@ import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.party.PartyInvitations;
@@ -22,7 +23,7 @@ import java.util.Collections;
 import java.util.UUID;
 
 public class NetInviteSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:invite_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "invite_sync");
 
     public static void registerHandler() {
         if (BetterQuesting.proxy.isClient()) {

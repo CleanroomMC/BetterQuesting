@@ -8,6 +8,7 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.BQThreadedIO;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class NetQuestSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:quest_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "quest_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetQuestSync::onServer);

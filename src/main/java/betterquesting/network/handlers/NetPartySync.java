@@ -6,6 +6,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.party.PartyManager;
@@ -27,7 +28,7 @@ import java.util.UUID;
 
 // Ignore the invite system here. We'll deal wih that elsewhere
 public class NetPartySync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:party_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "party_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetPartySync::onServer);

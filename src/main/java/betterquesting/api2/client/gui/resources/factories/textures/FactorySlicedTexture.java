@@ -8,6 +8,7 @@ import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture.SliceMode;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.registry.IFactoryData;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
@@ -16,7 +17,7 @@ import net.minecraft.util.math.MathHelper;
 public class FactorySlicedTexture implements IFactoryData<IGuiTexture, JsonObject> {
     public static final FactorySlicedTexture INSTANCE = new FactorySlicedTexture();
 
-    private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "texture_sliced");
+    private static final ResourceLocation RES_ID = new ResourceLocation(ModReference.MODID, "texture_sliced");
 
     @Override
     public SlicedTexture loadFromData(JsonObject data) {

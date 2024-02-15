@@ -3,6 +3,7 @@ package betterquesting.network.handlers;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
@@ -20,7 +21,7 @@ import org.apache.logging.log4j.Level;
 import javax.annotation.Nullable;
 
 public class NetSettingSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:setting_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "setting_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetSettingSync::onServer);

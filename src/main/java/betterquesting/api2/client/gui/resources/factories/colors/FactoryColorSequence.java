@@ -7,6 +7,7 @@ import betterquesting.api2.client.gui.resources.colors.GuiColorSequence;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.registry.IFactoryData;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -18,7 +19,7 @@ import java.util.List;
 public class FactoryColorSequence implements IFactoryData<IGuiColor, JsonObject> {
     public static final FactoryColorSequence INSTANCE = new FactoryColorSequence();
 
-    private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "color_sequence");
+    private static final ResourceLocation RES_ID = new ResourceLocation(ModReference.MODID, "color_sequence");
     private static final IGuiColor NULL_COL = new GuiColorStatic(0xFFFFFFFF);
 
     @Override

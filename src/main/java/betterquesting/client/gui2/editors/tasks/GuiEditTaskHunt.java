@@ -23,6 +23,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.core.ModReference;
 import betterquesting.questing.tasks.TaskHunt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -101,7 +102,7 @@ public class GuiEditTaskHunt extends GuiScreenCanvas implements IVolatileScreen 
         });
     }
 
-    private static final ResourceLocation QUEST_EDIT = new ResourceLocation("betterquesting:quest_edit"); // TODO: Really need to make the native packet types accessible in the API
+    private static final ResourceLocation QUEST_EDIT = new ResourceLocation(ModReference.MODID, "quest_edit"); // TODO: Really need to make the native packet types accessible in the API
 
     private void sendChanges() {
         NBTTagCompound payload = new NBTTagCompound();

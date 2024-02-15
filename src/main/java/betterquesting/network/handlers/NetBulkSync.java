@@ -5,6 +5,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
@@ -27,7 +28,7 @@ import java.util.UUID;
 
 public class NetBulkSync // Clears local data and negotiates a full resync with the server
 {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:main_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "main_sync");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetBulkSync::onServer);

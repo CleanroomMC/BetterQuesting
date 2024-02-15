@@ -1,13 +1,14 @@
 package betterquesting.api.placeholders.rewards;
 
 import betterquesting.api2.registry.IFactoryData;
+import betterquesting.core.ModReference;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 public class FactoryRewardPlaceholder implements IFactoryData<RewardPlaceholder, NBTTagCompound> {
     public static final FactoryRewardPlaceholder INSTANCE = new FactoryRewardPlaceholder();
 
-    private final ResourceLocation ID = new ResourceLocation("betterquesting:placeholder");
+    private final ResourceLocation ID = new ResourceLocation(ModReference.MODID, "placeholder");
 
     private FactoryRewardPlaceholder() {
     }

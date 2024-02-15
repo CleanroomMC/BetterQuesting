@@ -4,6 +4,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
@@ -19,7 +20,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public class NetQuestAction {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:quest_action");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "quest_action");
 
     public static void registerHandler() {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetQuestAction::onServer);

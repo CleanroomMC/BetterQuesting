@@ -5,7 +5,7 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import net.minecraft.util.ResourceLocation;
 
 // TODO: Reorganise these when the icon atlas is no longer bound by legacy constraints
@@ -101,12 +101,12 @@ public enum PresetIcon {
     ICON_PATREON("icon_patreon"),
     ICON_TWITCH("icon_twitch");
 
-    public static final ResourceLocation TX_ICONS = new ResourceLocation(BetterQuesting.MODID, "textures/gui/editor_icons.png");
+    public static final ResourceLocation TX_ICONS = new ResourceLocation(ModReference.MODID, "textures/gui/editor_icons.png");
 
     private final ResourceLocation key;
 
     PresetIcon(String key) {
-        this.key = new ResourceLocation(BetterQuesting.MODID, key);
+        this.key = new ResourceLocation(ModReference.MODID, key);
     }
 
     public IGuiTexture getTexture() {

@@ -9,6 +9,7 @@ import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.resources.textures.SlideShowTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.registry.IFactoryData;
+import betterquesting.core.ModReference;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,7 +21,7 @@ import java.util.List;
 public class FactorySlideShowTexture implements IFactoryData<IGuiTexture, JsonObject> {
     public static final FactorySlideShowTexture INSTANCE = new FactorySlideShowTexture();
 
-    private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "texture_slides");
+    private static final ResourceLocation RES_ID = new ResourceLocation(ModReference.MODID, "texture_slides");
     private static final IGuiTexture NULL_TX = new SimpleTexture(PresetTexture.TX_NULL, new GuiRectangle(0, 0, 16, 16)).maintainAspect(false);
 
     @Override

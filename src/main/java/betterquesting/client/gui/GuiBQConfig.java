@@ -1,6 +1,6 @@
 package betterquesting.client.gui;
 
-import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.handlers.ConfigHandler;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
@@ -16,7 +16,7 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 public class GuiBQConfig extends GuiConfig {
     public GuiBQConfig(GuiScreen parent) {
-        super(parent, getCategories(ConfigHandler.config), BetterQuesting.MODID, false, false, BetterQuesting.NAME);
+        super(parent, getCategories(ConfigHandler.config), ModReference.MODID, false, false, ModReference.NAME);
     }
 
     private static List<IConfigElement> getCategories(Configuration config) {

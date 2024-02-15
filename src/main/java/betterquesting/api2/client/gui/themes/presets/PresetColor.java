@@ -5,7 +5,7 @@ import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import net.minecraft.util.ResourceLocation;
 
 // WARNING: Don't use the ordinal indexes. I'll probably be adding/removing enums infrequently
@@ -46,7 +46,7 @@ public enum PresetColor {
     private final ResourceLocation key;
 
     PresetColor(String key) {
-        this.key = new ResourceLocation(BetterQuesting.MODID, key);
+        this.key = new ResourceLocation(ModReference.MODID, key);
     }
 
     public IGuiColor getColor() {

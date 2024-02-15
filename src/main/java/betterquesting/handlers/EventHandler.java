@@ -27,6 +27,7 @@ import betterquesting.client.gui2.GuiQuestLines;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.commands.client.QuestCommandShow;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.handlers.*;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.party.PartyInvitations;
@@ -94,7 +95,7 @@ import java.util.UUID;
 public class EventHandler {
     public static final EventHandler INSTANCE = new EventHandler();
 
-    private static final String SPAWN_WITH_QUEST_BOOK = BetterQuesting.MODID + ".questbook";
+    private static final String SPAWN_WITH_QUEST_BOOK = ModReference.MODID + ".questbook";
 
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
@@ -299,7 +300,7 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-        if (event.getModID().equals(BetterQuesting.MODID)) {
+        if (event.getModID().equals(ModReference.MODID)) {
             ConfigHandler.config.save();
             ConfigHandler.initConfigs();
         }

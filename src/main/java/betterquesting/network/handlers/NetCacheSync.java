@@ -4,6 +4,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import net.minecraft.client.Minecraft;
@@ -17,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 
 public class NetCacheSync {
-    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:cache_sync");
+    private static final ResourceLocation ID_NAME = new ResourceLocation(ModReference.MODID, "cache_sync");
 
     public static void registerHandler() {
         if (BetterQuesting.proxy.isClient()) {
