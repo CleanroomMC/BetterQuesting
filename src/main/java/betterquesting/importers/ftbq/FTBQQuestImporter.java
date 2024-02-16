@@ -252,6 +252,28 @@ public class FTBQQuestImporter implements IImporter {
                             hideDependencies = true;
                     }
 
+                    if (qTag.hasKey("dependency_requirement")) {
+                        switch (qTag.getString("dependency_requirement")){
+                            case "all_completed":{
+                                quest.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.AND);
+                                break;
+                            }
+                            case "one_completed":{
+                                quest.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.OR);
+                                break;
+                            }
+                            // BetterQuesting has no "started" options.
+                            case "all_started":{
+                                quest.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.AND);
+                                break;
+                            }
+                            case "one_started":{
+                                quest.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.OR);
+                                break;
+                            }
+                        }
+                    }
+
                     parentMap.put(quest, Pair.of(depKeys, hideDependencies));
                 }
 
