@@ -483,7 +483,7 @@ public class EventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        if (event.getEntityPlayer() == null || event.getEntityLiving().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
+        if (event.getEntityPlayer() == null || event.getEntityPlayer().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
 
         EntityPlayer player = event.getEntityPlayer();
         ParticipantInfo pInfo = new ParticipantInfo(player);
@@ -500,7 +500,7 @@ public class EventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getEntityPlayer() == null || event.getEntityLiving().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
+        if (event.getEntityPlayer() == null || event.getEntityPlayer().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
 
         EntityPlayer player = event.getEntityPlayer();
         ParticipantInfo pInfo = new ParticipantInfo(player);
@@ -519,7 +519,7 @@ public class EventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getEntityPlayer() == null || event.getEntityLiving().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
+        if (event.getEntityPlayer() == null || event.getEntityPlayer().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
 
         EntityPlayer player = event.getEntityPlayer();
         ParticipantInfo pInfo = new ParticipantInfo(player);
@@ -539,14 +539,14 @@ public class EventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRightClickEmpty(PlayerInteractEvent.RightClickEmpty event) // CLIENT SIDE ONLY EVENT
     {
-        if (event.getEntityPlayer() == null || !event.getEntityLiving().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
+        if (event.getEntityPlayer() == null || !event.getEntityPlayer().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
         NetTaskInteract.requestInteraction(false, event.getHand() == EnumHand.MAIN_HAND);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onLeftClickAir(PlayerInteractEvent.LeftClickEmpty event) // CLIENT SIDE ONLY EVENT
     {
-        if (event.getEntityPlayer() == null || !event.getEntityLiving().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
+        if (event.getEntityPlayer() == null || !event.getEntityPlayer().world.isRemote || event.getEntityPlayer() instanceof FakePlayer || event.isCanceled()) return;
         NetTaskInteract.requestInteraction(true, true);
     }
 
