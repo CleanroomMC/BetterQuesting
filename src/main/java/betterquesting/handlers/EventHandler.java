@@ -419,13 +419,17 @@ public class EventHandler {
     private final ArrayDeque<EntityPlayerMP> opQueue = new ArrayDeque<>();
     private boolean openToLAN = false;
 
-    private static HashSet<EntityPlayer> playerInventoryUpdates = new HashSet<>();
+    private static final HashSet<EntityPlayer> playerInventoryUpdates = new HashSet<>();
+    private static boolean processingUpdates = false;
 
     /**
      * Schedules checking player's inventory on the next server tick.
      * Deduplicates requests to avoid scanning it multiple times per tick.
      */
     public static void schedulePlayerInventoryCheck(EntityPlayer player) {
+        if (processingUpdates) {
+            return;
+        }
         synchronized (playerInventoryUpdates) {
             playerInventoryUpdates.add(player);
         }
@@ -437,21 +441,21 @@ public class EventHandler {
             if (FMLCommonHandler.instance().getMinecraftServerInstance().getTickCounter() % 60 == 0) {
                 AdvListenerManager.INSTANCE.updateAll();
             }
-            synchronized (playerInventoryUpdates) {
-                for (EntityPlayer player : playerInventoryUpdates) {
-                    if (player == null || player.inventory == null) {
-                        continue;
-                    }
-                    ParticipantInfo pInfo = new ParticipantInfo(player);
+            processingUpdates = true;
+            for (EntityPlayer player : playerInventoryUpdates) {
+                if (player == null || player.inventory == null) {
+                    continue;
+                }
+                ParticipantInfo pInfo = new ParticipantInfo(player);
 
-                    for (DBEntry<IQuest> entry : QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookup(pInfo.getSharedQuests())) {
-                        for (DBEntry<ITask> task : entry.getValue().getTasks().getEntries()) {
-                            if (task.getValue() instanceof ITaskInventory) ((ITaskInventory)task.getValue()).onInventoryChange(entry, pInfo);
-                        }
+                for (DBEntry<IQuest> entry : QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookup(pInfo.getSharedQuests())) {
+                    for (DBEntry<ITask> task : entry.getValue().getTasks().getEntries()) {
+                        if (task.getValue() instanceof ITaskInventory) ((ITaskInventory)task.getValue()).onInventoryChange(entry, pInfo);
                     }
                 }
-                playerInventoryUpdates.clear();
             }
+            playerInventoryUpdates.clear();
+            processingUpdates = false;
         }
 
         if (event.phase != Phase.END) return;
