@@ -5,13 +5,17 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ModReference;
 import betterquesting.network.handlers.NetQuestEdit;
+import io.netty.util.collection.IntObjectHashMap;
+import io.netty.util.collection.IntObjectMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.IntHashMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import org.jetbrains.annotations.Nullable;
+import scala.collection.immutable.IntMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -33,18 +37,20 @@ import java.io.InputStream;
 public class TextEditorFrame extends JFrame {
     private static final int initialRowCount = 30;
     private static final int defaultColumns = 60;
+    private static final IntObjectMap<TextEditorFrame> opened = new IntObjectHashMap<>();// questId -> TextEditorFrame
     private static BufferedImage logoCache = null;
-    private static @Nullable TextEditorFrame opened = null;
 
     public static void openTextEditor(int questID, IQuest quest) {
-        if (opened == null) {
-			opened = new TextEditorFrame(questID, quest);
-			opened.requestFocus();
-		} else {
-			Toolkit.getDefaultToolkit().beep();
-            opened.toFront();
-			opened.requestFocus();
-		}
+        if (opened.containsKey(questID)){
+            TextEditorFrame frame = opened.get(questID);
+            frame.toFront();
+            frame.requestFocus();
+            Toolkit.getDefaultToolkit().beep();
+        }else {
+            TextEditorFrame frame = new TextEditorFrame(questID, quest);
+            opened.put(questID, frame);
+            frame.requestFocus();
+        }
 	}
 
 
@@ -104,7 +110,7 @@ public class TextEditorFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                opened = null;
+                opened.remove(questID);
             }
         });
 
