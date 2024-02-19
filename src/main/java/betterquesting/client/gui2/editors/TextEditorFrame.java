@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -23,6 +24,7 @@ import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -30,11 +32,20 @@ import java.io.InputStream;
 public class TextEditorFrame extends JFrame {
     private static final int initialRowCount = 30;
     private static final int defaultColumns = 60;
-    public static void openTextEditor(int questID, IQuest quest) {
-        new TextEditorFrame(questID, quest).requestFocus();
-    }
-
     private static BufferedImage logoCache = null;
+    private static @Nullable TextEditorFrame opened = null;
+
+    public static void openTextEditor(int questID, IQuest quest) {
+        if (opened == null) {
+			opened = new TextEditorFrame(questID, quest);
+			opened.requestFocus();
+		} else {
+			Toolkit.getDefaultToolkit().beep();
+            opened.toFront();
+			opened.requestFocus();
+		}
+	}
+
 
     private final int questID;
     public final IQuest quest;
@@ -88,6 +99,13 @@ public class TextEditorFrame extends JFrame {
         description.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY, 1, true), I18n.format("betterquesting.gui.description")));
         description.setLineWrap(true);
         UndoHelper.addUndoHelper(description);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                opened = null;
+            }
+        });
 
         JPanel footerPanel = add(wholePanel, new JPanel());
         footerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
