@@ -24,6 +24,7 @@ import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -193,10 +194,10 @@ public class TextEditorFrame extends JFrame {
         class UndoAction extends AbstractAction {
             UndoAction() {
                 super("Undo(U)");
-                putValue(MNEMONIC_KEY, new Integer('U'));
+                putValue(MNEMONIC_KEY, (int)'U');
                 putValue(SHORT_DESCRIPTION, "Undo");
                 putValue(LONG_DESCRIPTION, "Undo");
-                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke('Z', Event.CTRL_MASK));
+                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke('Z', InputEvent.CTRL_DOWN_MASK));
             }
             public void actionPerformed(ActionEvent e) {
                 if (undoManager.canUndo()) {
@@ -208,10 +209,10 @@ public class TextEditorFrame extends JFrame {
         class RedoAction extends AbstractAction {
             RedoAction() {
                 super("Redo(R)");
-                putValue(MNEMONIC_KEY, new Integer('R'));
+                putValue(MNEMONIC_KEY, (int) 'R');
                 putValue(SHORT_DESCRIPTION, "Redo");
                 putValue(LONG_DESCRIPTION, "Redo");
-                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke('Y', Event.CTRL_MASK));
+                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke('Y', InputEvent.CTRL_DOWN_MASK));
             }
             public void actionPerformed(ActionEvent e) {
                 if (undoManager.canRedo()) {
