@@ -1,4 +1,4 @@
-package betterquesting;
+package betterquesting.client.gui2.editors;
 
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
