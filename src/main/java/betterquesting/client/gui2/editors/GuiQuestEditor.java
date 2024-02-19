@@ -1,6 +1,5 @@
 package betterquesting.client.gui2.editors;
 
-import betterquesting.TextEditorFrame;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumLogic;
