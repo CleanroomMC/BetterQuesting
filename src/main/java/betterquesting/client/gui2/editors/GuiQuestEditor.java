@@ -27,6 +27,7 @@ import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -155,7 +156,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         }
 
         if (flag) {
-            SendChanges();
+            sendChanges(questID);
         }
 
         return result;
@@ -196,7 +197,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             {
                 mc.displayGuiScreen(new GuiNbtEditor(this, quest.writeToNBT(new NBTTagCompound()), value -> {
                     quest.readFromNBT(value);
-                    SendChanges();
+                    sendChanges(questID);
                 }));
                 break;
             }
@@ -207,7 +208,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
                 vis = visList[(vis.ordinal() + 1) % visList.length];
                 quest.setProperty(NativeProps.VISIBILITY, vis);
                 ((PanelButton) btn).setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + vis);
-                SendChanges();
+                sendChanges(questID);
                 break;
             }
             case 6: // Logic
@@ -217,24 +218,25 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
                 logic = logicList[(logic.ordinal() + 1) % logicList.length];
                 quest.setProperty(NativeProps.LOGIC_TASK, logic);
                 ((PanelButton) btn).setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + logic);
-                SendChanges();
+                sendChanges(questID);
                 break;
             }
             case 7: // Description Editor
             {
-                TextEditorFrame.openTextEditor(questID, quest);
+                mc.displayGuiScreen(new GuiQuestDescEditor(this, questID, quest));
                 break;
             }
             case 8: {
                 mc.displayGuiScreen(new GuiItemSelection(this, quest.getProperty(NativeProps.ICON), value -> {
                     quest.setProperty(NativeProps.ICON, value);
-                    SendChanges();
+                    sendChanges(questID);
                 }));
             }
         }
     }
 
-    private void SendChanges() {
+    public static void sendChanges(int questID) {
+        IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
         NBTTagCompound payload = new NBTTagCompound();
         NBTTagList dataList = new NBTTagList();
         NBTTagCompound entry = new NBTTagCompound();
@@ -244,5 +246,13 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         payload.setTag("data", dataList);
         payload.setInteger("action", 0);
         NetQuestEdit.sendEdit(payload);
+
+        GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+        if (screen instanceof GuiQuestEditor gui) {
+            gui.pnTitle.setText(QuestTranslation.translate("betterquesting.title.edit_quest", QuestTranslation.translate(quest.getProperty(NativeProps.NAME))));
+            gui.flName.setText(quest.getProperty(NativeProps.NAME));
+            gui.flDesc.setText(quest.getProperty(NativeProps.DESC));
+        }
+
     }
 }
