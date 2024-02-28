@@ -317,7 +317,7 @@ public class TextEditorFrame extends JFrame {
 
     private ActionListener addFormattingCode(TextFormatting textFormatting) {
         return event -> {
-            descText.insert(textFormatting.toString(), descText.getCaretPosition());
+            descText.replaceRange(textFormatting.toString(), descText.getSelectionStart(), descText.getSelectionEnd());
         };
     }
 
