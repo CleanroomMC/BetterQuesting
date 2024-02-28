@@ -34,6 +34,8 @@ import net.minecraft.util.text.TextFormatting;
 
 public class GuiQuestDescEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen {
 
+    private static final boolean FORCE_OPEN_WINDOW = true;
+
     private final int questID;
     private final IQuest quest;
     private final String beforeName;
@@ -50,6 +52,9 @@ public class GuiQuestDescEditor extends GuiScreenCanvas implements IPEventListen
         beforeName = quest.getProperty(NativeProps.NAME);
         beforeDesc = quest.getProperty(NativeProps.DESC);
         TextEditorFrame window = TextEditorFrame.get(questID);
+        if (FORCE_OPEN_WINDOW && window == null) {
+            window = TextEditorFrame.getOrCreate(questID, beforeName, beforeName, beforeDesc);
+        }
         if (window != null) {
             this.window = window;
             window.setGui(this);
@@ -57,7 +62,7 @@ public class GuiQuestDescEditor extends GuiScreenCanvas implements IPEventListen
             window.requestFocus();
             //Allow just-closing(this screen)
             if (close != null)
-                close.setEnabled(true);
+                close.setActive(true);
             name = window.getName();
         } else {
             name = beforeName;
@@ -75,7 +80,7 @@ public class GuiQuestDescEditor extends GuiScreenCanvas implements IPEventListen
         window.requestFocus();
         //Allow just-closing(this screen)
         if (close != null)
-            close.setEnabled(true);
+            close.setActive(true);
     }
 
     /**
@@ -88,7 +93,7 @@ public class GuiQuestDescEditor extends GuiScreenCanvas implements IPEventListen
         window = null;
         //Disallow just-closing(this screen)
         if (close != null)
-            close.setEnabled(false);
+            close.setActive(false);
     }
 
     /**
@@ -174,7 +179,7 @@ public class GuiQuestDescEditor extends GuiScreenCanvas implements IPEventListen
                                 0,
                                 QuestTranslation.translate("betterquesting.btn.edit_name_desc.just_close"));
         close.setTooltip(Lists.newArrayList(QuestTranslation.translate("betterquesting.tooltip.edit_name_desc.just_close_screen")));
-        close.setEnabled(window != null);
+        close.setActive(window != null);
         cvBackground.addPanel(close);
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 0 + 20, -16, 80, 16, 0), 1, QuestTranslation.translate("gui.cancel")));
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_RIGHT, -80 - 20, -16, 80, 16, 0), 2, QuestTranslation.translate("gui.done")));
