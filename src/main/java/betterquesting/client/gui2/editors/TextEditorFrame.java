@@ -116,9 +116,8 @@ public class TextEditorFrame extends JFrame {
         JPanel wholePanel = new JPanel();
         wholePanel.setLayout(new BoxLayout(wholePanel, BoxLayout.Y_AXIS));
 
-        JPanel editorPanel = new JPanel();
+        JPanel editorPanel = add(wholePanel, new JPanel());
         editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
-        add(wholePanel, new JScrollPane(editorPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
         JPanel buttonPanel = add(editorPanel, new JPanel());
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
@@ -166,7 +165,8 @@ public class TextEditorFrame extends JFrame {
         });
         UndoHelper.addUndoHelper(nameText);
 
-        descText = add(textPanel, new JTextArea(description, initialRowCount, defaultColumns));
+        descText = new JTextArea(description, initialRowCount, defaultColumns);
+        add(textPanel, new JScrollPane(descText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
         descText.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY, 1, true), QuestTranslation.translate("betterquesting.gui.description")));
         descText.setLineWrap(true);
         descText.getDocument().addDocumentListener(new DocumentListener() {
