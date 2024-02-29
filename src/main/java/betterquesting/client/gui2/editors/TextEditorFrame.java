@@ -130,7 +130,8 @@ public class TextEditorFrame extends JFrame {
         JPanel editorPanel = add(wholePanel, new JPanel());
         editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
 
-        JPanel buttonPanel = add(editorPanel, new JPanel());
+        JPanel buttonPanel = new JPanel();
+        add(editorPanel, new JScrollPane(buttonPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY, 1, true),
                                                QuestTranslation.translate("betterquesting.gui.formatting_buttons")));
@@ -218,6 +219,8 @@ public class TextEditorFrame extends JFrame {
 
         JPanel footerPanel = add(wholePanel, new JPanel());
         footerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        footerPanel.setMinimumSize(new Dimension(Integer.MAX_VALUE, 50));
+        footerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         JButton cancel = add(footerPanel, new JButton(QuestTranslation.translate("gui.cancel")));
         cancel.setMinimumSize(new Dimension(90, 0));
         cancel.addActionListener(this::cancelClicked);
@@ -309,8 +312,8 @@ public class TextEditorFrame extends JFrame {
             JButton btn = new JButton(value.getFriendlyName());
             btn.setToolTipText(value.toString());
             btn.addActionListener(addFormattingCode(value));
-            btn.setMinimumSize(new Dimension(80, 20));
-            btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+            btn.setMinimumSize(new Dimension(80, 30));
+            btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
             add(panel, btn);
         }
     }
