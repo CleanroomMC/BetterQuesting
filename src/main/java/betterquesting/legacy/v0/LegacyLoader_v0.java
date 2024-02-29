@@ -1,5 +1,6 @@
 package betterquesting.legacy.v0;
 
+import betterquesting.api.enums.EnumFrameType;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.placeholders.rewards.RewardPlaceholder;
 import betterquesting.api.placeholders.tasks.TaskPlaceholder;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class LegacyLoader_v0 implements ILegacyLoader {
+
     public static final LegacyLoader_v0 INSTANCE = new LegacyLoader_v0();
 
     private LegacyLoader_v0() {
@@ -111,6 +113,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader {
         quest.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.valueOf(JsonHelper.GetString(json, "logic", "AND")));
         quest.setProperty(NativeProps.LOGIC_TASK, EnumLogic.valueOf(JsonHelper.GetString(json, "taskLogic", "AND")));
         quest.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "icon"), new NBTTagCompound(), true)));
+        quest.setProperty(NativeProps.FRAME, EnumFrameType.valueOf(JsonHelper.GetString(json, "frame", "default")));
 
         JsonArray reqAry = JsonHelper.GetArray(json, "preRequisites");
         int[] req = new int[reqAry.size()];
@@ -245,4 +248,5 @@ public final class LegacyLoader_v0 implements ILegacyLoader {
             }
         }
     }
+
 }

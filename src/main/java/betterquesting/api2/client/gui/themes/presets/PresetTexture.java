@@ -1,5 +1,9 @@
 package betterquesting.api2.client.gui.themes.presets;
 
+import java.util.Locale;
+
+import betterquesting.api.enums.EnumFrameType;
+import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
@@ -144,8 +148,59 @@ public enum PresetTexture {
         reg.setDefaultTexture(TEXT_BOX_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(0, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
         reg.setDefaultTexture(TEXT_BOX_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(8, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
         reg.setDefaultTexture(TEXT_BOX_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(16, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
+        {
+            int idx = 0;
+            for (EnumFrameType frameType : EnumFrameType.values()) {
+                if (frameType == EnumFrameType.DEFAULT)
+                    continue;
+                for (EnumQuestState questState : EnumQuestState.values()) {
+                    ResourceLocation id = getExtraQuestFrameTextureId(frameType, questState);
+                    ResourceLocation fileLocation = new ResourceLocation(ModReference.MODID, "textures/gui/ex_frames.png");
+                    int x = (idx % 10) * 24;
+                    int y = (idx / 10) * 24;
+                    reg.setDefaultTexture(id,
+                                          new SlicedTexture(fileLocation, new GuiRectangle(x, y, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(
+                                                                                                                                                   SliceMode.STRETCH));
+                }
+                idx++;
+            }
+        }
+
+        reg.setDefaultTexture(TEXT_BOX_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(0, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
+        reg.setDefaultTexture(TEXT_BOX_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(8, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
+        reg.setDefaultTexture(TEXT_BOX_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(16, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 
         reg.setDefaultTexture(TOOLTIP_BG.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(204, 0, 12, 12), new GuiPadding(2, 2, 2, 2)).setSliceMode(SliceMode.SLICED_STRETCH));
+    }
+
+    public static ResourceLocation getExtraQuestFrameTextureId(EnumFrameType frameType, EnumQuestState questState) {
+        return new ResourceLocation(ModReference.MODID,
+                                    "quest_ex_" + frameType.name().toLowerCase(Locale.ROOT) + "_" + questState.name().toLowerCase(Locale.ROOT));
+    }
+
+    public static IGuiTexture getExtraQuestFrameTexture(EnumFrameType frameType, EnumQuestState questState) {
+        return ThemeRegistry.INSTANCE.getTexture(getExtraQuestFrameTextureId(frameType, questState));
+    }
+
+    public static IGuiTexture getNormalQuestFrameTexture(EnumQuestState questState, boolean isMain) {
+        switch (questState) {
+            case LOCKED -> {
+                return isMain ? PresetTexture.QUEST_MAIN_0.getTexture() : PresetTexture.QUEST_NORM_0.getTexture();
+            }
+            case UNLOCKED -> {
+                return isMain ? PresetTexture.QUEST_MAIN_1.getTexture() : PresetTexture.QUEST_NORM_1.getTexture();
+            }
+            case UNCLAIMED -> {
+                return isMain ? PresetTexture.QUEST_MAIN_2.getTexture() : PresetTexture.QUEST_NORM_2.getTexture();
+            }
+            case COMPLETED -> {
+                return isMain ? PresetTexture.QUEST_MAIN_3.getTexture() : PresetTexture.QUEST_NORM_3.getTexture();
+            }
+            case REPEATABLE -> {
+                return isMain ? PresetTexture.QUEST_MAIN_4.getTexture() : PresetTexture.QUEST_NORM_4.getTexture();
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + questState);
+        }
     }
 
 }

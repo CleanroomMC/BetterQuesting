@@ -2,6 +2,7 @@ package betterquesting.api2.client.gui.controls;
 
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.enums.EnumFrameType;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
@@ -43,33 +44,25 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
         player = Minecraft.getMinecraft().player;
         EnumQuestState qState = value == null ? EnumQuestState.LOCKED : value.getValue().getState(player);
         IGuiColor txIconCol = null;
-        boolean main = value == null ? false : value.getValue().getProperty(NativeProps.MAIN);
         boolean lock = false;
 
-        switch (qState) {
-            case LOCKED:
-                txFrame = main ? PresetTexture.QUEST_MAIN_0.getTexture() : PresetTexture.QUEST_NORM_0.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_LOCKED.getColor();
-                lock = true;
-                break;
-            case UNLOCKED:
-                txFrame = main ? PresetTexture.QUEST_MAIN_1.getTexture() : PresetTexture.QUEST_NORM_1.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_UNLOCKED.getColor();
-                break;
-            case UNCLAIMED:
-                txFrame = main ? PresetTexture.QUEST_MAIN_2.getTexture() : PresetTexture.QUEST_NORM_2.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_PENDING.getColor();
-                break;
-            case COMPLETED:
-                txFrame = main ? PresetTexture.QUEST_MAIN_3.getTexture() : PresetTexture.QUEST_NORM_3.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_COMPLETE.getColor();
-                break;
-            case REPEATABLE:
-                txFrame = main ? PresetTexture.QUEST_MAIN_4.getTexture() : PresetTexture.QUEST_NORM_4.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_REPEATABLE.getColor();
-                break;
-            default:
-                txFrame = null;
+        if (value != null) {
+            if (value.getValue().getProperty(NativeProps.FRAME) == EnumFrameType.DEFAULT) {
+                boolean isMain = value.getValue().getProperty(NativeProps.MAIN);
+                txFrame = PresetTexture.getNormalQuestFrameTexture(qState, isMain);
+                txIconCol = qState.getColor();
+                if (qState == EnumQuestState.LOCKED)
+                    lock = true;
+            } else {
+                txFrame = PresetTexture.getExtraQuestFrameTexture(value.getValue().getProperty(NativeProps.FRAME), qState);
+                txIconCol = qState.getColor();
+                if (qState == EnumQuestState.LOCKED)
+                    lock = true;
+            }
+        } else {
+            txFrame = PresetTexture.QUEST_NORM_0.getTexture();
+            txIconCol = PresetColor.QUEST_ICON_LOCKED.getColor();
+            lock = true;
         }
 
         IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
