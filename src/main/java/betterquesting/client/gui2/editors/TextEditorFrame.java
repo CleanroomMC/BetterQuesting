@@ -3,9 +3,19 @@ package betterquesting.client.gui2.editors;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -34,6 +44,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument.DefaultDocumentEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
 
@@ -166,7 +177,8 @@ public class TextEditorFrame extends JFrame {
         UndoHelper.addUndoHelper(nameText);
 
         descText = new JTextArea(description, initialRowCount, defaultColumns);
-        add(textPanel, new JScrollPane(descText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+        JScrollPane scroll = add(textPanel, new JScrollPane(descText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+        scroll.setRowHeaderView(new LineNumberView(descText));
         descText.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.GRAY, 1, true), QuestTranslation.translate("betterquesting.gui.description")));
         descText.setLineWrap(true);
         descText.getDocument().addDocumentListener(new DocumentListener() {
@@ -407,6 +419,118 @@ public class TextEditorFrame extends JFrame {
                 // Nothing to do.
             }
 
+        }
+
+    }
+
+    private static class LineNumberView extends JPanel {
+
+        private static final int LINE_NUMBER_MARGIN = 5; // Left and right padding of the line numbers
+        private final JTextArea textArea;
+
+        public LineNumberView(JTextArea textArea) {
+            this.textArea = textArea;
+            textArea.getDocument().addDocumentListener(new DocumentListener() {
+
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    repaint();
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    repaint();
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    /* not needed */
+                }
+
+            });
+            textArea.addComponentListener(new ComponentAdapter() {
+
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    revalidate();
+                    repaint();
+                }
+
+            });
+        }
+
+        @Override
+        public void updateUI() {
+            super.updateUI();
+            setOpaque(true);
+            EventQueue.invokeLater(() -> {
+                Insets i = textArea.getMargin();
+                setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.GRAY),
+                                                             BorderFactory.createEmptyBorder(i.top, LINE_NUMBER_MARGIN, i.bottom, LINE_NUMBER_MARGIN - 1)));
+                setBackground(textArea.getBackground());
+            });
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            FontMetrics fontMetrics = textArea.getFontMetrics(textArea.getFont());
+            return new Dimension(getComponentWidth(fontMetrics), textArea.getHeight());
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D) g.create();
+            try {
+                g2.setColor(textArea.getBackground());
+                Rectangle clip = g2.getClipBounds();
+                g2.fillRect(clip.x, clip.y, clip.width, clip.height);
+
+                Font font = textArea.getFont();
+                g2.setFont(font);
+
+                FontMetrics fontMetrics = g2.getFontMetrics(font);
+                int fontAscent = fontMetrics.getAscent();
+                int fontDescent = fontMetrics.getDescent();
+                int fontLeading = fontMetrics.getLeading();
+                int fontHeight = fontMetrics.getHeight();
+
+                int componentWidth = getComponentWidth(fontMetrics);
+                int rMargin = getInsets().right;
+                int base = clip.y;
+                int start = getLineAtPoint(base);
+                int end = getLineAtPoint(base + clip.height);
+                int y = textArea.getBorder().getBorderInsets(textArea).top;
+                y += start * fontHeight;
+
+                g2.setColor(getForeground());
+                for (int line = start; line <= end;) {
+                    y += fontAscent;
+                    // Skip auto-wrapped lines
+                    if (line <= getLineAtPoint(y)) {
+                        String text = Integer.toString(line + 1);
+                        // right alignment
+                        int x = componentWidth - rMargin - fontMetrics.stringWidth(text);
+                        g2.drawString(text, x, y);
+                        line++;
+                    }
+                    y += fontDescent + fontLeading;
+                }
+            } finally {
+                g2.dispose();
+            }
+        }
+
+        private int getLineAtPoint(int y) {
+            Element root = textArea.getDocument().getDefaultRootElement();
+            int pos = textArea.viewToModel(new Point(0, y));
+            return root.getElementIndex(pos);
+        }
+
+        private int getComponentWidth(FontMetrics fontMetrics) {
+            int maxDigits = Math.max(2, Integer.toString(textArea.getLineCount()).length());
+            Insets insets = getInsets();
+            return maxDigits * fontMetrics.stringWidth("0") + insets.left + insets.right;
         }
 
     }
