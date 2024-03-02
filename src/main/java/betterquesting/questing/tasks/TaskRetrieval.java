@@ -10,6 +10,7 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.ParticipantInfo;
+import betterquesting.client.gui2.editors.tasks.GuiEditTaskRetrieval;
 import betterquesting.client.gui2.tasks.PanelTaskRetrieval;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.factory.FactoryTaskRetrieval;
@@ -400,7 +401,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     @Override
     @SideOnly(Side.CLIENT)
     public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest) {
-        return null;
+        return new GuiEditTaskRetrieval(parent, quest, this);
     }
 
     private void setUserProgress(UUID uuid, int[] progress) {

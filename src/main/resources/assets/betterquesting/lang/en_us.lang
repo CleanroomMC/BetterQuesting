@@ -273,11 +273,13 @@ bq_standard.title.edit_crafting=Edit Crafting Task
 bq_standard.title.edit_scoreboard=Edit Scoreboard Task
 bq_standard.title.edit_advancement=Edit Advancement Task
 bq_standard.title.edit_tame=Edit Tame Task
+bq_standard.title.edit_retrieval_task=Edit Retrieval Task
 
 bq_standard.btn.select_mob=Select Mob
 bq_standard.btn.add_remove_drops=Add/Remove Drops
 bq_standard.btn.edit_items=Add/Remove Items
 bq_standard.btn.consume=Consume: %s
+bq_standard.btn.edit_nbt=Edit NBT
 
 bq_standard.gui.amount=Amount
 bq_standard.gui.kill=Kill %s
