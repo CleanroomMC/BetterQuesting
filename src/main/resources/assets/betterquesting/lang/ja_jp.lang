@@ -18,7 +18,7 @@ betterquesting.title.party_invite=ユーザーを招待
 betterquesting.title.select_theme=テーマを選択
 betterquesting.title.importers=インポーター
 betterquesting.title.submit_station=提出ステーション
-betterquesting.title.completion=%d/%d:完了
+betterquesting.title.completion=%d/%d : 完了
 
 betterquesting.btn.rewards=報酬
 betterquesting.btn.tasks=タスク
@@ -80,7 +80,7 @@ betterquesting.gui.search=検索
 betterquesting.gui.folder=フォルダ
 betterquesting.gui.party_invites=招待
 betterquesting.gui.party_members=メンバー
-betterquesting.gui.remaining_lives=残りライフ: %s
+betterquesting.gui.remaining_lives=残りライフ : %s
 betterquesting.gui.full_lives=満員
 betterquesting.gui.closing_warning=本当にこのエディタを閉じますか？
 betterquesting.gui.closing_confirm=変更が失われる可能性があります。
@@ -202,18 +202,18 @@ betterquesting.cmd.edit=編集モード %s
 betterquesting.cmd.hardcore=ハードコアライフ %s
 betterquesting.cmd.purge_hidden=%s の隠しクエストを削除しました。
 
-betterquesting.cmd.lives.add_player=%2$s に %1$s のライフを追加しました (合計: %3$s)
+betterquesting.cmd.lives.add_player=%2$s に %1$s のライフを追加しました (合計 : %3$s)
 betterquesting.cmd.lives.add_all=全プレイヤーに %s のライフを追加
-betterquesting.cmd.lives.remove_player=%2$s から %1$s のライフを削除しました (合計: %3$s)
+betterquesting.cmd.lives.remove_player=%2$s から %1$s のライフを削除しました (合計 : %3$s)
 betterquesting.cmd.lives.remove_all=全プレイヤーから %s のライフを削除
 betterquesting.cmd.lives.set_player=%1$s のライフを %2$s に設定する。
 betterquesting.cmd.lives.set_all=全プレイヤーのライフを %s に設定する。
 betterquesting.cmd.lives.max=ライフの最大値を %s に設定します。
 betterquesting.cmd.lives.default=デフォルトのライフを %s に設定します。
 
-betterquesting.cmd.reset.player_single=%2$s のクエスト 「%1$s」 をリセットします。
+betterquesting.cmd.reset.player_single=%2$s のクエスト「%1$s」をリセットします。
 betterquesting.cmd.reset.player_all=%s の全てのクエストをリセットします。
-betterquesting.cmd.reset.all_single=クエスト 「%s」 を全員分リセットする。
+betterquesting.cmd.reset.all_single=クエスト「%s」を全員分リセットする。
 betterquesting.cmd.reset.all_all=全員のクエストをリセット
 betterquesting.cmd.refresh=ローカルデータベースを更新中...
 
