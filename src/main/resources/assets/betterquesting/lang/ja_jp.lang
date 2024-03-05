@@ -87,8 +87,8 @@ betterquesting.gui.closing_confirm=変更が失われる可能性があります
 betterquesting.gui.claim_all_warning=本当にすべての報酬を獲得しますか？
 betterquesting.gui.claim_all_confirm=インベントリが埋まっている場合、大量のアイテムがばら撒かれる可能性があります！
 betterquesting.gui.key=キーの名前
-betterquesting.gui.no_key=キーが重複しています
-betterquesting.gui.duplicate_key=合鍵
+betterquesting.gui.no_key=キーがありません
+betterquesting.gui.duplicate_key=キーが重複しています
 betterquesting.gui.yes_always=はい、常に
 betterquesting.gui.formatting_buttons=フォーマット
 
