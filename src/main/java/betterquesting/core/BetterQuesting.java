@@ -53,7 +53,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @Mod(modid = ModReference.MODID, version = BetterQuesting.VERSION, name = ModReference.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
 public class BetterQuesting {
 
-    public static final String VERSION = "@VERSION@";
+    public static final String VERSION = ModReference.VERSION;
     public static final String FORMAT = "2.0.0";
 
     // Used for some legacy compat
