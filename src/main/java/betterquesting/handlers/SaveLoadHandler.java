@@ -10,6 +10,7 @@ import betterquesting.api2.utils.BQThreadedIO;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.questing.QuestDatabase;
@@ -25,7 +26,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Loader;
 
 import java.io.File;
 import java.util.*;
@@ -197,7 +197,7 @@ public class SaveLoadHandler {
 
         String formatVer = nbt.hasKey("format", 8) ? nbt.getString("format") : "0.0.0";
         String buildVer = nbt.getString("build");
-        String currVer = Loader.instance().activeModContainer().getVersion();
+        String currVer = ModReference.VERSION;
 
         if (!currVer.equalsIgnoreCase(buildVer)) // RUN BACKUPS
         {
@@ -300,7 +300,7 @@ public class SaveLoadHandler {
         json.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
 
         json.setString("format", BetterQuesting.FORMAT);
-        json.setString("build", Loader.instance().activeModContainer().getVersion());
+        json.setString("build", ModReference.VERSION);
 
         return JsonHelper.WriteToFile(fileDatabase, NBTConverter.NBTtoJSON_Compound(json, new JsonObject(), true));
     }
