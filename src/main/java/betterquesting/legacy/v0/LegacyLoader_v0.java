@@ -44,7 +44,6 @@ public final class LegacyLoader_v0 implements ILegacyLoader {
 
         if (json.has("editMode")) // This IS the file you are looking for
         {
-            QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, JsonHelper.GetBoolean(json, "editMode", true));
             QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, JsonHelper.GetBoolean(json, "hardcore", false));
 
             QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, JsonHelper.GetNumber(json, "defLives", 3).intValue());

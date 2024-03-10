@@ -22,6 +22,7 @@ import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonObject;
 import io.netty.util.internal.ConcurrentSet;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
@@ -121,7 +122,7 @@ public class SaveLoadHandler {
     public void saveDatabases() {
         List<Future<Void>> allFutures = new ArrayList<>();
 
-        if (isDirty || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) {
+        if (isDirty || QuestSettings.INSTANCE.getEditMode(Minecraft.getMinecraft().player)) {
             allFutures.add(saveConfig());
         }
 

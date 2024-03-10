@@ -4,20 +4,42 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.IQuestSettings;
+import betterquesting.core.BetterQuesting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class QuestSettings extends PropertyContainer implements IQuestSettings {
+    private static final String EDIT_MODE = BetterQuesting.MODID + ".edit_mode";
     public static final QuestSettings INSTANCE = new QuestSettings();
 
     public QuestSettings() {
         this.setupProps();
     }
 
+    public void setEditMode(EntityPlayer player, boolean edit){
+        if (player == null) return;
+        NBTTagCompound playerData = player.getEntityData();
+        NBTTagCompound data = playerData.hasKey(EntityPlayer.PERSISTED_NBT_TAG) ? playerData.getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG) : new NBTTagCompound();
+        data.setBoolean(EDIT_MODE, edit);
+        playerData.setTag(EntityPlayer.PERSISTED_NBT_TAG, data);
+    }
+
+    public boolean getEditMode(EntityPlayer player){
+        if (player == null) return false;
+        NBTTagCompound playerData = player.getEntityData();
+        NBTTagCompound data = playerData.hasKey(EntityPlayer.PERSISTED_NBT_TAG) ? playerData.getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG) : null;
+
+        if (data == null)
+            return false;
+
+        return data.getBoolean(EDIT_MODE);
+    }
+
     @Override
     public boolean canUserEdit(EntityPlayer player) {
         if (player == null) return false;
-        return this.getProperty(NativeProps.EDIT_MODE) && NameCache.INSTANCE.isOP(QuestingAPI.getQuestingUUID(player));
+        return getEditMode(player) && NameCache.INSTANCE.isOP(QuestingAPI.getQuestingUUID(player));
     }
 
     @Override
@@ -37,7 +59,6 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings {
         this.setupValue(NativeProps.PACK_VER);
 
         this.setupValue(NativeProps.PARTY_ENABLE);
-        this.setupValue(NativeProps.EDIT_MODE);
         this.setupValue(NativeProps.HARDCORE);
         this.setupValue(NativeProps.LIVES_DEF);
         this.setupValue(NativeProps.LIVES_MAX);

@@ -179,7 +179,7 @@ public class EventHandler {
 
         EntityPlayerMP player = (EntityPlayerMP) event.getEntityLiving();
         betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-        boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
+        boolean editMode = QuestSettings.INSTANCE.getEditMode(player);
 
         if (qc == null) return;
 
@@ -684,7 +684,7 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onEntityLiving(LivingUpdateEvent event) {
-        if (!(event.getEntityLiving() instanceof EntityPlayer) || event.getEntityLiving().world.isRemote || event.getEntityLiving().ticksExisted % 20 != 0 || QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
+        if (!(event.getEntityLiving() instanceof EntityPlayer) || event.getEntityLiving().world.isRemote || event.getEntityLiving().ticksExisted % 20 != 0 || QuestSettings.INSTANCE.getEditMode((EntityPlayer) event.getEntityLiving()))
             return;
 
         EntityPlayer player = (EntityPlayer) event.getEntityLiving();

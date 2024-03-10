@@ -68,13 +68,9 @@ public class QuestCommandDefaults extends QuestCommandBase {
         }
 
         if (args[1].equalsIgnoreCase("save")) {
-            boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
-
             NBTTagCompound base = new NBTTagCompound();
 
-            QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false);
             base.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
-            QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
             base.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
             base.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
             base.setString("format", BetterQuesting.FORMAT);
@@ -88,7 +84,6 @@ public class QuestCommandDefaults extends QuestCommandBase {
             }
         } else if (args[1].equalsIgnoreCase("load")) {
             if (qFile.exists()) {
-                boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
                 boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 
                 NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
@@ -108,7 +103,6 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
                 QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
 
-                QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
                 QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
 
                 if (args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests")) {

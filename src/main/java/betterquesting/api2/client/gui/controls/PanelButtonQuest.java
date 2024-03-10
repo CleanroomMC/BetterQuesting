@@ -89,7 +89,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
     private List<String> getQuestTooltip(IQuest quest, EntityPlayer player, int qID) {
         List<String> tooltip = getStandardTooltip(quest, player, qID);
 
-        if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips && QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) {
+        if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips && QuestSettings.INSTANCE.getEditMode(player)) {
             tooltip.add("");
             tooltip.addAll(this.getAdvancedTooltip(quest, player, qID));
         }
@@ -130,7 +130,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
                 timeTxt += df.format(time % 60) + "s";
 
                 list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", timeTxt));
-                if (QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) {
+                if (QuestSettings.INSTANCE.getEditMode(player)) {
                     list.add(TextFormatting.RED + QuestTranslation.translate("betterquesting.tooltip.repeat_with_edit_mode"));
                 }
             }

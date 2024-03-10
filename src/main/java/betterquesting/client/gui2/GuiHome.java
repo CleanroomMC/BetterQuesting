@@ -183,7 +183,6 @@ public class GuiHome extends GuiScreenCanvas {
 
             if (qFile.exists()) {
                 FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-                    boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
                     boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 
                     NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
@@ -193,7 +192,6 @@ public class GuiHome extends GuiScreenCanvas {
                     QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), false);
                     QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
 
-                    QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
                     QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
 
                     NetSettingSync.sendSync(null);
