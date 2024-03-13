@@ -28,10 +28,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Future;
 import java.util.function.Function;
@@ -169,7 +166,14 @@ public class HQMQuestImporter implements IImporter {
         if (idMap.containsKey(oldID)) {
             return idMap.get(oldID);
         } else {
-            IQuest quest = qdb.createNew(qdb.nextID());
+            int newID;
+            try {
+                newID = (int) (UUID.fromString(oldID).getMostSignificantBits() & 0x7fff_ffff);
+                if (qdb.getValue(newID) != null) newID = qdb.nextID();
+            } catch (Exception e) {
+                newID = qdb.nextID();
+            }
+            IQuest quest = qdb.createNew(newID);
             idMap.put(oldID, quest);
             return quest;
         }

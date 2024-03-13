@@ -165,7 +165,14 @@ public class FTBQQuestImporter implements IImporter {
                 // === QUEST DATA ===
 
                 String hexID = questFile.getName().substring(0, questFile.getName().length() - (isSnbt ? ".snbt".length() : ".nbt".length()));
-                int questID = questDB.nextID();
+                int questID;
+                try {
+                    questID = Integer.parseInt(hexID, 16) & 0x7fff_ffff;
+                    if (lineDB.getValue(questID) != null)
+                        questID = questDB.nextID();
+                } catch (Exception e) {
+                    questID = questDB.nextID();
+                }
                 IQuest quest = questDB.createNew(questID);
                 IQuestLineEntry qle = questLine.createNew(questID);
                 ID_MAP.put(hexID, new FTBEntry(questID, quest, FTBEntryType.QUEST)); // Add this to the weird ass ID mapping
