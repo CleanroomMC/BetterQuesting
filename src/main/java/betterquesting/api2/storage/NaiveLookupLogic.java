@@ -10,8 +10,8 @@ class NaiveLookupLogic<T> extends LookupLogic<T> {
 
     private TIntObjectMap<DBEntry<T>> backingMap;
 
-    public NaiveLookupLogic(SimpleDatabase<T> simpleDatabase) {
-        super(simpleDatabase);
+    public NaiveLookupLogic(AbstractDatabase<T> abstractDatabase) {
+        super(abstractDatabase);
     }
 
     @Override
@@ -23,7 +23,7 @@ class NaiveLookupLogic<T> extends LookupLogic<T> {
     @Override
     public List<DBEntry<T>> bulkLookup(int[] keys) {
         if (backingMap == null) {
-            backingMap = new TIntObjectHashMap<>(simpleDatabase.mapDB.size());
+            backingMap = new TIntObjectHashMap<>(abstractDatabase.mapDB.size());
             for (DBEntry<T> entry : getRefCache()) {
                 backingMap.put(entry.getID(), entry);
             }
