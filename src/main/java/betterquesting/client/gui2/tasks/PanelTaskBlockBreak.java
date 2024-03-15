@@ -1,19 +1,21 @@
 package betterquesting.client.gui2.tasks;
 
+import java.util.UUID;
+
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.CanvasMinimum;
 import betterquesting.api2.client.gui.panels.content.PanelItemSlot;
+import betterquesting.api2.client.gui.panels.content.PanelTaskOverlay;
+import betterquesting.api2.client.gui.panels.content.PanelTaskOverlay.State;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.questing.tasks.TaskBlockBreak;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextFormatting;
-
-import java.util.UUID;
 
 public class PanelTaskBlockBreak extends CanvasMinimum {
 
@@ -42,19 +44,30 @@ public class PanelTaskBlockBreak extends CanvasMinimum {
             if (stack == null) {
                 continue;
             }
+            boolean completed = isComplete || progress[i] >= stack.stackSize;
 
             PanelItemSlot slot = new PanelItemSlot(new GuiRectangle(0, i * 36, 36, 36, 0), -1, stack, true, true);
-            this.addPanel(slot);
+            PanelTaskOverlay overlay = new PanelTaskOverlay(slot);
+            if (completed)
+                overlay.setState(State.COMPLETE);
+            else if (progress[i] > 0)
+                overlay.setState(State.IN_PROGRESS);
+            else
+                overlay.setState(State.INCOMPLETE);
+            if (!completed)
+                overlay.setText(progress[i] + "/" + stack.stackSize);
+            this.addPanel(overlay);
 
             StringBuilder sb = new StringBuilder();
 
             sb.append(stack.getBaseStack().getDisplayName());
 
-            if (stack.hasOreDict()) sb.append(" (").append(stack.getOreDict()).append(")");
+            if (stack.hasOreDict())
+                sb.append(" (").append(stack.getOreDict()).append(")");
 
             sb.append("\n").append(progress[i]).append("/").append(stack.stackSize).append("\n");
 
-            if (progress[i] >= stack.stackSize || isComplete) {
+            if (completed) {
                 sb.append(TextFormatting.GREEN).append(QuestTranslation.translate("betterquesting.tooltip.complete"));
             } else {
                 sb.append(TextFormatting.RED).append(QuestTranslation.translate("betterquesting.tooltip.incomplete"));

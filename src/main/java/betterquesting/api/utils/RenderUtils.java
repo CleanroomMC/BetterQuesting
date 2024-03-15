@@ -1,5 +1,14 @@
 package betterquesting.api.utils;
 
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import javax.annotation.Nonnull;
+
+import org.lwjgl.opengl.GL11;
+
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
@@ -8,7 +17,12 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.core.BetterQuesting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
@@ -19,18 +33,14 @@ import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
-
-import javax.annotation.Nonnull;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 // TODO: Move text related stuff to its own utility class
 @SideOnly(Side.CLIENT)
 public class RenderUtils {
+
     public static final String REGEX_NUMBER = "[^\\.0123456789-]"; // I keep screwing this up so now it's reusable
+    // Saves me having to run the math function every frame
+    private static final double RAD = Math.toRadians(360F);
 
     public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text) {
         RenderItemStack(mc, stack, x, y, text, Color.WHITE.getRGB());
@@ -65,7 +75,8 @@ public class RenderUtils {
         itemRender.zLevel = -150F; // Counters internal Z depth change so that GL translation makes sense
 
         FontRenderer font = stack.getItem().getFontRenderer(stack);
-        if (font == null) font = mc.fontRenderer;
+        if (font == null)
+            font = mc.fontRenderer;
 
         try {
             itemRender.renderItemAndEffectIntoGUI(stack, x, y);
@@ -206,11 +217,42 @@ public class RenderUtils {
 
     // TODO: Clean this up. The list of parameters is getting a bit excessive
 
-    public static void drawHighlightedSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow, int highlightColor, int highlightStart, int highlightEnd) {
-        drawHighlightedSplitString(renderer, string, x, y, width, color, shadow, 0, splitString(string, width, renderer).size() - 1, highlightColor, highlightStart, highlightEnd);
+    public static void drawHighlightedSplitString(FontRenderer renderer,
+                                                  String string,
+                                                  int x,
+                                                  int y,
+                                                  int width,
+                                                  int color,
+                                                  boolean shadow,
+                                                  int highlightColor,
+                                                  int highlightStart,
+                                                  int highlightEnd) {
+        drawHighlightedSplitString(renderer,
+                                   string,
+                                   x,
+                                   y,
+                                   width,
+                                   color,
+                                   shadow,
+                                   0,
+                                   splitString(string, width, renderer).size() - 1,
+                                   highlightColor,
+                                   highlightStart,
+                                   highlightEnd);
     }
 
-    public static void drawHighlightedSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow, int start, int end, int highlightColor, int highlightStart, int highlightEnd) {
+    public static void drawHighlightedSplitString(FontRenderer renderer,
+                                                  String string,
+                                                  int x,
+                                                  int y,
+                                                  int width,
+                                                  int color,
+                                                  boolean shadow,
+                                                  int start,
+                                                  int end,
+                                                  int highlightColor,
+                                                  int highlightStart,
+                                                  int highlightEnd) {
         if (renderer == null || string == null || string.length() <= 0 || start > end) {
             return;
         }
@@ -248,22 +290,22 @@ public class RenderUtils {
             renderer.drawString(list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
 
             // DEBUG
-			/*boolean b = (System.currentTimeMillis()/1000)%2 == 0;
-			
-			if(b)
-			{
-				renderer.drawString(i + ": " + list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
-			}
-			
-			if(i >= noFormat.size())
-			{
-				continue;
-			}
-			
-			if(!b)
-			{
-				renderer.drawString(i + ": " + noFormat.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
-			}*/
+            /*boolean b = (System.currentTimeMillis()/1000)%2 == 0;
+            
+            if(b)
+            {
+                renderer.drawString(i + ": " + list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
+            }
+            
+            if(i >= noFormat.size())
+            {
+                continue;
+            }
+            
+            if(!b)
+            {
+                renderer.drawString(i + ": " + noFormat.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
+            }*/
 
             int lineSize = noFormat.get(i).length();
             int idxEnd = idxStart + lineSize;
@@ -276,14 +318,26 @@ public class RenderUtils {
                 int x1 = getStringWidth(lastFormat + noFormat.get(i).substring(0, i1), renderer);
                 int x2 = getStringWidth(lastFormat + noFormat.get(i).substring(0, i2), renderer);
 
-                drawHighlightBox(x + x1, y + (renderer.FONT_HEIGHT * (i - start)), x + x2, y + (renderer.FONT_HEIGHT * (i - start)) + renderer.FONT_HEIGHT, highlightColor);
+                drawHighlightBox(x + x1,
+                                 y + (renderer.FONT_HEIGHT * (i - start)),
+                                 x + x2,
+                                 y + (renderer.FONT_HEIGHT * (i - start)) + renderer.FONT_HEIGHT,
+                                 highlightColor);
             }
 
             idxStart = idxEnd;
         }
     }
 
-    public static void drawHighlightedString(FontRenderer renderer, String string, int x, int y, int color, boolean shadow, int highlightColor, int highlightStart, int highlightEnd) {
+    public static void drawHighlightedString(FontRenderer renderer,
+                                             String string,
+                                             int x,
+                                             int y,
+                                             int color,
+                                             boolean shadow,
+                                             int highlightColor,
+                                             int highlightStart,
+                                             int highlightEnd) {
         if (renderer == null || string == null || string.length() <= 0) {
             return;
         }
@@ -356,7 +410,10 @@ public class RenderUtils {
         BufferBuilder vertexbuffer = tessellator.getBuffer();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+                                            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                                            GlStateManager.SourceFactor.ONE,
+                                            GlStateManager.DestFactor.ZERO);
         color.applyGlColor();
         vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
         vertexbuffer.pos((double) rect.getX(), (double) rect.getY() + rect.getHeight(), 0.0D).endVertex();
@@ -659,18 +716,33 @@ public class RenderUtils {
         return (a3 << 24) + (r3 << 16) + (g3 << 8) + b3;
     }
 
-    public static void drawHoveringText(List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font) {
+    public static void drawHoveringText(List<String> textLines,
+                                        int mouseX,
+                                        int mouseY,
+                                        int screenWidth,
+                                        int screenHeight,
+                                        int maxTextWidth,
+                                        FontRenderer font) {
         drawHoveringText(ItemStack.EMPTY, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
     }
 
     /**
      * Modified version of Forge's tooltip rendering that doesn't adjust Z depth
      */
-    public static void drawHoveringText(@Nonnull final ItemStack stack, List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font) {
-        if (textLines == null || textLines.isEmpty()) return;
+    public static void drawHoveringText(@Nonnull final ItemStack stack,
+                                        List<String> textLines,
+                                        int mouseX,
+                                        int mouseY,
+                                        int screenWidth,
+                                        int screenHeight,
+                                        int maxTextWidth,
+                                        FontRenderer font) {
+        if (textLines == null || textLines.isEmpty())
+            return;
 
         RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(stack, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
-        if (MinecraftForge.EVENT_BUS.post(event)) return;
+        if (MinecraftForge.EVENT_BUS.post(event))
+            return;
 
         mouseX = event.getX();
         mouseY = event.getY();
@@ -766,28 +838,28 @@ public class RenderUtils {
         } else if (tooltipY + tooltipHeight + 4 > screenHeight) {
             tooltipY = screenHeight - tooltipHeight - 4;
         }
-		
-		/*int backgroundColor = 0xF0100010;
-		int borderColorStart = 0x505000FF;
-		int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
-		
-		RenderTooltipEvent.Color colorEvent = new RenderTooltipEvent.Color(stack, textLines, tooltipX, tooltipY, font, backgroundColor, borderColorStart, borderColorEnd);
-		MinecraftForge.EVENT_BUS.post(colorEvent);
-		backgroundColor = colorEvent.getBackground();
-		borderColorStart = colorEvent.getBorderStart();
-		borderColorEnd = colorEvent.getBorderEnd();
-		
-		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
-		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
-		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
-		GuiUtils.drawGradientRect(0, tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
-		GuiUtils.drawGradientRect(0, tooltipX + tooltipTextWidth + 3, tooltipY - 3, tooltipX + tooltipTextWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
-		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
-		GuiUtils.drawGradientRect(0, tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
-		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
-		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 
-		MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, textLines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));*/
+        /*int backgroundColor = 0xF0100010;
+        int borderColorStart = 0x505000FF;
+        int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
+        
+        RenderTooltipEvent.Color colorEvent = new RenderTooltipEvent.Color(stack, textLines, tooltipX, tooltipY, font, backgroundColor, borderColorStart, borderColorEnd);
+        MinecraftForge.EVENT_BUS.post(colorEvent);
+        backgroundColor = colorEvent.getBackground();
+        borderColorStart = colorEvent.getBorderStart();
+        borderColorEnd = colorEvent.getBorderEnd();
+        
+        GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
+        GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
+        GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+        GuiUtils.drawGradientRect(0, tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+        GuiUtils.drawGradientRect(0, tooltipX + tooltipTextWidth + 3, tooltipY - 3, tooltipX + tooltipTextWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+        GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+        GuiUtils.drawGradientRect(0, tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+        GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
+        GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
+        
+        MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, textLines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));*/
         PresetTexture.TOOLTIP_BG.getTexture().drawTexture(tooltipX - 4, tooltipY - 4, tooltipTextWidth + 8, tooltipHeight + 8, 0F, 1F);
         int tooltipTop = tooltipY;
 
@@ -818,7 +890,8 @@ public class RenderUtils {
      * A version of getStringWidth that actually behaves according to the format resetting rules of colour codes. Minecraft's built in one is busted!
      */
     public static int getStringWidth(String text, FontRenderer font) {
-        if (text == null || text.length() == 0) return 0;
+        if (text == null || text.length() == 0)
+            return 0;
 
         int maxWidth = 0;
         int curLineWidth = 0;
@@ -865,4 +938,16 @@ public class RenderUtils {
 
         return Math.max(maxWidth, curLineWidth);
     }
+
+    public static float sineWave(double periodSeconds, double phase) {
+        // Period in milliseconds
+        double pms = 1000 * periodSeconds;
+        // Current period time
+        double time = System.currentTimeMillis() % pms;
+        // Shift current time by phase, wrap value and scale between 0.0 - 1.0
+        time = (time + (pms * phase)) % pms / pms;
+        // Convert time to sine wave between 0.0 and 1.0
+        return (float) (Math.cos(time * RAD) / 2D + 0.5D);
+    }
+
 }

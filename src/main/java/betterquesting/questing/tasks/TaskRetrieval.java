@@ -1,8 +1,10 @@
 package betterquesting.questing.tasks;
 
+import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.IItemTask;
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.ItemComparison;
 import betterquesting.api.utils.JsonHelper;
@@ -14,6 +16,18 @@ import betterquesting.client.gui2.editors.tasks.GuiEditTaskRetrieval;
 import betterquesting.client.gui2.tasks.PanelTaskRetrieval;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.factory.FactoryTaskRetrieval;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.stream.IntStream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -31,12 +45,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.IntStream;
-
 public class TaskRetrieval implements ITaskInventory, IItemTask {
+
     private final Set<UUID> completeUsers = new TreeSet<>();
     public final NonNullList<BigItemStack> requiredItems = NonNullList.create();
     private final TreeMap<UUID, int[]> userProgress = new TreeMap<>();
@@ -46,16 +56,23 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     public boolean groupDetect = false;
     public boolean autoConsume = false;
     public EnumLogic entryLogic = EnumLogic.AND;
+    private boolean fold = BQ_Settings.taskFoldedInitially; // This remains through the game.
 
-    @Override
-    public String getUnlocalisedName() {
-        return BetterQuesting.MODID_STD + ".task.retrieval";
+    public boolean isFold() { return fold; }
+
+    public void setFold(boolean fold) {
+        this.fold = fold;
+        GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+        if (screen instanceof INeedsRefresh needsRefresh) {
+            needsRefresh.refreshGui();
+        }
     }
 
     @Override
-    public ResourceLocation getFactoryID() {
-        return FactoryTaskRetrieval.INSTANCE.getRegistryName();
-    }
+    public String getUnlocalisedName() { return BetterQuesting.MODID_STD + ".task.retrieval"; }
+
+    @Override
+    public ResourceLocation getFactoryID() { return FactoryTaskRetrieval.INSTANCE.getRegistryName(); }
 
     @Override
     public boolean isComplete(UUID uuid) {
@@ -121,7 +138,8 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
                 for (int j = 0; j < requiredItems.size(); j++) {
                     BigItemStack rStack = requiredItems.get(j);
 
-                    if (!ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) && !ItemComparison.OreDictionaryMatch(rStack.getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
+                    if (!ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) && !ItemComparison.OreDictionaryMatch(rStack
+                            .getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
                         continue;
                     }
 
@@ -339,7 +357,8 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
             if (progress[j] >= rStack.stackSize)
                 continue;
 
-            if (ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) || ItemComparison.OreDictionaryMatch(rStack.getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
+            if (ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) || ItemComparison.OreDictionaryMatch(rStack
+                    .getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
                 return true;
             }
         }
@@ -368,7 +387,8 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
 
             int remaining = rStack.stackSize - progress[j];
 
-            if (ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) || ItemComparison.OreDictionaryMatch(rStack.getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
+            if (ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) || ItemComparison.OreDictionaryMatch(rStack
+                    .getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
                 int removed = Math.min(stack.getCount(), remaining);
                 stack.shrink(removed);
                 progress[j] += removed;
@@ -437,4 +457,5 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         }
         return texts;
     }
+
 }

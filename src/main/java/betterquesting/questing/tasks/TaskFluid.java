@@ -1,8 +1,10 @@
 package betterquesting.questing.tasks;
 
+import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.IFluidTask;
 import betterquesting.api.questing.tasks.IItemTask;
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
@@ -11,6 +13,17 @@ import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.client.gui2.tasks.PanelTaskFluid;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.factory.FactoryTaskFluid;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -32,11 +45,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-
 public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
+
     private final Set<UUID> completeUsers = new TreeSet<>();
     public final NonNullList<FluidStack> requiredFluids = NonNullList.create();
     public final TreeMap<UUID, int[]> userProgress = new TreeMap<>();
@@ -45,16 +55,23 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
     public boolean consume = true;
     public boolean groupDetect = false;
     public boolean autoConsume = false;
+    private boolean fold = BQ_Settings.taskFoldedInitially; // This remains through the game.
 
-    @Override
-    public ResourceLocation getFactoryID() {
-        return FactoryTaskFluid.INSTANCE.getRegistryName();
+    public boolean isFold() { return fold; }
+
+    public void setFold(boolean fold) {
+        this.fold = fold;
+        GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+        if (screen instanceof INeedsRefresh needsRefresh) {
+            needsRefresh.refreshGui();
+        }
     }
 
     @Override
-    public String getUnlocalisedName() {
-        return "bq_standard.task.fluid";
-    }
+    public ResourceLocation getFactoryID() { return FactoryTaskFluid.INSTANCE.getRegistryName(); }
+
+    @Override
+    public String getUnlocalisedName() { return "bq_standard.task.fluid"; }
 
     @Override
     public boolean isComplete(UUID uuid) {
@@ -75,7 +92,8 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
 
     @Override
     public void detect(ParticipantInfo pInfo, DBEntry<IQuest> quest) {
-        if (isComplete(pInfo.UUID)) return;
+        if (isComplete(pInfo.UUID))
+            return;
 
         // Removing the consume check here would make the task cheaper on groups and for that reason sharing is restricted to detect only
         final List<Tuple<UUID, int[]>> progress = getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
@@ -112,33 +130,41 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         for (InventoryPlayer invo : invoList) {
             for (int i = 0; i < invo.getSizeInventory(); i++) {
                 ItemStack stack = invo.getStackInSlot(i);
-                if (stack.isEmpty()) continue;
+                if (stack.isEmpty())
+                    continue;
                 IFluidHandlerItem handler = FluidUtil.getFluidHandler(stack);
-                if (handler == null) continue;
+                if (handler == null)
+                    continue;
 
                 boolean hasDrained = false;
 
                 for (int j = 0; j < requiredFluids.size(); j++) {
                     final FluidStack rStack = requiredFluids.get(j);
                     FluidStack drainOG = rStack.copy();
-                    if (ignoreNbt) drainOG.tag = null;
+                    if (ignoreNbt)
+                        drainOG.tag = null;
 
                     // Pre-check
                     FluidStack sample = handler.drain(drainOG, false);
-                    if (sample == null || sample.amount <= 0) continue;
+                    if (sample == null || sample.amount <= 0)
+                        continue;
 
                     // Theoretically this could work in consume mode for parties but the priority order and manual submission code would need changing
                     for (Tuple<UUID, int[]> value : progress) {
-                        if (value.getSecond()[j] >= rStack.amount) continue;
+                        if (value.getSecond()[j] >= rStack.amount)
+                            continue;
                         int remaining = rStack.amount - value.getSecond()[j];
 
                         FluidStack drain = rStack.copy();
                         drain.amount = remaining / stack.getCount(); // Must be a multiple of the stack size
-                        if (ignoreNbt) drain.tag = null;
-                        if (drain.amount <= 0) continue;
+                        if (ignoreNbt)
+                            drain.tag = null;
+                        if (drain.amount <= 0)
+                            continue;
 
                         FluidStack fluid = handler.drain(drain, consume); // TODO: Look into reducing this to a single call if possible
-                        if (fluid == null || fluid.amount <= 0) continue;
+                        if (fluid == null || fluid.amount <= 0)
+                            continue;
 
                         value.getSecond()[j] += fluid.amount * stack.getCount();
                         hasDrained = true;
@@ -146,11 +172,13 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
                     }
                 }
 
-                if (hasDrained && consume) invo.setInventorySlotContents(i, handler.getContainer());
+                if (hasDrained && consume)
+                    invo.setInventorySlotContents(i, handler.getContainer());
             }
         }
 
-        if (updated) setBulkProgress(progress);
+        if (updated)
+            setBulkProgress(progress);
         checkAndComplete(pInfo, quest, updated);
     }
 
@@ -161,7 +189,8 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         topLoop:
         for (Tuple<UUID, int[]> value : progress) {
             for (int j = 0; j < requiredFluids.size(); j++) {
-                if (value.getSecond()[j] >= requiredFluids.get(j).amount) continue;
+                if (value.getSecond()[j] >= requiredFluids.get(j).amount)
+                    continue;
                 continue topLoop;
             }
 
@@ -259,14 +288,17 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
 
         if (users != null) {
             users.forEach((uuid) -> {
-                if (completeUsers.contains(uuid)) jArray.appendTag(new NBTTagString(uuid.toString()));
+                if (completeUsers.contains(uuid))
+                    jArray.appendTag(new NBTTagString(uuid.toString()));
 
                 int[] data = userProgress.get(uuid);
                 if (data != null) {
                     NBTTagCompound pJson = new NBTTagCompound();
                     pJson.setString("uuid", uuid.toString());
                     NBTTagList pArray = new NBTTagList(); // TODO: Why the heck isn't this just an int array?!
-                    for (int i : data) pArray.appendTag(new NBTTagInt(i));
+                    for (int i : data) {
+                        pArray.appendTag(new NBTTagInt(i));
+                    }
                     pJson.setTag("data", pArray);
                     progArray.appendTag(pJson);
                 }
@@ -278,7 +310,9 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
                 NBTTagCompound pJson = new NBTTagCompound();
                 pJson.setString("uuid", uuid.toString());
                 NBTTagList pArray = new NBTTagList(); // TODO: Why the heck isn't this just an int array?!
-                for (int i : data) pArray.appendTag(new NBTTagInt(i));
+                for (int i : data) {
+                    pArray.appendTag(new NBTTagInt(i));
+                }
                 pJson.setTag("data", pArray);
                 progArray.appendTag(pJson);
             });
@@ -323,8 +357,10 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
 
         for (int j = 0; j < requiredFluids.size(); j++) {
             FluidStack rStack = requiredFluids.get(j).copy();
-            if (ignoreNbt) rStack.tag = null;
-            if (progress[j] < rStack.amount && rStack.equals(fluid)) return true;
+            if (ignoreNbt)
+                rStack.tag = null;
+            if (progress[j] < rStack.amount && rStack.equals(fluid))
+                return true;
         }
 
         return false;
@@ -338,13 +374,16 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
 
         IFluidHandlerItem handler = FluidUtil.getFluidHandler(item);
 
-        if (handler == null) return false;
+        if (handler == null)
+            return false;
 
         for (IFluidTankProperties tank : handler.getTankProperties()) {
-            if (!tank.canDrain()) continue;
+            if (!tank.canDrain())
+                continue;
 
             for (FluidStack rStack : requiredFluids) {
-                if (rStack.equals(tank.getContents())) return true;
+                if (rStack.equals(tank.getContents()))
+                    return true;
             }
         }
 
@@ -367,7 +406,8 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         for (int j = 0; j < requiredFluids.size(); j++) {
             FluidStack rStack = requiredFluids.get(j);
 
-            if (progress[j] >= rStack.amount) continue;
+            if (progress[j] >= rStack.amount)
+                continue;
 
             int remaining = rStack.amount - progress[j];
 
@@ -396,13 +436,15 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
                 // It's implied to be a consume task so no need to lookup the party
                 boolean hasAll = true;
                 for (int j = 0; j < requiredFluids.size(); j++) {
-                    if (progress[j] >= requiredFluids.get(j).amount) continue;
+                    if (progress[j] >= requiredFluids.get(j).amount)
+                        continue;
 
                     hasAll = false;
                     break;
                 }
 
-                if (hasAll) setComplete(owner);
+                if (hasAll)
+                    setComplete(owner);
             }
         }
 
@@ -411,24 +453,28 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
 
     @Override
     public ItemStack submitItem(UUID owner, DBEntry<IQuest> quest, ItemStack input) {
-        if (owner == null || input.isEmpty() || !consume || isComplete(owner)) return input;
+        if (owner == null || input.isEmpty() || !consume || isComplete(owner))
+            return input;
 
         ItemStack item = input.splitStack(1); // Prevents issues with stack filling/draining
 
         IFluidHandlerItem handler = FluidUtil.getFluidHandler(item);
-        if (handler == null) return item;
+        if (handler == null)
+            return item;
 
         boolean hasDrained = false;
 
         for (IFluidTankProperties tank : handler.getTankProperties()) {
-            if (!tank.canDrain() || tank.getContents() == null || !tank.canDrainFluidType(tank.getContents())) continue;
+            if (!tank.canDrain() || tank.getContents() == null || !tank.canDrainFluidType(tank.getContents()))
+                continue;
 
             // Figure out how much of this fluid is left to submit to the task
             FluidStack remaining = submitFluidInternal(owner, quest, tank.getContents().copy(), false);
             FluidStack drain = tank.getContents().copy();
             drain.amount -= remaining == null ? 0 : remaining.amount;
 
-            if (drain.amount <= 0) continue;
+            if (drain.amount <= 0)
+                continue;
 
             // Attempt drain of remaining amount and submit to task progress
             submitFluidInternal(owner, quest, handler.drain(drain, true), true);
@@ -448,7 +494,8 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
     }
 
     private List<Tuple<UUID, int[]>> getBulkProgress(@Nonnull List<UUID> uuids) {
-        if (uuids.size() <= 0) return Collections.emptyList();
+        if (uuids.size() <= 0)
+            return Collections.emptyList();
         List<Tuple<UUID, int[]>> list = new ArrayList<>();
         uuids.forEach((key) -> list.add(new Tuple<>(key, getUsersProgress(key))));
         return list;
@@ -467,4 +514,5 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         }
         return texts;
     }
+
 }
