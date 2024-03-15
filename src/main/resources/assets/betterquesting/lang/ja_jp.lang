@@ -65,6 +65,8 @@ betterquesting.btn.visible_always=常に依存ラインを表示する
 betterquesting.btn.visible_implicit=カーソルを合わせると前提クエストが表示されます。
 betterquesting.btn.view_mode=閲覧モード
 betterquesting.btn.share_quest=チャットに共有
+betterquesting.btn.edit_name_desc.just_close=閉じる
+betterquesting.btn.edit_name_desc.open_window=ウィンドウを開く
 
 betterquesting.home.exit=終了
 betterquesting.home.quests=クエスト
@@ -110,6 +112,8 @@ betterquesting.tooltip.auto_claim=自動獲得 : %s
 betterquesting.tooltip.repeat=クールダウン : %s
 betterquesting.tooltip.repeat_with_edit_mode=編集モードが有効なので、繰り返し可能なクエストはリセットされません。
 betterquesting.tooltip.update_quests=アップデートがあります!%n§7新しいクエストラインバージョンが利用可能です。
+betterquesting.tooltip.edit_name_desc.just_close_screen=画面を閉じますが、ウィンドウは残ります。
+betterquesting.tooltip.edit_name_desc.just_close_window=ウィンドウを閉じますが、画面は残ります。
 
 betterquesting.notice.complete=クエストコンプリート
 betterquesting.notice.update=クエスト更新
@@ -273,11 +277,13 @@ bq_standard.title.edit_crafting=クラフトタスクの編集
 bq_standard.title.edit_scoreboard=スコアボードタスクの編集
 bq_standard.title.edit_advancement=進捗タスクの編集
 bq_standard.title.edit_tame=テイムタスクの編集
+bq_standard.title.edit_retrieval_task=回収タスクの編集
 
 bq_standard.btn.select_mob=モブを選択
 bq_standard.btn.add_remove_drops=ドロップの追加と削除
 bq_standard.btn.edit_items=アイテムの追加と削除
 bq_standard.btn.consume=消費 : %s
+bq_standard.btn.edit_nbt=NBTを編集
 
 bq_standard.gui.amount=量
 bq_standard.gui.kill=%s を殺せ。
