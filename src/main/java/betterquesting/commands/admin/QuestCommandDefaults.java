@@ -6,6 +6,7 @@ import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ModReference;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
@@ -77,6 +78,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
             base.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
             base.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
             base.setString("format", BetterQuesting.FORMAT);
+            base.setString("build", ModReference.VERSION);
             JsonHelper.WriteToFile(qFile, NBTConverter.NBTtoJSON_Compound(base, new JsonObject(), true));
 
             if (args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests")) {
