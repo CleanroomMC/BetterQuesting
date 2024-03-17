@@ -300,8 +300,8 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
         if (!sortedQuestLineFiles.isEmpty()) {
             sortedQuestLineFiles.sort((file1, file2) -> {
-                int id1 = Integer.parseInt(file1.getName().replaceFirst("[^0-9]+", ""));
-                int id2 = Integer.parseInt(file2.getName().replaceFirst("[^0-9]+", ""));
+                int id1 = Integer.parseInt(file1.getName().replaceAll("[^0-9]+", ""));
+                int id2 = Integer.parseInt(file2.getName().replaceAll("[^0-9]+", ""));
                 return id1 - id2;
             });
         }
@@ -318,7 +318,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
                     path -> {
                         File questFile = path.toFile();
                         NBTTagCompound questTag = readNbt.apply(questFile);
-                        int questId = Integer.parseInt(questFile.getName().replaceFirst("[^0-9]+", ""));
+                        int questId = Integer.parseInt(questFile.getName().replaceAll("[^0-9]+", ""));
 
                         if (questId < 0) {
                             return;
