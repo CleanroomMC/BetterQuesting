@@ -127,6 +127,21 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
     public static void save(@Nullable ICommandSender sender, String databaseName, File dataDir) {
 
+        BiFunction<String, Integer, String> buildFileName =
+                (name, id) -> {
+                    String formattedName = removeChatFormatting(name).replaceAll("[^a-zA-Z0-9]", "");
+
+                    if (formattedName.length() > FILE_NAME_MAX_LENGTH) {
+                        formattedName = formattedName.substring(0, FILE_NAME_MAX_LENGTH);
+                    }
+
+                    if (!BQ_Settings.saveQuestsWithNames) {
+                        return String.valueOf(id);
+                    }
+                    return String.format("%s-%s", formattedName, id);
+                };
+
+
         File settingsFile = new File(dataDir, SETTINGS_FILE);
         if (dataDir.exists()) {
             if (!settingsFile.exists()) {
@@ -172,9 +187,10 @@ public class QuestCommandDefaults extends QuestCommandBase {
             int questLineId = entry.getID();
             IQuestLine questLine = entry.getValue();
             questLine.getEntries().forEach(quest -> questToQuestLineMultimap.put(quest.getID(), questLine));
+            String questLineName = questLine.getProperty(NativeProps.NAME);
+            String questLineNameTranslated = QuestTranslation.translate(questLineName);
 
-
-            File questLineFile = new File(questLineDir, questLineId + ".json");
+            File questLineFile = new File(questLineDir, buildFileName.apply(questLineNameTranslated, questLineId) + ".json");
             NBTTagCompound questLineTag = questLine.writeToNBT(new NBTTagCompound(), null);
             JsonHelper.WriteToFile(questLineFile, NBTConverter.NBTtoJSON_Compound(questLineTag, new JsonObject(), true));
         }
@@ -197,7 +213,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
                     int questLineId = QuestLineDatabase.INSTANCE.getID(questLine);
                     String questLineName = questLine.getProperty(NativeProps.NAME);
                     String translatedLineName = QuestTranslation.translate(questLineName);
-                    questDir = new File(questDir, String.valueOf(questLineId));
+                    questDir = new File(questDir, buildFileName.apply(translatedLineName, questLineId));
                     break;
                 default:
                     questDir = new File(questDir, MULTI_QUEST_LINE_DIRECTORY);
@@ -207,7 +223,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
             String questName = quest.getProperty(NativeProps.NAME);
             String translatedQuestName = QuestTranslation.translate(questName);
 
-            File questFile = new File(questDir, questId + ".json");
+            File questFile = new File(questDir, buildFileName.apply(translatedQuestName, questId) + ".json");
             if (!questFile.exists() && !questFile.mkdirs()) {
                 QuestingAPI.getLogger().log(Level.ERROR, "Failed to create directories\n{}", questFile);
                 sendChatMessage(sender, "betterquesting.cmd.error");
@@ -284,8 +300,8 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
         if (!sortedQuestLineFiles.isEmpty()) {
             sortedQuestLineFiles.sort((file1, file2) -> {
-                int id1 = Integer.parseInt(file1.getName().replaceFirst("[.][^.]+$", ""));
-                int id2 = Integer.parseInt(file2.getName().replaceFirst("[.][^.]+$", ""));
+                int id1 = Integer.parseInt(file1.getName().replaceFirst("[^0-9]+", ""));
+                int id2 = Integer.parseInt(file2.getName().replaceFirst("[^0-9]+", ""));
                 return id1 - id2;
             });
         }
@@ -302,7 +318,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
                     path -> {
                         File questFile = path.toFile();
                         NBTTagCompound questTag = readNbt.apply(questFile);
-                        int questId = Integer.parseInt(questFile.getName().replaceFirst("[.][^.]+$", ""));
+                        int questId = Integer.parseInt(questFile.getName().replaceFirst("[^0-9]+", ""));
 
                         if (questId < 0) {
                             return;
