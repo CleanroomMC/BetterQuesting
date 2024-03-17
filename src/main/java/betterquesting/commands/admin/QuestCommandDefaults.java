@@ -129,7 +129,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
         BiFunction<String, Integer, String> buildFileName =
                 (name, id) -> {
-                    String formattedName = removeChatFormatting(name).replaceAll("[^a-zA-Z0-9]", "");
+                    String formattedName = removeChatFormatting(name).replaceAll("[^a-zA-Z]", "");
 
                     if (formattedName.length() > FILE_NAME_MAX_LENGTH) {
                         formattedName = formattedName.substring(0, FILE_NAME_MAX_LENGTH);
