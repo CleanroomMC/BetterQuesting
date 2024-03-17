@@ -96,12 +96,12 @@ public class QuestCommandDefaults extends QuestCommandBase {
         // The location of the legacy single huge file.
         File legacyFile;
 
-        if (args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests")) {
+        if (args.length == 3 && !args[2].equalsIgnoreCase(DEFAULT_FILE)) {
             databaseName = args[2];
             dataDir = new File(BQ_Settings.defaultDir, "saved_quests/" + args[2]);
             legacyFile = new File(BQ_Settings.defaultDir, "saved_quests/" + args[2] + ".json");
         } else {
-            databaseName = null;
+            databaseName = DEFAULT_FILE;
             dataDir = new File(BQ_Settings.defaultDir, DEFAULT_FILE);
             legacyFile = new File(BQ_Settings.defaultDir, DEFAULT_FILE + ".json");
         }
