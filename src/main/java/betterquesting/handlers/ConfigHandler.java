@@ -41,7 +41,7 @@ public class ConfigHandler {
         BQ_Settings.defaultVisibility = config.getString("Default Quest Visibility", Configuration.CATEGORY_GENERAL, "NORMAL", "The default visibility value used when creating quests");
 
         BQ_Settings.spawnWithQuestBook = config.getBoolean("Spawn with Quest Book", Configuration.CATEGORY_GENERAL, true, "If true, then the player will spawn with a Quest Book when they first join the world");
-        BQ_Settings.saveQuestsWithNames = config.getBoolean("DefaultQuests saves using Names", Configuration.CATEGORY_GENERAL, false, "If true, whenever you save your quests, they will have the first 16 characters of the name in the file name.");
+        BQ_Settings.saveQuestsWithNames = config.getBoolean("DefaultQuests saves using Names", Configuration.CATEGORY_GENERAL, false, "If true, whenever you save your quests, they will have the first 16 characters of the quest name in the file name, this is useful if you want to be easily able to identify quests in file explorer, however it is less compatible when using version control.");
         config.save();
     }
 }

@@ -65,7 +65,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
     @Override
     public String getUsageSuffix() {
-        return "[save|load|set] [file_name]";
+        return "[save|load|set|saveLegacy|loadLegacy] [file_name]";
     }
 
     @Override
@@ -76,7 +76,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
     @Override
     public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args) {
         if (args.length == 2) {
-            return CommandBase.getListOfStringsMatchingLastWord(args, "save", "load", "set");
+            return CommandBase.getListOfStringsMatchingLastWord(args, "save", "load", "set", "saveLegacy", "loadLegacy");
         } else if (args.length == 3) {
             return Collections.singletonList("DefaultQuests");
         }
