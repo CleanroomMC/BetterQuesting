@@ -177,25 +177,10 @@ public class ToolboxToolCopy implements IToolboxTool {
     }
 
     private int[] getNextIDs(int num) {
-        List<DBEntry<IQuest>> listDB = QuestDatabase.INSTANCE.getEntries();
         int[] nxtIDs = new int[num];
-
-        if (listDB.size() <= 0 || listDB.get(listDB.size() - 1).getID() == listDB.size() - 1) {
-            for (int i = 0; i < num; i++) nxtIDs[i] = listDB.size() + i;
-            return nxtIDs;
-        }
-
-        int n1 = 0;
-        int n2 = 0;
         for (int i = 0; i < num; i++) {
-            while (n2 < listDB.size() && listDB.get(n2).getID() == n1) {
-                n1++;
-                n2++;
-            }
-
-            nxtIDs[i] = n1++;
+            nxtIDs[i] = QuestDatabase.INSTANCE.nextID();
         }
-
         return nxtIDs;
     }
 
