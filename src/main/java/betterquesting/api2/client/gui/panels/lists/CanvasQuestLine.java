@@ -96,17 +96,19 @@ public class CanvasQuestLine extends CanvasScrolling {
 
         HashMap<Integer, PanelButtonQuest> questBtns = new HashMap<>();
 
-        for (DBEntry<IQuestLineEntry> qle : line.getEntries()) {
-            IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(qle.getID());
+        for (DBEntry<IQuestLineEntry> questLineEntry : line.getEntries()) {
+            IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(questLineEntry.getID());
 
-            if (!QuestCache.isQuestShown(quest, pid, player)) continue;
+            if (!QuestCache.isQuestShown(quest, pid, player)) {
+                continue;
+            }
 
-            GuiRectangle rect = new GuiRectangle(qle.getValue().getPosX(), qle.getValue().getPosY(), qle.getValue().getSizeX(), qle.getValue().getSizeY());
-            PanelButtonQuest paBtn = new PanelButtonQuest(rect, buttonId, "", new DBEntry<>(qle.getID(), quest));
+            GuiRectangle questRect = new GuiRectangle(questLineEntry.getValue().getPosX(), questLineEntry.getValue().getPosY(), questLineEntry.getValue().getSizeX(), questLineEntry.getValue().getSizeY());
+            PanelButtonQuest paBtn = new PanelButtonQuest(questRect, buttonId, "", new DBEntry<>(questLineEntry.getID(), quest));
 
             this.addPanel(paBtn);
             this.btnList.add(paBtn);
-            questBtns.put(qle.getID(), paBtn);
+            questBtns.put(questLineEntry.getID(), paBtn);
         }
 
         for (Entry<Integer, PanelButtonQuest> entry : questBtns.entrySet()) {

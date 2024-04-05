@@ -3,6 +3,7 @@ package betterquesting.api2.client.gui.controls;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestState;
+import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
@@ -25,6 +26,7 @@ import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextFormatting;
 
+import java.beans.Visibility;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +77,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
         IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
         setTextures(btnTx, btnTx, btnTx);
         setIcon(new OreDictTexture(1F, value == null ? new BigItemStack(Items.NETHER_STAR) : value.getValue().getProperty(NativeProps.ICON), false, true), 4);
-        setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock || BQ_Settings.viewMode);
+        setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock || (BQ_Settings.viewMode && !(value.getValue().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN)));
     }
 
     @Override
@@ -100,7 +102,11 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
     private List<String> getStandardTooltip(IQuest quest, EntityPlayer player, int qID) {
         List<String> list = new ArrayList<>();
 
-        list.add(QuestTranslation.translate(quest.getProperty(NativeProps.NAME)) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + qID)));
+        String questName = QuestTranslation.translate(quest.getProperty(NativeProps.NAME));
+        if(quest.getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN && !quest.isUnlocked(QuestingAPI.getQuestingUUID(player))) {
+            questName = TextFormatting.OBFUSCATED + questName;
+        }
+        list.add(questName + (Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? (" #" + qID) : ""));
 
         UUID playerID = QuestingAPI.getQuestingUUID(player);
 
