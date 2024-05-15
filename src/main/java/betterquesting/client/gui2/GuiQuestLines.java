@@ -356,6 +356,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                             try {
                                 GuiScreen.setClipboardString(id);
                                 mc.player.sendMessage(new TextComponentTranslation("betterquesting.msg.copy_quest_copied", id));
+                                closePopup();
                             } catch (IllegalStateException e) {
                                 mc.player.sendMessage(new TextComponentTranslation("betterquesting.msg.copy_quest_failed", id));
                             }
