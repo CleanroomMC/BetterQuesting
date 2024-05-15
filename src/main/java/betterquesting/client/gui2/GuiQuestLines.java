@@ -333,7 +333,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                         maxWidth = Math.max(maxWidth, Math.max(RenderUtils.getStringWidth(QuestTranslation.translate("betterquesting.btn.edit"), fr),
                                 RenderUtils.getStringWidth(QuestTranslation.translate("betterquesting.btn.designer"), fr)));
                     }
-                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, maxWidth + 12, questExistsUnderMouse ? 48 : 16), true);
+                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, maxWidth + 12, questExistsUnderMouse ? 64 : 16), true);
                     if (canEdit) {
                         if (questExistsUnderMouse) {
                             GuiQuestEditor editor = new GuiQuestEditor(new GuiQuestLines(parent), cvQuest.getButtonAt(mx, my).getStoredValue().getID());
@@ -350,6 +350,17 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                             mc.displayGuiScreen(null);
                         };
                         popup.addButton(QuestTranslation.translate("betterquesting.btn.share_quest"), null, questSharer);
+
+                        Runnable questId = () -> {
+                            String id = String.valueOf(cvQuest.getButtonAt(mx, my).getStoredValue().getID());
+                            try {
+                                GuiScreen.setClipboardString(id);
+                                mc.player.sendMessage(new TextComponentTranslation("betterquesting.msg.copy_quest_copied", id));
+                            } catch (IllegalStateException e) {
+                                mc.player.sendMessage(new TextComponentTranslation("betterquesting.msg.copy_quest_failed", id));
+                            }
+                        };
+                        popup.addButton(QuestTranslation.translate("betterquesting.btn.copy_id"), null, questId);
                     }
                     openPopup(popup);
                     return true;

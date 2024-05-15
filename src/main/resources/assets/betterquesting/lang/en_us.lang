@@ -65,6 +65,7 @@ betterquesting.btn.visible_always=Always show dependency line
 betterquesting.btn.visible_implicit=Hover to show dependency line
 betterquesting.btn.view_mode=View Mode
 betterquesting.btn.share_quest=Share to Chat
+betterquesting.btn.copy_id=Copy Quest ID
 
 betterquesting.home.exit=Exit
 betterquesting.home.quests=Quests
@@ -120,6 +121,8 @@ betterquesting.msg.share_quest=§b[Quest: #%d - %s§b]
 betterquesting.msg.share_quest_invalid=§cCannot view Quest %s
 betterquesting.msg.share_quest_hover_text_success=§aClick to View Quest
 betterquesting.msg.share_quest_hover_text_failure=§cQuest is Currently Inaccessible
+betterquesting.msg.copy_quest_copied=§eCopied to clipboard: §b%s
+betterquesting.msg.copy_quest_failed=§cCould not copy §b%s§r§c to clipboard!
 
 key.betterquesting.quests=Open Quests
 key.betterquesting.party=Party Manager
