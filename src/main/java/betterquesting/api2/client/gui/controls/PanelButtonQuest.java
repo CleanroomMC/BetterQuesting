@@ -100,7 +100,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
     private List<String> getStandardTooltip(IQuest quest, EntityPlayer player, int qID) {
         List<String> list = new ArrayList<>();
 
-        list.add(QuestTranslation.translate(quest.getProperty(NativeProps.NAME)) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + qID)));
+        list.add(QuestTranslation.translate(quest.getProperty(NativeProps.NAME)) + (Minecraft.getMinecraft().gameSettings.advancedItemTooltips && QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) ? (" #" + qID) : ""));
 
         UUID playerID = QuestingAPI.getQuestingUUID(player);
 
