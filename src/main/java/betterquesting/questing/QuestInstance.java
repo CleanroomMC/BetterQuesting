@@ -54,7 +54,7 @@ public class QuestInstance implements IQuest {
 
         setupValue(NativeProps.ICON, new BigItemStack(Items.NETHER_STAR));
 
-        setupValue(NativeProps.FRAME, EnumFrameType.ROUNDED_SQUARE);
+        setupValue(NativeProps.FRAME, hasProperty(NativeProps.MAIN) && getProperty(NativeProps.MAIN) ? EnumFrameType.GATE : EnumFrameType.ROUNDED_SQUARE);
 
         setupValue(NativeProps.SOUND_COMPLETE);
         setupValue(NativeProps.SOUND_UPDATE);
