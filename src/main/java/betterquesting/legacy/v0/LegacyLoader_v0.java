@@ -102,7 +102,6 @@ public final class LegacyLoader_v0 implements ILegacyLoader {
     public void readQuest(IQuest quest, JsonObject json) {
         quest.setProperty(NativeProps.NAME, JsonHelper.GetString(json, "name", "New Quest"));
         quest.setProperty(NativeProps.DESC, JsonHelper.GetString(json, "description", "No Description"));
-        quest.setProperty(NativeProps.MAIN, JsonHelper.GetBoolean(json, "isMain", false));
         quest.setProperty(NativeProps.SILENT, JsonHelper.GetBoolean(json, "isSilent", false));
         quest.setProperty(NativeProps.LOCKED_PROGRESS, JsonHelper.GetBoolean(json, "lockedProgress", false));
         quest.setProperty(NativeProps.SIMULTANEOUS, JsonHelper.GetBoolean(json, "simultaneous", false));

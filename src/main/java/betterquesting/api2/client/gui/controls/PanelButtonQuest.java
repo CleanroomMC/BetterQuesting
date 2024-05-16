@@ -2,7 +2,6 @@ package betterquesting.api2.client.gui.controls;
 
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumFrameType;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
@@ -47,18 +46,10 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
         boolean lock = false;
 
         if (value != null) {
-            if (value.getValue().getProperty(NativeProps.FRAME) == EnumFrameType.DEFAULT) {
-                boolean isMain = value.getValue().getProperty(NativeProps.MAIN);
-                txFrame = PresetTexture.getNormalQuestFrameTexture(qState, isMain);
-                txIconCol = qState.getColor();
-                if (qState == EnumQuestState.LOCKED)
-                    lock = true;
-            } else {
-                txFrame = PresetTexture.getExtraQuestFrameTexture(value.getValue().getProperty(NativeProps.FRAME), qState);
-                txIconCol = qState.getColor();
-                if (qState == EnumQuestState.LOCKED)
-                    lock = true;
-            }
+            txFrame = PresetTexture.getExtraQuestFrameTexture(value.getValue().getProperty(NativeProps.FRAME), qState);
+            txIconCol = qState.getColor();
+            if (qState == EnumQuestState.LOCKED)
+                lock = true;
         } else {
             txFrame = PresetTexture.QUEST_NORM_0.getTexture();
             txIconCol = PresetColor.QUEST_ICON_LOCKED.getColor();

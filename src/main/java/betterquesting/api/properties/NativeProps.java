@@ -47,7 +47,7 @@ public class NativeProps {
     public static final IPropertyType<String> SOUND_COMPLETE = new PropertyTypeString(new ResourceLocation(ModReference.MODID, "snd_complete"), "minecraft:entity.player.levelup");
 
     public static final IPropertyType<BigItemStack> ICON = new PropertyTypeItemStack(new ResourceLocation(ModReference.MODID, "icon"), new BigItemStack(Items.NETHER_STAR));
-    public static final IPropertyType<EnumFrameType> FRAME = new PropertyTypeEnum<>(new ResourceLocation(ModReference.MODID, "frame"), EnumFrameType.DEFAULT);
+    public static final IPropertyType<EnumFrameType> FRAME = new PropertyTypeEnum<>(new ResourceLocation(ModReference.MODID, "frame"), EnumFrameType.ROUNDED_SQUARE);
 
     public static final IPropertyType<String> BG_IMAGE = new PropertyTypeString(new ResourceLocation(ModReference.MODID, "bg_image"), "");
     public static final IPropertyType<Integer> BG_SIZE = new PropertyTypeInteger(new ResourceLocation(ModReference.MODID, "bg_size"), 256);

@@ -1,7 +1,5 @@
 package betterquesting.api2.client.gui.themes.presets;
 
-import java.util.Locale;
-
 import betterquesting.api.enums.EnumFrameType;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api2.client.gui.misc.GuiPadding;
@@ -13,6 +11,8 @@ import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.ModReference;
 import net.minecraft.util.ResourceLocation;
+
+import java.util.Locale;
 
 public enum PresetTexture {
 
@@ -151,8 +151,6 @@ public enum PresetTexture {
         {
             int idx = 0;
             for (EnumFrameType frameType : EnumFrameType.values()) {
-                if (frameType == EnumFrameType.DEFAULT)
-                    continue;
                 for (EnumQuestState questState : EnumQuestState.values()) {
                     ResourceLocation id = getExtraQuestFrameTextureId(frameType, questState);
                     ResourceLocation fileLocation = new ResourceLocation(ModReference.MODID, "textures/gui/ex_frames.png");
@@ -180,27 +178,6 @@ public enum PresetTexture {
 
     public static IGuiTexture getExtraQuestFrameTexture(EnumFrameType frameType, EnumQuestState questState) {
         return ThemeRegistry.INSTANCE.getTexture(getExtraQuestFrameTextureId(frameType, questState));
-    }
-
-    public static IGuiTexture getNormalQuestFrameTexture(EnumQuestState questState, boolean isMain) {
-        switch (questState) {
-            case LOCKED -> {
-                return isMain ? PresetTexture.QUEST_MAIN_0.getTexture() : PresetTexture.QUEST_NORM_0.getTexture();
-            }
-            case UNLOCKED -> {
-                return isMain ? PresetTexture.QUEST_MAIN_1.getTexture() : PresetTexture.QUEST_NORM_1.getTexture();
-            }
-            case UNCLAIMED -> {
-                return isMain ? PresetTexture.QUEST_MAIN_2.getTexture() : PresetTexture.QUEST_NORM_2.getTexture();
-            }
-            case COMPLETED -> {
-                return isMain ? PresetTexture.QUEST_MAIN_3.getTexture() : PresetTexture.QUEST_NORM_3.getTexture();
-            }
-            case REPEATABLE -> {
-                return isMain ? PresetTexture.QUEST_MAIN_4.getTexture() : PresetTexture.QUEST_NORM_4.getTexture();
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + questState);
-        }
     }
 
 }

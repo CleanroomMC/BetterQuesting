@@ -1,9 +1,8 @@
 package betterquesting.api.enums;
 
 public enum EnumFrameType {
-    DEFAULT,
     SQUARE,
-    ROUNDED_SQUARE,
+    ROUNDED_SQUARE, // Used as the default quest icon
     CIRCLE,
     HEXAGON,
     HEXAGON90,

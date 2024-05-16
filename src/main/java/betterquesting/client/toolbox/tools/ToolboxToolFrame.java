@@ -83,7 +83,7 @@ public class ToolboxToolFrame implements IToolboxTool {
             payload.setTag("data", dataList);
             payload.setInteger("action", 0);
             NetQuestEdit.sendEdit(payload);
-        }, quest.getProperty(NativeProps.MAIN)));
+        }));
 
     }
 

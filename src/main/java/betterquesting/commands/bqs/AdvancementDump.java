@@ -12,7 +12,6 @@ import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.questing.tasks.TaskAdvancement;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.DisplayInfo;
-import net.minecraft.advancements.FrameType;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 
@@ -52,7 +51,6 @@ public class AdvancementDump {
             quest.setProperty(NativeProps.ICON, new BigItemStack(disp.getIcon()));
             quest.setProperty(NativeProps.SILENT, true); // There's already toast notifications. Double stacking would just be annoying
             quest.setProperty(NativeProps.VISIBILITY, (disp.isHidden() || adv.getParent() == null) ? EnumQuestVisibility.COMPLETED : EnumQuestVisibility.UNLOCKED);
-            quest.setProperty(NativeProps.MAIN, disp.getFrame() == FrameType.GOAL);
 
             TaskAdvancement task = new TaskAdvancement();
             task.advID = adv.getId();

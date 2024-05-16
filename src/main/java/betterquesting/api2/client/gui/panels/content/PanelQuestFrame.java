@@ -30,9 +30,7 @@ public class PanelQuestFrame extends PanelButtonStorage<EnumFrameType> {
     public PanelQuestFrame setStoredValue(EnumFrameType value) {
         super.setStoredValue(value);
 
-        if (value == EnumFrameType.DEFAULT)
-            this.setIcon(null);
-        else if (value != null && questState != null)
+        if (value != null && questState != null)
             this.setIcon(new GuiTextureColored(PresetTexture.getExtraQuestFrameTexture(value, questState), questState.getColor()), 1);
         else
             this.setIcon(null);
@@ -44,9 +42,7 @@ public class PanelQuestFrame extends PanelButtonStorage<EnumFrameType> {
     public void setQuestState(EnumQuestState questState) {
         this.questState = questState;
         EnumFrameType frameType = getStoredValue();
-        if (frameType == EnumFrameType.DEFAULT)
-            this.setIcon(null);
-        else if (frameType != null && questState != null)
+        if (frameType != null && questState != null)
             this.setIcon(new GuiTextureColored(PresetTexture.getExtraQuestFrameTexture(frameType, questState), questState.getColor()), 1);
         else
             this.setIcon(null);

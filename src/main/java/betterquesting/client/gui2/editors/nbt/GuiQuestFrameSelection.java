@@ -38,7 +38,6 @@ public class GuiQuestFrameSelection extends GuiScreenCanvas implements IPEventLi
 
     private final ICallback<EnumFrameType> callback;
     private final BigItemStack itemStack;
-    private final boolean isMain;
     private final PanelButtonStorage<?>[] questStateButtons = new PanelButtonStorage<?>[EnumQuestState.values().length];
     private EnumFrameType frameType;
     private EnumQuestState questState = EnumQuestState.LOCKED;
@@ -46,12 +45,11 @@ public class GuiQuestFrameSelection extends GuiScreenCanvas implements IPEventLi
     private PanelQuest itemPreview;
     private CanvasQuestFrame cvQuestFrame;
 
-    public GuiQuestFrameSelection(GuiScreen parent, EnumFrameType frameType, BigItemStack itemStack, ICallback<EnumFrameType> callback, boolean isMain) {
+    public GuiQuestFrameSelection(GuiScreen parent, EnumFrameType frameType, BigItemStack itemStack, ICallback<EnumFrameType> callback) {
         super(parent);
         this.frameType = frameType;
         this.itemStack = itemStack;
         this.callback = callback;
-        this.isMain = isMain;
     }
 
     public void initPanel() {
@@ -82,7 +80,7 @@ public class GuiQuestFrameSelection extends GuiScreenCanvas implements IPEventLi
         txSelection.setColor(PresetColor.TEXT_MAIN.getColor());
         cvLeft.addPanel(txSelection);
 
-        itemPreview = new PanelQuest(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 36, 36, 0), 99, itemStack, frameType, questState, isMain);
+        itemPreview = new PanelQuest(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 36, 36, 0), 99, itemStack, frameType, questState);
         cvLeft.addPanel(itemPreview);
 
         EnumQuestState[] values = EnumQuestState.values();
@@ -156,15 +154,13 @@ public class GuiQuestFrameSelection extends GuiScreenCanvas implements IPEventLi
 
     private static class PanelQuest extends PanelButton {
 
-        private final boolean isMain;
         private EnumFrameType frameType;
         private EnumQuestState questState;
 
-        public PanelQuest(IGuiRect rect, int id, BigItemStack itemStack, EnumFrameType frameType, EnumQuestState questState, boolean isMain) {
+        public PanelQuest(IGuiRect rect, int id, BigItemStack itemStack, EnumFrameType frameType, EnumQuestState questState) {
             super(rect, id, "");
             this.frameType = frameType;
             this.questState = questState;
-            this.isMain = isMain;
 
             updateTexture();
             setIcon(new ItemTexture(itemStack, false, true), 6);
@@ -182,11 +178,7 @@ public class GuiQuestFrameSelection extends GuiScreenCanvas implements IPEventLi
         }
 
         private void updateTexture() {
-            IGuiTexture texture;
-            if (frameType == EnumFrameType.DEFAULT)
-                texture = new GuiTextureColored(PresetTexture.getNormalQuestFrameTexture(questState, isMain), questState.getColor());
-            else
-                texture = new GuiTextureColored(PresetTexture.getExtraQuestFrameTexture(frameType, questState), questState.getColor());
+            IGuiTexture texture = new GuiTextureColored(PresetTexture.getExtraQuestFrameTexture(frameType, questState), questState.getColor());
             setTextures(texture, texture, texture);
         }
 
