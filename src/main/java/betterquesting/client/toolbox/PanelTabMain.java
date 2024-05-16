@@ -136,6 +136,7 @@ public class PanelTabMain extends CanvasEmpty {
         toolEntries.add(new ToolEntry(new ToolboxToolComplete(), PresetIcon.ICON_TICK.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.complete.name"), QuestTranslation.translate("betterquesting.toolbox.tool.complete.desc"))));
         toolEntries.add(new ToolEntry(new ToolboxToolReset(), PresetIcon.ICON_REFRESH.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.reset.name"), QuestTranslation.translate("betterquesting.toolbox.tool.reset.desc"))));
         toolEntries.add(new ToolEntry(new ToolboxToolIcon(), PresetIcon.ICON_ITEM.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.icon.name"), QuestTranslation.translate("betterquesting.toolbox.tool.icon.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolSetMain(), PresetIcon.ICON_NOTICE.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.set_main.name"), QuestTranslation.translate("betterquesting.toolbox.tool.set_main.desc"))));
         toolEntries.add(new ToolEntry(new ToolboxToolFrame(), PresetIcon.ICON_CHANGE_FRAME.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.frame.name"), QuestTranslation.translate("betterquesting.toolbox.tool.frame.desc"))));
     }
 
