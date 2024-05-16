@@ -1,8 +1,5 @@
 package betterquesting.client.gui2.editors.nbt;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.Vector4f;
-
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumFrameType;
 import betterquesting.api.enums.EnumQuestState;
@@ -32,17 +29,21 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.util.vector.Vector4f;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 public class GuiQuestFrameSelection extends GuiScreenCanvas implements IPEventListener, IVolatileScreen {
 
     private final ICallback<EnumFrameType> callback;
     private final BigItemStack itemStack;
-    private final PanelButtonStorage<?>[] questStateButtons = new PanelButtonStorage<?>[EnumQuestState.values().length];
+    private final List<PanelQuest> questStateButtons = new ArrayList<>();
     private EnumFrameType frameType;
-    private EnumQuestState questState = EnumQuestState.LOCKED;
 
-    private PanelQuest itemPreview;
     private CanvasQuestFrame cvQuestFrame;
 
     public GuiQuestFrameSelection(GuiScreen parent, EnumFrameType frameType, BigItemStack itemStack, ICallback<EnumFrameType> callback) {
@@ -80,20 +81,15 @@ public class GuiQuestFrameSelection extends GuiScreenCanvas implements IPEventLi
         txSelection.setColor(PresetColor.TEXT_MAIN.getColor());
         cvLeft.addPanel(txSelection);
 
-        itemPreview = new PanelQuest(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 36, 36, 0), 99, itemStack, frameType, questState);
-        cvLeft.addPanel(itemPreview);
-
         EnumQuestState[] values = EnumQuestState.values();
         for (int i = 0; i < values.length; i++) {
             EnumQuestState value = values[i];
-            PanelButtonStorage<EnumQuestState> btn = new PanelButtonStorage<>(new GuiTransform(GuiAlign.TOP_LEFT, 10, 64 + i * 16, 80, 16, 0),
-                                                                              2,
-                                                                              value.toString(),
-                                                                              value);
-            cvLeft.addPanel(btn);
-            questStateButtons[i] = btn;
+            PanelQuest quest = new PanelQuest(new GuiTransform(GuiAlign.TOP_LEFT, 36 * (i % 2), 16 + (i / 2) * 36, 36, 36, 0), 99, itemStack, frameType, value);
+            quest.setTooltip(Collections.singletonList(value.toString()));
+            quest.setClickAction(b -> cvQuestFrame.setQuestState(((PanelQuest) b).questState));
+            cvLeft.addPanel(quest);
+            questStateButtons.add(quest);
         }
-        updateButtonState();
 
         // === RIGHT PANEL ===
 
@@ -132,23 +128,8 @@ public class GuiQuestFrameSelection extends GuiScreenCanvas implements IPEventLi
 
             if (tmp != null) {
                 frameType = tmp;
-                itemPreview.setFrameType(frameType);
+                questStateButtons.forEach(x -> x.setFrameType(frameType));
             }
-        } else if (btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) {
-            EnumQuestState tmp = ((PanelButtonStorage<EnumQuestState>) btn).getStoredValue();
-
-            if (tmp != null) {
-                questState = tmp;
-                itemPreview.setQuestState(questState);
-                cvQuestFrame.setQuestState(questState);
-                updateButtonState();
-            }
-        }
-    }
-
-    private void updateButtonState() {
-        for (PanelButtonStorage<?> btn : questStateButtons) {
-            btn.setActive(btn.getStoredValue() != questState);
         }
     }
 
