@@ -113,7 +113,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
         } else if (args[1].equalsIgnoreCase("load")) {
             load(sender, databaseName, dataDir, false);
         } else if (args[1].equalsIgnoreCase("loadLegacy")) {
-            loadLegacy(sender, databaseName, dataDir, false);
+            loadLegacy(sender, databaseName, legacyFile, false);
         } else if (args[1].equalsIgnoreCase("set") && args.length == 3) {
             if (!dataDir.exists() && legacyFile.exists()) {
                 setLegacy(sender, databaseName, legacyFile);
