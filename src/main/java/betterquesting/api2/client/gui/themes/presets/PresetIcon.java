@@ -101,7 +101,7 @@ public enum PresetIcon {
 
     ICON_PATREON("icon_patreon"),
     ICON_TWITCH("icon_twitch"),
-    ICON_LOADING("icon_refresh");
+    ICON_LOADING("icon_loading");
 
     public static final ResourceLocation TX_ICONS = new ResourceLocation(ModReference.MODID, "textures/gui/editor_icons.png");
 
