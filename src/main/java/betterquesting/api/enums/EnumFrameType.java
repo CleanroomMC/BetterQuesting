@@ -36,4 +36,5 @@ public enum EnumFrameType {
     CROSS_ON_DIAGONAL_STAR4,
     DIAMOND_ON_DIAGONAL_STAR4,
     SATAR4_ON_DIAGONAL_STAR4,
+    EMPTY,
 }
