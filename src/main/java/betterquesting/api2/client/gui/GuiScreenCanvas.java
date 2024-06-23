@@ -205,7 +205,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
 
             return;
         }
-        if (keyCode == 14) { // BACKSPACE
+        if (keyCode == BQ_Keybindings.backPage.getKeyCode()) { // BACKSPACE
             if (this.mc.currentScreen instanceof GuiScreenCanvas) {
                 GuiScreenCanvas canvas = (GuiScreenCanvas) mc.currentScreen;
                 boolean hasKeyAction = false;

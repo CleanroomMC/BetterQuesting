@@ -129,6 +129,7 @@ betterquesting.msg.copy_quest_copied=§eCopied to clipboard: §b%s
 betterquesting.msg.copy_quest_failed=§cCould not copy §b%s§r§c to clipboard!
 
 key.betterquesting.quests=Open Quests
+key.betterquesting.back=Page Back
 key.betterquesting.party=Party Manager
 key.betterquesting.themes=Change Theme
 
