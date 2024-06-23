@@ -37,6 +37,11 @@ public class PlayerContainerListener implements IContainerListener {
         }
     }
 
+    public static void removeListener(@Nonnull EntityPlayer player) {
+        UUID uuid = QuestingAPI.getQuestingUUID(player);
+        LISTEN_MAP.remove(uuid);
+    }
+
     private EntityPlayer player;
 
     private PlayerContainerListener(@Nonnull EntityPlayer player) {

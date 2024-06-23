@@ -725,6 +725,12 @@ public class EventHandler {
     }
 
     @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.player == null || event.player.world.isRemote) return;
+        PlayerContainerListener.removeListener(event.player);
+    }
+
+    @SubscribeEvent
     public void onMarkDirtyPlayer(MarkDirtyPlayerEvent event) {
         SaveLoadHandler.INSTANCE.addDirtyPlayers(event.getDirtyPlayerIDs());
     }
