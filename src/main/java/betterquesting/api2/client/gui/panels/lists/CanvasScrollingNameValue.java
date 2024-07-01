@@ -26,4 +26,5 @@ public class CanvasScrollingNameValue extends CanvasScrolling {
         addPanel(panelFactory.apply(rect));
         rowNum++;
     }
+
 }

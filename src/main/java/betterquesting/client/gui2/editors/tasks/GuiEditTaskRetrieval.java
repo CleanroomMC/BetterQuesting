@@ -1,5 +1,6 @@
 package betterquesting.client.gui2.editors.tasks;
 
+
 import betterquesting.EnumUtil;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
@@ -29,7 +30,9 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+
 import org.lwjgl.input.Keyboard;
+
 
 public class GuiEditTaskRetrieval extends GuiScreenCanvas implements IVolatileScreen {
 

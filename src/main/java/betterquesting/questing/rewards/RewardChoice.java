@@ -1,6 +1,13 @@
 package betterquesting.questing.rewards;
 
-import betterquesting.NBTReplaceUtil;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.UUID;
+
+import org.apache.logging.log4j.Level;
+
+import betterquesting.NBTUtil;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
@@ -20,14 +27,9 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.Level;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.UUID;
 
 public class RewardChoice implements IReward {
+
     /**
      * The selected reward index to be claimed.<br>
      * Should only ever be used client side. NEVER onHit server
@@ -36,14 +38,10 @@ public class RewardChoice implements IReward {
     private final TreeMap<UUID, Integer> selected = new TreeMap<>();
 
     @Override
-    public ResourceLocation getFactoryID() {
-        return FactoryRewardChoice.INSTANCE.getRegistryName();
-    }
+    public ResourceLocation getFactoryID() { return FactoryRewardChoice.INSTANCE.getRegistryName(); }
 
     @Override
-    public String getUnlocalisedName() {
-        return "bq_standard.reward.choice";
-    }
+    public String getUnlocalisedName() { return "bq_standard.reward.choice"; }
 
     public int getSelecton(UUID uuid) {
         if (!selected.containsKey(uuid)) {
@@ -59,7 +57,8 @@ public class RewardChoice implements IReward {
 
     @Override
     public boolean canClaim(EntityPlayer player, DBEntry<IQuest> quest) {
-        if (!selected.containsKey(QuestingAPI.getQuestingUUID(player))) return false;
+        if (!selected.containsKey(QuestingAPI.getQuestingUUID(player)))
+            return false;
 
         int tmp = selected.get(QuestingAPI.getQuestingUUID(player));
         return choices.size() <= 0 || (tmp >= 0 && tmp < choices.size());
@@ -92,8 +91,8 @@ public class RewardChoice implements IReward {
 
         for (ItemStack s : stack.getCombinedStacks()) {
             if (s.getTagCompound() != null) {
-                s.setTagCompound(NBTReplaceUtil.replaceStrings(s.getTagCompound(), "VAR_NAME", player.getName()));
-                s.setTagCompound(NBTReplaceUtil.replaceStrings(s.getTagCompound(), "VAR_UUID", QuestingAPI.getQuestingUUID(player).toString()));
+                s.setTagCompound(NBTUtil.replaceStrings(s.getTagCompound(), "VAR_NAME", player.getName()));
+                s.setTagCompound(NBTUtil.replaceStrings(s.getTagCompound(), "VAR_UUID", QuestingAPI.getQuestingUUID(player).toString()));
             }
 
             if (!player.inventory.addItemStackToInventory(s)) {
@@ -121,15 +120,14 @@ public class RewardChoice implements IReward {
         return nbt;
     }
 
-    @Override
-    @SideOnly(Side.CLIENT)
+    @Override @SideOnly(Side.CLIENT)
     public IGuiPanel getRewardGui(IGuiRect rect, DBEntry<IQuest> quest) {
         return new PanelRewardChoice(rect, quest, this);
     }
 
-    @Override
-    @SideOnly(Side.CLIENT)
+    @Override @SideOnly(Side.CLIENT)
     public GuiScreen getRewardEditor(GuiScreen screen, DBEntry<IQuest> quest) {
         return null;
     }
+
 }

@@ -1,6 +1,11 @@
 package betterquesting.questing.rewards;
 
-import betterquesting.NBTReplaceUtil;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.logging.log4j.Level;
+
+import betterquesting.NBTUtil;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
@@ -18,23 +23,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
-import org.apache.logging.log4j.Level;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RewardItem implements IReward {
+
     public final List<BigItemStack> items = new ArrayList<>();
 
     @Override
-    public ResourceLocation getFactoryID() {
-        return FactoryRewardItem.INSTANCE.getRegistryName();
-    }
+    public ResourceLocation getFactoryID() { return FactoryRewardItem.INSTANCE.getRegistryName(); }
 
     @Override
-    public String getUnlocalisedName() {
-        return "bq_standard.reward.item";
-    }
+    public String getUnlocalisedName() { return "bq_standard.reward.item"; }
 
     @Override
     public boolean canClaim(EntityPlayer player, DBEntry<IQuest> quest) {
@@ -48,8 +46,8 @@ public class RewardItem implements IReward {
 
             for (ItemStack s : stack.getCombinedStacks()) {
                 if (s.getTagCompound() != null) {
-                    s.setTagCompound(NBTReplaceUtil.replaceStrings(s.getTagCompound(), "VAR_NAME", player.getName()));
-                    s.setTagCompound(NBTReplaceUtil.replaceStrings(s.getTagCompound(), "VAR_UUID", QuestingAPI.getQuestingUUID(player).toString()));
+                    s.setTagCompound(NBTUtil.replaceStrings(s.getTagCompound(), "VAR_NAME", player.getName()));
+                    s.setTagCompound(NBTUtil.replaceStrings(s.getTagCompound(), "VAR_UUID", QuestingAPI.getQuestingUUID(player).toString()));
                 }
 
                 if (!player.inventory.addItemStackToInventory(s)) {
@@ -66,7 +64,8 @@ public class RewardItem implements IReward {
         for (int i = 0; i < rList.tagCount(); i++) {
             try {
                 BigItemStack item = JsonHelper.JsonToItemStack(rList.getCompoundTagAt(i));
-                if (item != null) items.add(item);
+                if (item != null)
+                    items.add(item);
             } catch (Exception e) {
                 BetterQuesting.logger.log(Level.ERROR, "Unable to load reward item data", e);
             }
@@ -92,4 +91,5 @@ public class RewardItem implements IReward {
     public GuiScreen getRewardEditor(GuiScreen screen, DBEntry<IQuest> quest) {
         return null;
     }
+
 }

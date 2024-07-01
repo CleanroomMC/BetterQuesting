@@ -641,7 +641,7 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen {
         btnTrayToggle.setIcon(PresetIcon.ICON_DOWN.getTexture());
 
         // TODO: This panel doesn't work on its own
-        PanelScrollingNBT cvNbt = new PanelScrollingNBT(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 8, 0), 0), tag, 1, 2, 3, 4);
+        PanelScrollingNBT cvNbt = new PanelScrollingNBT(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 8, 0), 0), tag, 1, 2, 3, 4, 5, 6);
         cvPropTray.addPanel(cvNbt);
 
         PanelVScrollBar scPropTray = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 0, 0, 0), 0));
