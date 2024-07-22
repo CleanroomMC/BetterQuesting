@@ -18,7 +18,8 @@ import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CanvasScrolling implements IGuiCanvas {
-    private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
+
+    protected final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
     private final IGuiRect transform;
     private boolean enabled = true;
 
@@ -50,7 +51,7 @@ public class CanvasScrolling implements IGuiCanvas {
 
     // Enables the auto-disabling panels outside the cropped region. Useful for very large lists
     private boolean useBlocking = true;
-    private final CanvasCullingManager cullingManager = new CanvasCullingManager();
+    protected final CanvasCullingManager cullingManager = new CanvasCullingManager();
     private final GuiRectangle refRect = new GuiRectangle(0, 0, 0, 0);
 
     public CanvasScrolling(IGuiRect rect) {
@@ -410,8 +411,8 @@ public class CanvasScrolling implements IGuiCanvas {
                 break;
             }
         }
-		
-		/*if(!used && c == 'c')
+
+        /*if(!used && c == 'c')
         {
             setScrollX(0);
             setScrollY(0);

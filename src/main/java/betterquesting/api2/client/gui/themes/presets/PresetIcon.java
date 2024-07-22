@@ -2,6 +2,7 @@ package betterquesting.api2.client.gui.themes.presets;
 
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.resources.textures.RotatingTexture;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import betterquesting.client.themes.ThemeRegistry;
@@ -44,6 +45,7 @@ public enum PresetIcon {
     ICON_REFRESH("icon_refresh"),
     ICON_ITEM("icon_item"),
     ICON_SCALE("icon_scale"),
+    ICON_CHANGE_FRAME("icon_change_frame"),
 
     ICON_EXIT("icon_exit"),
     ICON_NOTICE("icon_notice"),
@@ -99,7 +101,8 @@ public enum PresetIcon {
     ICON_MENU("icon_menu"),
 
     ICON_PATREON("icon_patreon"),
-    ICON_TWITCH("icon_twitch");
+    ICON_TWITCH("icon_twitch"),
+    ICON_LOADING("icon_loading");
 
     public static final ResourceLocation TX_ICONS = new ResourceLocation(ModReference.MODID, "textures/gui/editor_icons.png");
 
@@ -146,6 +149,7 @@ public enum PresetIcon {
         reg.setDefaultTexture(ICON_REFRESH.key, new SimpleTexture(TX_ICONS, new GuiRectangle(128, 16, 16, 16)).maintainAspect(true));
         reg.setDefaultTexture(ICON_ITEM.key, new SimpleTexture(TX_ICONS, new GuiRectangle(144, 0, 16, 16)).maintainAspect(true));
         reg.setDefaultTexture(ICON_SCALE.key, new SimpleTexture(TX_ICONS, new GuiRectangle(144, 16, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_CHANGE_FRAME.key, new SimpleTexture(TX_ICONS, new GuiRectangle(240, 80, 16, 16)).maintainAspect(true));
         reg.setDefaultTexture(ICON_EXIT.key, new SimpleTexture(TX_ICONS, new GuiRectangle(160, 0, 16, 16)).maintainAspect(true));
         reg.setDefaultTexture(ICON_NOTICE.key, new SimpleTexture(TX_ICONS, new GuiRectangle(176, 0, 16, 16)).maintainAspect(true));
         reg.setDefaultTexture(ICON_PARTY.key, new SimpleTexture(TX_ICONS, new GuiRectangle(192, 0, 16, 16)).maintainAspect(true));
@@ -197,5 +201,6 @@ public enum PresetIcon {
 
         reg.setDefaultTexture(ICON_PATREON.key, new SimpleTexture(TX_ICONS, new GuiRectangle(144, 80, 16, 16)).maintainAspect(true));
         reg.setDefaultTexture(ICON_TWITCH.key, new SimpleTexture(TX_ICONS, new GuiRectangle(160, 80, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_LOADING.key, new RotatingTexture(TX_ICONS, new GuiRectangle(128, 16, 16, 16)).maintainAspect(true));
     }
 }

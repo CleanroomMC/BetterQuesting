@@ -21,6 +21,7 @@ import betterquesting.api2.client.gui.themes.gui_args.GArgsNone;
 import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.ParticipantInfo;
+import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.gui2.GuiQuestLines;
@@ -138,8 +139,8 @@ public class EventHandler {
                     event.setMessage(new TextComponentTranslation("betterquesting.msg.share_quest_invalid", String.valueOf(questId)));
                     return;
                 }
-                String questName = quest.getProperty(NativeProps.NAME);
-                ITextComponent translated = new TextComponentTranslation("betterquesting.msg.share_quest", questId, questName);
+                String questName = QuestTranslation.translate(quest.getProperty(NativeProps.NAME));
+                ITextComponent translated = new TextComponentTranslation("betterquesting.msg.share_quest", questName);
                 ITextComponent newMessage = new TextComponentString(text.substring(0, index) + translated.getFormattedText() + text.substring(endIndex));
                 Style newMessageStyle;
                 EntityPlayerSP player = Minecraft.getMinecraft().player;

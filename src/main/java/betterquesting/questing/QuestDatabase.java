@@ -3,7 +3,7 @@ package betterquesting.questing;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.storage.SimpleDatabase;
+import betterquesting.api2.storage.RandomIndexDatabase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQuestDatabase {
+public final class QuestDatabase extends RandomIndexDatabase<IQuest> implements IQuestDatabase {
     public static final QuestDatabase INSTANCE = new QuestDatabase();
 
     @Override

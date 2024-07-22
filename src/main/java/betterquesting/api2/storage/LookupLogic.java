@@ -7,11 +7,11 @@ import java.util.Map;
 
 abstract class LookupLogic<T> {
 
-    protected final SimpleDatabase<T> simpleDatabase;
+    protected final AbstractDatabase<T> abstractDatabase;
     protected List<DBEntry<T>> refCache = null;
 
-    public LookupLogic(SimpleDatabase<T> simpleDatabase) {
-        this.simpleDatabase = simpleDatabase;
+    public LookupLogic(AbstractDatabase<T> abstractDatabase) {
+        this.abstractDatabase = abstractDatabase;
     }
 
     public void onDataChange() {
@@ -28,7 +28,7 @@ abstract class LookupLogic<T> {
 
     protected void computeRefCache() {
         List<DBEntry<T>> temp = new ArrayList<>();
-        for (Map.Entry<Integer, T> entry : simpleDatabase.mapDB.entrySet()) {
+        for (Map.Entry<Integer, T> entry : abstractDatabase.mapDB.entrySet()) {
             temp.add(new DBEntry<>(entry.getKey(), entry.getValue()));
         }
         refCache = Collections.unmodifiableList(temp);

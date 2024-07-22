@@ -237,7 +237,6 @@ public class AdvImporter implements IImporter {
             quest.setProperty(NativeProps.VISIBILITY, EnumQuestVisibility.COMPLETED);
 
         FrameType frametype = json.has("frame") ? FrameType.byName(JsonUtils.getString(json, "frame")) : FrameType.TASK;
-        quest.setProperty(NativeProps.MAIN, frametype == FrameType.GOAL);
     }
 
     private ItemStack readIcon(JsonObject json) {

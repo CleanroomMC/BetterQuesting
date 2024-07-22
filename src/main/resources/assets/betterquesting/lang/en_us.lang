@@ -65,6 +65,7 @@ betterquesting.btn.visible_always=Always show dependency line
 betterquesting.btn.visible_implicit=Hover to show dependency line
 betterquesting.btn.view_mode=View Mode
 betterquesting.btn.share_quest=Share to Chat
+betterquesting.btn.copy_id=Copy Quest ID
 betterquesting.btn.edit_name_desc.just_close=Just Close
 betterquesting.btn.edit_name_desc.open_window=Open Window
 
@@ -120,10 +121,12 @@ betterquesting.notice.update=Quest Updated
 betterquesting.notice.unlock=Quest Unlocked
 
 betterquesting.msg.heart_disabled=Hardcore lives are not enabled. Use "/bq_admin hardcore" to toggle it
-betterquesting.msg.share_quest=§b[Quest: #%d - %s§b]
+betterquesting.msg.share_quest=§b[Quest: %s§b]
 betterquesting.msg.share_quest_invalid=§cCannot view Quest %s
 betterquesting.msg.share_quest_hover_text_success=§aClick to View Quest
 betterquesting.msg.share_quest_hover_text_failure=§cQuest is Currently Inaccessible
+betterquesting.msg.copy_quest_copied=§eCopied to clipboard: §b%s
+betterquesting.msg.copy_quest_failed=§cCould not copy §b%s§r§c to clipboard!
 
 key.betterquesting.quests=Open Quests
 key.betterquesting.party=Party Manager
@@ -190,8 +193,10 @@ betterquesting.toolbox.tool.scale.name=Scale Icon
 betterquesting.toolbox.tool.scale.desc=Scales the quest icons up or down
 betterquesting.toolbox.tool.raw.name=Edit Raw
 betterquesting.toolbox.tool.raw.desc=Opens up the raw quest line JSON for editing. Includes additional hidden settings such as changing the background
-betterquesting.toolbox.tool.frame.name=Edit Icon Frame
+betterquesting.toolbox.tool.frame.name=Change Icon Frame
 betterquesting.toolbox.tool.frame.desc=Changes the quest icons frame style
+betterquesting.toolbox.tool.set_main.name=Set as Main
+betterquesting.toolbox.tool.set_main.desc=Set or unset the quest as main, which increases the link draw size
 
 betterquesting.cmd.complete=Completed quest %s for %s
 betterquesting.cmd.default.save=Quest database saved as default
@@ -205,6 +210,7 @@ betterquesting.cmd.delete.all=Deleted all quests
 betterquesting.cmd.edit=Edit mode %s
 betterquesting.cmd.hardcore=Hardcore mode %s
 betterquesting.cmd.purge_hidden=Deleted %s hidden quest(s)
+betterquesting.cmd.error=§cSomething went wrong! Please check your logs.
 
 betterquesting.cmd.lives.add_player=Added %s lives to %s (Total: %s)
 betterquesting.cmd.lives.add_all=Added %s lives to all players

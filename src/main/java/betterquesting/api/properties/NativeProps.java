@@ -1,8 +1,14 @@
 package betterquesting.api.properties;
 
+import betterquesting.api.enums.EnumFrameType;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.properties.basic.*;
+import betterquesting.api.properties.basic.PropertyTypeBoolean;
+import betterquesting.api.properties.basic.PropertyTypeEnum;
+import betterquesting.api.properties.basic.PropertyTypeFloat;
+import betterquesting.api.properties.basic.PropertyTypeInteger;
+import betterquesting.api.properties.basic.PropertyTypeItemStack;
+import betterquesting.api.properties.basic.PropertyTypeString;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.core.ModReference;
@@ -15,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
  * List of native properties used in BetterQuesting
  */
 public class NativeProps {
+
     public static final IPropertyType<String> NAME = new PropertyTypeString(new ResourceLocation(ModReference.MODID, "name"), "untitled.name");
     public static final IPropertyType<String> DESC = new PropertyTypeString(new ResourceLocation(ModReference.MODID, "desc"), "untitled.desc");
 
@@ -40,7 +47,7 @@ public class NativeProps {
     public static final IPropertyType<String> SOUND_COMPLETE = new PropertyTypeString(new ResourceLocation(ModReference.MODID, "snd_complete"), "minecraft:entity.player.levelup");
 
     public static final IPropertyType<BigItemStack> ICON = new PropertyTypeItemStack(new ResourceLocation(ModReference.MODID, "icon"), new BigItemStack(Items.NETHER_STAR));
-    //public static final IPropertyType<String> FRAME =                       new PropertyTypeString(new ResourceLocation(ModReference.MODID,"frame"), "");
+    public static final IPropertyType<EnumFrameType> FRAME = new PropertyTypeEnum<>(new ResourceLocation(ModReference.MODID, "frame"), EnumFrameType.ROUNDED_SQUARE);
 
     public static final IPropertyType<String> BG_IMAGE = new PropertyTypeString(new ResourceLocation(ModReference.MODID, "bg_image"), "");
     public static final IPropertyType<Integer> BG_SIZE = new PropertyTypeInteger(new ResourceLocation(ModReference.MODID, "bg_size"), 256);
@@ -72,4 +79,5 @@ public class NativeProps {
 
         return EnumQuestVisibility.NORMAL;
     }
+
 }

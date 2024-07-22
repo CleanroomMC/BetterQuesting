@@ -121,12 +121,7 @@ public class GuiThemes extends GuiScreenCanvas {
                 new GuiTextureColored(PresetTexture.QUEST_MAIN_1.getTexture(), PresetColor.QUEST_ICON_UNLOCKED.getColor()),
                 new GuiTextureColored(PresetTexture.QUEST_MAIN_2.getTexture(), PresetColor.QUEST_ICON_PENDING.getColor()),
                 new GuiTextureColored(PresetTexture.QUEST_MAIN_3.getTexture(), PresetColor.QUEST_ICON_COMPLETE.getColor()),
-                new GuiTextureColored(PresetTexture.QUEST_MAIN_4.getTexture(), PresetColor.QUEST_ICON_REPEATABLE.getColor()),
-                new GuiTextureColored(PresetTexture.QUEST_AUX_0.getTexture(), PresetColor.QUEST_ICON_LOCKED.getColor()),
-                new GuiTextureColored(PresetTexture.QUEST_AUX_1.getTexture(), PresetColor.QUEST_ICON_UNLOCKED.getColor()),
-                new GuiTextureColored(PresetTexture.QUEST_AUX_2.getTexture(), PresetColor.QUEST_ICON_PENDING.getColor()),
-                new GuiTextureColored(PresetTexture.QUEST_AUX_3.getTexture(), PresetColor.QUEST_ICON_COMPLETE.getColor()),
-                new GuiTextureColored(PresetTexture.QUEST_AUX_4.getTexture(), PresetColor.QUEST_ICON_REPEATABLE.getColor()));
+                new GuiTextureColored(PresetTexture.QUEST_MAIN_4.getTexture(), PresetColor.QUEST_ICON_REPEATABLE.getColor()));
         PanelGeneric pqp = new PanelGeneric(new GuiTransform(new Vector4f(0.25F, 0.5F, 0.25F, 0.5F), -12, -12, 24, 24, 0), icoSlides);
         preCanIn2.addPanel(pqp);
 
@@ -134,7 +129,6 @@ public class GuiThemes extends GuiScreenCanvas {
         preCanIn2.addPanel(itemFrame);
 
         itemFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(1, 1, 1, 1), 0), new ItemTexture(new BigItemStack(BetterQuesting.guideBook, 9999, 0), true, true)));
-
         IGuiLine linSeq = new GuiLineSequence(1F, PresetLine.QUEST_LOCKED.getLine(), PresetLine.QUEST_UNLOCKED.getLine(), PresetLine.QUEST_PENDING.getLine(), PresetLine.QUEST_COMPLETE.getLine());
         IGuiColor colSeq = new GuiColorSequence(1F, PresetColor.QUEST_LINE_LOCKED.getColor(), PresetColor.QUEST_LINE_UNLOCKED.getColor(), PresetColor.QUEST_LINE_PENDING.getColor(), PresetColor.QUEST_LINE_COMPLETE.getColor());
         preCanIn2.addPanel(new PanelLine(pqp.getTransform(), itemFrame.getTransform(), linSeq, 4, colSeq, 1));

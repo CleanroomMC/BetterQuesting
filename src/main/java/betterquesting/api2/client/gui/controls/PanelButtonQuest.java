@@ -43,33 +43,17 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
         player = Minecraft.getMinecraft().player;
         EnumQuestState qState = value == null ? EnumQuestState.LOCKED : value.getValue().getState(player);
         IGuiColor txIconCol = null;
-        boolean main = value == null ? false : value.getValue().getProperty(NativeProps.MAIN);
         boolean lock = false;
 
-        switch (qState) {
-            case LOCKED:
-                txFrame = main ? PresetTexture.QUEST_MAIN_0.getTexture() : PresetTexture.QUEST_NORM_0.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_LOCKED.getColor();
+        if (value != null) {
+            txFrame = PresetTexture.getExtraQuestFrameTexture(value.getValue().getProperty(NativeProps.FRAME), qState);
+            txIconCol = qState.getColor();
+            if (qState == EnumQuestState.LOCKED)
                 lock = true;
-                break;
-            case UNLOCKED:
-                txFrame = main ? PresetTexture.QUEST_MAIN_1.getTexture() : PresetTexture.QUEST_NORM_1.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_UNLOCKED.getColor();
-                break;
-            case UNCLAIMED:
-                txFrame = main ? PresetTexture.QUEST_MAIN_2.getTexture() : PresetTexture.QUEST_NORM_2.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_PENDING.getColor();
-                break;
-            case COMPLETED:
-                txFrame = main ? PresetTexture.QUEST_MAIN_3.getTexture() : PresetTexture.QUEST_NORM_3.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_COMPLETE.getColor();
-                break;
-            case REPEATABLE:
-                txFrame = main ? PresetTexture.QUEST_MAIN_4.getTexture() : PresetTexture.QUEST_NORM_4.getTexture();
-                txIconCol = PresetColor.QUEST_ICON_REPEATABLE.getColor();
-                break;
-            default:
-                txFrame = null;
+        } else {
+            txFrame = PresetTexture.QUEST_NORM_0.getTexture();
+            txIconCol = PresetColor.QUEST_ICON_LOCKED.getColor();
+            lock = true;
         }
 
         IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
@@ -100,7 +84,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
     private List<String> getStandardTooltip(IQuest quest, EntityPlayer player, int qID) {
         List<String> list = new ArrayList<>();
 
-        list.add(QuestTranslation.translate(quest.getProperty(NativeProps.NAME)) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + qID)));
+        list.add(QuestTranslation.translate(quest.getProperty(NativeProps.NAME)) + (Minecraft.getMinecraft().gameSettings.advancedItemTooltips && QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) ? (" #" + qID) : ""));
 
         UUID playerID = QuestingAPI.getQuestingUUID(player);
 
