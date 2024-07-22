@@ -65,6 +65,7 @@ betterquesting.btn.visible_always=常に依存ラインを表示する
 betterquesting.btn.visible_implicit=カーソルを合わせると前提クエストが表示されます。
 betterquesting.btn.view_mode=閲覧モード
 betterquesting.btn.share_quest=チャットに共有
+betterquesting.btn.copy_id=Quest IDをコピー
 betterquesting.btn.edit_name_desc.just_close=閉じる
 betterquesting.btn.edit_name_desc.open_window=ウィンドウを開く
 
@@ -120,10 +121,12 @@ betterquesting.notice.update=クエスト更新
 betterquesting.notice.unlock=クエスト解除
 
 betterquesting.msg.heart_disabled=ハードコアライフは有効になっていません。" /bq_admin hardcore "を使って切り替えてください。
-betterquesting.msg.share_quest=§b[クエスト:#%d - %s§b]
+betterquesting.msg.share_quest=§b[クエスト： %s§b]
 betterquesting.msg.share_quest_invalid=§c クエスト %s を表示できません。
 betterquesting.msg.share_quest_hover_text_success=§a クリックしてクエストを表示。
 betterquesting.msg.share_quest_hover_text_failure=§c クエストは現在アクセスできません。
+betterquesting.msg.copy_quest_copied=§eクリップボードにコピー： §b%s
+betterquesting.msg.copy_quest_failed=§c§b%s§r§c をクリップボードにコピーできませんでした！
 
 key.betterquesting.quests=クエストを開く
 key.betterquesting.party=パーティーマネージャー
@@ -190,8 +193,10 @@ betterquesting.toolbox.tool.scale.name=アイコンのサイズ変更
 betterquesting.toolbox.tool.scale.desc=クエストアイコンを拡大縮小します。
 betterquesting.toolbox.tool.raw.name=生ファイルの編集
 betterquesting.toolbox.tool.raw.desc=生ファイルのクエストラインJSONを編集用に開きます。背景の変更等の追加の隠し設定も可能です。
-betterquesting.toolbox.tool.frame.name=アイコン枠の編集
+betterquesting.toolbox.tool.frame.name=アイコン枠の変更
 betterquesting.toolbox.tool.frame.desc=クエストアイコンのアイコン枠のスタイルを変更します。
+betterquesting.toolbox.tool.set_main.name=メインに設定
+betterquesting.toolbox.tool.set_main.desc=クエストをメインに設定するかしないかで、リンクの描画サイズが変わります。
 
 betterquesting.cmd.complete=%s のクエストを %s 完了しました。
 betterquesting.cmd.default.save=クエストデータベースをデフォルトとして保存しました。
@@ -205,6 +210,7 @@ betterquesting.cmd.delete.all=全てのクエストを削除しました。
 betterquesting.cmd.edit=編集モードが %s になりました。
 betterquesting.cmd.hardcore=ハードコアライフが %s になりました。
 betterquesting.cmd.purge_hidden=%s 個の隠しクエストを削除しました。
+betterquesting.cmd.error=§cなにかのエラーが発生しました！ログを確認してください。
 
 betterquesting.cmd.lives.add_player=%2$s に %1$s のライフを追加しました。 (結果 : %3$s)
 betterquesting.cmd.lives.add_all=全プレイヤーに %s のライフを追加しました。
@@ -286,7 +292,7 @@ bq_standard.btn.consume=消費 : %s
 bq_standard.btn.edit_nbt=NBTを編集
 
 bq_standard.gui.amount=量
-bq_standard.gui.kill=%s を殺す。
+bq_standard.gui.kill=%s を殺せ。
 bq_standard.gui.location=場所 : %s
 bq_standard.gui.distance=距離 : %s
 bq_standard.gui.dimension=ディメンション : %s
