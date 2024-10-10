@@ -725,7 +725,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+    public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.player == null || event.player.world.isRemote) return;
         PlayerContainerListener.removeListener(event.player);
     }
