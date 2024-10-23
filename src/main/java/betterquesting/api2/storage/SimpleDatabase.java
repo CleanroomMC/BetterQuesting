@@ -5,11 +5,13 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 public class SimpleDatabase<T> extends AbstractDatabase<T> {
 
     private final IntOpenHashSet ids = new IntOpenHashSet();
+    private int lowerBound = 0;
 
     @Override
     public synchronized int nextID() {
-        for (int i = 0; i < Integer.MAX_VALUE ; i++) {
+        for (int i = lowerBound; i < Integer.MAX_VALUE ; i++) {
             if (!ids.contains(i)) {
+                lowerBound = i + 1;
                 return i;
             }
         }
@@ -21,6 +23,7 @@ public class SimpleDatabase<T> extends AbstractDatabase<T> {
         DBEntry<T> result = super.add(id, value);
         // Don't add when an exception is thrown
         ids.add(id);
+        // lowerBound = id; //no, lowerBound will not be refreshed here, but delayed to next `nextID()` call
         return result;
     }
 
@@ -29,6 +32,7 @@ public class SimpleDatabase<T> extends AbstractDatabase<T> {
         boolean result = super.removeID(key);
         if (result) {
             ids.remove(key);
+            lowerBound = Math.min(key, lowerBound);
         }
         return result;
     }
