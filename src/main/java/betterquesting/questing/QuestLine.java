@@ -6,7 +6,7 @@ import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.storage.SimpleDatabase;
+import betterquesting.api2.storage.RandomIndexDatabase;
 import betterquesting.storage.PropertyContainer;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,7 +15,7 @@ import net.minecraft.nbt.NBTTagList;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuestLine {
+public class QuestLine extends RandomIndexDatabase<IQuestLineEntry> implements IQuestLine {
     private PropertyContainer info = new PropertyContainer();
 
     public QuestLine() {
