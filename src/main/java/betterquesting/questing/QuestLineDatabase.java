@@ -3,7 +3,7 @@ package betterquesting.questing;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.storage.SimpleDatabase;
+import betterquesting.api2.storage.RandomIndexDatabase;
 import betterquesting.api2.utils.QuestLineSorter;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implements IQuestLineDatabase {
+public final class QuestLineDatabase extends RandomIndexDatabase<IQuestLine> implements IQuestLineDatabase {
     public static final QuestLineDatabase INSTANCE = new QuestLineDatabase();
 
     private final List<Integer> lineOrder = new ArrayList<>();
