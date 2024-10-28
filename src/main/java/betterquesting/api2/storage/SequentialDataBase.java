@@ -20,7 +20,7 @@ public class SequentialDataBase<T> extends AbstractDatabase<T> {
 
     @Override
     public synchronized int nextID() {
-        int next = ids.nextSetBit(lowerBound);
+        int next = ids.nextClearBit(lowerBound);
         lowerBound = next + 1;
         return next;
     }
