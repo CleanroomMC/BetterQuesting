@@ -40,7 +40,7 @@ import java.util.*;
 public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
 
     private static final boolean DEFAULT_IGNORE_NBT = false;
-    private static final boolean DEFAULT_CONSUME = true;
+    private static final boolean DEFAULT_CONSUME = false;
     private static final boolean DEFAULT_GROUP_DETECT = false;
     private static final boolean DEFAULT_AUTO_CONSUME = false;
     private final Set<UUID> completeUsers = new TreeSet<>();
