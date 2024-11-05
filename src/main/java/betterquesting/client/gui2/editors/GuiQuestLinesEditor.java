@@ -1,5 +1,10 @@
 package betterquesting.client.gui2.editors;
 
+import java.util.List;
+
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.util.vector.Vector4f;
+
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumQuestVisibility;
@@ -15,7 +20,11 @@ import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
 import betterquesting.api2.client.gui.events.types.PEventButton;
-import betterquesting.api2.client.gui.misc.*;
+import betterquesting.api2.client.gui.misc.GuiAlign;
+import betterquesting.api2.client.gui.misc.GuiPadding;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.misc.GuiTransform;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
@@ -35,12 +44,9 @@ import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.util.List;
 
 public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh {
+
     private CanvasScrolling lineList;
     private PanelTextField<String> tfName;
     private PanelTextField<String> tfDesc;
@@ -73,8 +79,10 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
                 btnIcon.setActive(true);
                 btnVis.setActive(true);
                 btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + selected.getProperty(NativeProps.VISIBILITY));
-                if (!tfName.isFocused()) tfName.setText(selected.getUnlocalisedName());
-                if (!tfDesc.isFocused()) tfDesc.setText(selected.getUnlocalisedDescription());
+                if (!tfName.isFocused())
+                    tfName.setText(selected.getUnlocalisedName());
+                if (!tfDesc.isFocused())
+                    tfDesc.setText(selected.getUnlocalisedDescription());
             }
         }
 
@@ -89,10 +97,12 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         Keyboard.enableRepeatEvents(true);
 
         // Background panel
-        CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
+        CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
+                                                         PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
 
-        PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.edit_line1")).setAlignment(1);
+        PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
+                                               QuestTranslation.translate("betterquesting.title.edit_line1")).setAlignment(1);
         panTxt.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(panTxt);
 
@@ -107,10 +117,14 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         cvBackground.addPanel(scList);
         lineList.setScrollDriverY(scList);
 
-        PanelButton btnAdd = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.25F, 1F), new GuiPadding(16, -40, 0, 24), 0), 1, QuestTranslation.translate("betterquesting.btn.new"));
+        PanelButton btnAdd = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.25F, 1F), new GuiPadding(16, -40, 0, 24), 0),
+                                             1,
+                                             QuestTranslation.translate("betterquesting.btn.new"));
         cvBackground.addPanel(btnAdd);
 
-        PanelButton btnImport = new PanelButton(new GuiTransform(new Vector4f(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -40, 16, 24), 0), 2, QuestTranslation.translate("betterquesting.btn.import"));
+        PanelButton btnImport = new PanelButton(new GuiTransform(new Vector4f(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -40, 16, 24), 0),
+                                                2,
+                                                QuestTranslation.translate("betterquesting.btn.import"));
         cvBackground.addPanel(btnImport);
 
         // Right side
@@ -118,14 +132,16 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         CanvasEmpty cvRight = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 32, 16, 24), 0));
         cvBackground.addPanel(cvRight);
 
-        PanelTextBox txtName = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 4, 0, -16), 0), QuestTranslation.translate("betterquesting.gui.name"));
+        PanelTextBox txtName = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 4, 0, -16), 0),
+                                                QuestTranslation.translate("betterquesting.gui.name"));
         txtName.setColor(PresetColor.TEXT_MAIN.getColor());
         cvRight.addPanel(txtName);
 
         tfName = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), "", FieldFilterString.INSTANCE);
         cvRight.addPanel(tfName);
 
-        PanelTextBox txtDesc = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 36, 0, -48), 0), QuestTranslation.translate("betterquesting.gui.description"));
+        PanelTextBox txtDesc = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 36, 0, -48), 0),
+                                                QuestTranslation.translate("betterquesting.gui.description"));
         txtDesc.setColor(PresetColor.TEXT_MAIN.getColor());
         cvRight.addPanel(txtDesc);
 
@@ -133,41 +149,56 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         tfDesc.setMaxLength(Integer.MAX_VALUE);
         cvRight.addPanel(tfDesc);
 
-        btnIcon = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 80, 0, -96), 0), -1, QuestTranslation.translate("betterquesting.btn.icon")) {
+        btnIcon = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 80, 0, -96), 0),
+                                  -1,
+                                  QuestTranslation.translate("betterquesting.btn.icon")) {
+
             @Override
             public void onButtonClick() {
-                if (selected == null) return;
+                if (selected == null)
+                    return;
                 mc.displayGuiScreen(new GuiItemSelection(GuiQuestLinesEditor.this, selected.getProperty(NativeProps.ICON), value -> {
                     selected.setProperty(NativeProps.ICON, value);
                     SendChanges(new DBEntry<>(selID, selected));
                 }));
             }
+
         };
         btnIcon.setActive(selected != null);
         cvRight.addPanel(btnIcon);
 
-        btnVis = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 96, 0, -112), 0), -1, QuestTranslation.translate("betterquesting.btn.show") + ": " + (selected == null ? EnumQuestVisibility.NORMAL : selected.getProperty(NativeProps.VISIBILITY))) {
+        btnVis = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 96, 0, -112), 0),
+                                 -1,
+                                 QuestTranslation.translate("betterquesting.btn.show") + ": " + (selected == null ? EnumQuestVisibility.NORMAL : selected
+                                         .getProperty(NativeProps.VISIBILITY))) {
+
             @Override
             public void onButtonClick() {
-                if (selected == null) return;
+                if (selected == null)
+                    return;
                 EnumQuestVisibility[] visList = EnumQuestVisibility.values();
                 EnumQuestVisibility vis = selected.getProperty(NativeProps.VISIBILITY);
                 vis = visList[(vis.ordinal() + 1) % visList.length];
                 selected.setProperty(NativeProps.VISIBILITY, vis);
                 this.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + vis);
             }
+
         };
         btnVis.setActive(selected != null);
         cvRight.addPanel(btnVis);
 
-        PanelButton btnManage = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 112, 0, -128), 0), 3, QuestTranslation.translate("betterquesting.btn.add_remove_quests"));
+        PanelButton btnManage = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 112, 0, -128), 0),
+                                                3,
+                                                QuestTranslation.translate("betterquesting.btn.add_remove_quests"));
         cvRight.addPanel(btnManage);
 
-        btnDesign = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 128, 0, -144), 0), 4, QuestTranslation.translate("betterquesting.btn.designer"));
+        btnDesign = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 128, 0, -144), 0),
+                                    4,
+                                    QuestTranslation.translate("betterquesting.btn.designer"));
         btnDesign.setActive(selected != null);
         cvRight.addPanel(btnDesign);
 
-        PanelButton btnTextEditor = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, new GuiPadding(-16, 48, 0, -64), 0), 8, "Aa");
+        PanelButton btnTextEditor = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, new GuiPadding(-16, 48, 0, -64), 0), 9, "Aa");
         cvRight.addPanel(btnTextEditor);
 
         // Dividers
@@ -194,8 +225,10 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
                 btnIcon.setActive(true);
                 btnVis.setActive(true);
                 btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + selected.getProperty(NativeProps.VISIBILITY));
-                if (!tfName.isFocused()) tfName.setText(selected.getUnlocalisedName());
-                if (!tfDesc.isFocused()) tfDesc.setText(selected.getUnlocalisedDescription());
+                if (!tfName.isFocused())
+                    tfName.setText(selected.getUnlocalisedName());
+                if (!tfDesc.isFocused())
+                    tfDesc.setText(selected.getUnlocalisedDescription());
             }
         }
 
@@ -276,14 +309,23 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>) btn).getStoredValue();
             NBTTagCompound payload = new NBTTagCompound();
-            payload.setIntArray("chapterIDs", new int[]{entry.getID()});
+            payload.setIntArray("chapterIDs", new int[] {
+                    entry.getID()
+            });
             payload.setInteger("action", 1);
             NetChapterEdit.sendEdit(payload);
         } else if (btn.getButtonID() == 7 && btn instanceof PanelButtonStorage) // Move Up
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>) btn).getStoredValue();
             int order = QuestLineDatabase.INSTANCE.getOrderIndex(entry.getID());
-            if (order > 0) SendReorder(order);
+            if (order > 0)
+                SendReorder(order, false);
+        } else if (btn.getButtonID() == 8 && btn instanceof PanelButtonStorage) // Move Down
+        {
+            DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>) btn).getStoredValue();
+            int order = QuestLineDatabase.INSTANCE.getOrderIndex(entry.getID());
+            if (order < QuestLineDatabase.INSTANCE.getSortedEntries().size() - 1)
+                SendReorder(order, true);
         } else if (btn.getButtonID() == 8) // Big Description Editor
         {
             mc.displayGuiScreen(new GuiTextEditor(this, tfDesc.getRawText(), value -> {
@@ -304,13 +346,20 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
 
         for (DBEntry<IQuestLine> entry : QuestLineDatabase.INSTANCE.getSortedEntries()) {
             IQuestLine ql = entry.getValue();
-            PanelButtonStorage<DBEntry<IQuestLine>> tmp = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, w - 32, 16, 0), 5, QuestTranslation.translate(ql.getUnlocalisedName()), entry);
+            PanelButtonStorage<DBEntry<IQuestLine>> tmp = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, w - 48, 16, 0),
+                                                                                   5,
+                                                                                   QuestTranslation.translate(ql.getUnlocalisedName()),
+                                                                                   entry);
             tmp.setActive(entry.getID() != selID);
             lineList.addPanel(tmp);
-            lineList.addPanel(new PanelButtonStorage<>(new GuiRectangle(w - 32, i * 16, 16, 16, 0), 6, "", entry).setIcon(PresetIcon.ICON_TRASH.getTexture()));
-            PanelButton btnUp = new PanelButtonStorage<>(new GuiRectangle(w - 16, i * 16, 16, 16, 0), 7, "", entry).setIcon(PresetIcon.ICON_UP.getTexture());
-            btnUp.setActive(QuestLineDatabase.INSTANCE.getSortedEntries().size() > 1);
+            lineList.addPanel(new PanelButtonStorage<>(new GuiRectangle(w - 48, i * 16, 16, 16, 0), 6, "", entry).setIcon(PresetIcon.ICON_TRASH.getTexture()));
+            PanelButton btnUp = new PanelButtonStorage<>(new GuiRectangle(w - 32, i * 16, 16, 16, 0), 7, "", entry).setIcon(PresetIcon.ICON_UP.getTexture());
+            btnUp.setActive(i > 0);
             lineList.addPanel(btnUp);
+            PanelButton btnDown = new PanelButtonStorage<>(new GuiRectangle(w - 16, i * 16, 16, 16, 0), 8, "", entry).setIcon(PresetIcon.ICON_DOWN
+                    .getTexture());
+            btnDown.setActive(i < QuestLineDatabase.INSTANCE.getSortedEntries().size() - 1);
+            lineList.addPanel(btnDown);
             i++;
         }
     }
@@ -327,16 +376,18 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         NetChapterEdit.sendEdit(payload);
     }
 
-    private void SendReorder(int indexToShift) {
-        if (indexToShift < 0) return;
+    private void SendReorder(int indexToShift, boolean down) {
+        if (indexToShift < 0)
+            return;
         List<DBEntry<IQuestLine>> entries = QuestLineDatabase.INSTANCE.getSortedEntries();
-        if (indexToShift >= entries.size()) return;
+        if (indexToShift >= entries.size())
+            return;
         int[] chapterIDs = new int[entries.size()];
         for (int i = 0; i < entries.size(); i++) {
             chapterIDs[i] = entries.get(i).getID();
         }
 
-        int indexFrom = (indexToShift - 1 + chapterIDs.length) % chapterIDs.length;
+        int indexFrom = (indexToShift + (down ? 1 : -1) + chapterIDs.length) % chapterIDs.length;
         int tmp = chapterIDs[indexToShift];
         chapterIDs[indexToShift] = chapterIDs[indexFrom];
         chapterIDs[indexFrom] = tmp;
@@ -346,4 +397,5 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         payload.setInteger("action", 2);
         NetChapterEdit.sendEdit(payload);
     }
+
 }
