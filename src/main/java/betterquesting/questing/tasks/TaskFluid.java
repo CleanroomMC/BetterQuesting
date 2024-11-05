@@ -83,15 +83,16 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
     public void detect(ParticipantInfo pInfo, DBEntry<IQuest> quest) {
         if (isComplete(pInfo.UUID)) return;
 
-        // Removing the consume check here would make the task cheaper on groups and for that reason sharing is restricted to detect only
-        final List<Tuple<UUID, int[]>> progress = getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
+        // Removing the consume check here would make the task cheaper on groups and for that reason sharing is
+        // restricted to detect only
+        List<Tuple<UUID, int[]>> progress = getBulkProgress(
+                consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
         boolean updated = false;
 
         if (!consume) {
             if (groupDetect) // Reset all detect progress
-            {
                 progress.forEach((value) -> Arrays.fill(value.getSecond(), 0));
-            } else {
+            else {
                 for (int i = 0; i < requiredFluids.size(); i++) {
                     final int r = requiredFluids.get(i).amount;
                     for (Tuple<UUID, int[]> value : progress) {
@@ -105,9 +106,9 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
             }
         }
 
-        final List<InventoryPlayer> invoList;
+        List<InventoryPlayer> invoList;
         if (consume) {
-            // We do not support consuming resources from other member's invetories.
+            // We do not support consuming resources from other member's inventories.
             // This could otherwise be abused to siphon items/fluids unknowingly
             invoList = Collections.singletonList(pInfo.PLAYER.inventory);
         } else {
@@ -118,46 +119,84 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         for (InventoryPlayer invo : invoList) {
             for (int i = 0; i < invo.getSizeInventory(); i++) {
                 ItemStack stack = invo.getStackInSlot(i);
+
                 if (stack.isEmpty()) continue;
-                IFluidHandlerItem handler = FluidUtil.getFluidHandler(stack);
+
+                // Make a copy of the stack to retrieve the fluid amount & info.
+                // Set count to 1, otherwise fluid handlers may not allow draining
+                var toRetrieveInfo = stack.copy();
+                toRetrieveInfo.setCount(1);
+
+                var handler = FluidUtil.getFluidHandler(toRetrieveInfo);
                 if (handler == null) continue;
 
-                boolean hasDrained = false;
-
                 for (int j = 0; j < requiredFluids.size(); j++) {
-                    final FluidStack rStack = requiredFluids.get(j);
-                    FluidStack drainOG = rStack.copy();
-                    if (ignoreNbt) drainOG.tag = null;
+                    FluidStack rStack = requiredFluids.get(j);
 
-                    // Pre-check
-                    FluidStack sample = handler.drain(drainOG, false);
-                    if (sample == null || sample.amount <= 0) continue;
+                    boolean hasDrained = false;
+                    boolean requiresFullDrain = false;
+                    int fullDrainAmt = 0;
 
-                    // Theoretically this could work in consume mode for parties but the priority order and manual submission code would need changing
+                    // Initial Check
+                    FluidStack rStackOg = rStack.copy();
+                    rStackOg.amount = (int) Math.ceil((double) rStack.amount / (double) stack.getCount());
+                    FluidStack sample = handler.drain(rStackOg, false);
+                    if (sample == null || sample.amount <= 0) {
+                        // Check if we can drain the entire container instead (Simple Fluid Handler)
+                        if (handler.getTankProperties().length < 1) continue;
+
+                        fullDrainAmt = handler.getTankProperties()[0].getCapacity();
+                        if (fullDrainAmt <= 0) continue;
+                        rStackOg.amount = fullDrainAmt;
+
+                        sample = handler.drain(rStackOg, false);
+                        if (sample == null || sample.amount <= 0) continue;
+
+                        requiresFullDrain = true;
+                    }
+
+                    // Theoretically this could work in consume mode for parties but the priority order and manual
+                    // submission code would need changing
                     for (Tuple<UUID, int[]> value : progress) {
                         if (value.getSecond()[j] >= rStack.amount) continue;
                         int remaining = rStack.amount - value.getSecond()[j];
 
                         FluidStack drain = rStack.copy();
-                        drain.amount = remaining / stack.getCount(); // Must be a multiple of the stack size
+
+                        // Take the ceiling, so we are not removing less than required
+                        if (requiresFullDrain)
+                            drain.amount = fullDrainAmt;
+                        else
+                            drain.amount = (int) Math.ceil((double) remaining / (double) stack.getCount());
                         if (ignoreNbt) drain.tag = null;
                         if (drain.amount <= 0) continue;
 
-                        FluidStack fluid = handler.drain(drain, consume); // TODO: Look into reducing this to a single call if possible
+                        FluidStack fluid = handler.drain(drain, consume);
                         if (fluid == null || fluid.amount <= 0) continue;
 
-                        value.getSecond()[j] += fluid.amount * stack.getCount();
+                        value.getSecond()[j] += Math.min(fluid.amount * stack.getCount(), remaining);
                         hasDrained = true;
                         updated = true;
                     }
+
+                    if (!hasDrained) continue;
+
+                    if (consume) {
+                        // Restore Stack Count
+                        var result = handler.getContainer();
+                        result.setCount(stack.getCount());
+
+                        // Set Contents
+                        invo.setInventorySlotContents(i, result);
+                    }
+
+                    break;
                 }
-
-                if (hasDrained && consume) invo.setInventorySlotContents(i, handler.getContainer());
             }
-        }
 
-        if (updated) setBulkProgress(progress);
-        checkAndComplete(pInfo, quest, updated);
+            if (updated) setBulkProgress(progress);
+            checkAndComplete(pInfo, quest, updated);
+        }
     }
 
     private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, boolean resync) {
