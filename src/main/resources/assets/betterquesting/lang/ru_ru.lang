@@ -18,6 +18,7 @@ betterquesting.title.party_invite=Пригласить игроков
 betterquesting.title.select_theme=Выбрать тему
 betterquesting.title.importers=Импортеры
 betterquesting.title.submit_station=Станция отправки
+betterquesting.title.completion=Завершение: %d/%d
 
 betterquesting.btn.rewards=Награды
 betterquesting.btn.tasks=Задания
@@ -30,6 +31,12 @@ betterquesting.btn.import=Импорт
 betterquesting.btn.logic=Логика
 betterquesting.btn.task_logic=Логика задания: %s
 betterquesting.btn.show=Показать
+betterquesting.btn.show.hidden=Не видно игроку
+betterquesting.btn.show.unlocked=Видно игроку, когда квест может быть выполнен или все предыдущие квесты выполнены.
+betterquesting.btn.show.normal=Виден игроку, когда квест завершен или разблокирован.
+betterquesting.btn.show.completed=Виден игроку после завершения
+betterquesting.btn.show.chain=Виден игроку, когда все предварительные условия выполнены.
+betterquesting.btn.show.always=Всегда виден игроку
 betterquesting.btn.claim=Запросить
 betterquesting.btn.detect_submit=Обнаружить/Отправить
 betterquesting.btn.add_remove_quests=Добавить/Удалить квесты
@@ -50,6 +57,17 @@ betterquesting.btn.party_join=Присоединиться
 betterquesting.btn.party_share_lives=Поделиться жизнями
 betterquesting.btn.party_share_loot=Одна награда на всех
 betterquesting.btn.icon=Картинка
+betterquesting.btn.claim_all=Претендовать на все
+betterquesting.btn.zoom_fit=Масштабировать по размеру
+betterquesting.btn.lock_tray=Блокировка лотка
+betterquesting.btn.visible_hidden=Всегда скрывать строку зависимости
+betterquesting.btn.visible_always=Всегда показывать линию зависимости
+betterquesting.btn.visible_implicit=Наведите курсор, чтобы показать линию зависимости
+betterquesting.btn.view_mode=Режим просмотра
+betterquesting.btn.share_quest=Поделиться в чате
+betterquesting.btn.copy_id=Копировать идентификатор квеста
+betterquesting.btn.edit_name_desc.just_close=Просто закрыть
+betterquesting.btn.edit_name_desc.open_window=Открытое окно
 
 betterquesting.home.exit=Выход
 betterquesting.home.quests=Квесты
@@ -75,11 +93,13 @@ betterquesting.gui.key=Название ключа
 betterquesting.gui.no_key=Без ключа
 betterquesting.gui.duplicate_key=Дубль ключа
 betterquesting.gui.yes_always=Да, всегда
+betterquesting.gui.formatting_buttons=Форматирование
 
 betterquesting.tooltip.tasks_complete=%s/%s заданий завершено
 betterquesting.tooltip.complete=ЗАВЕРШЕНО
 betterquesting.tooltip.incomplete=ОТКРЫТО
 betterquesting.tooltip.rewards_pending=Незапрошенные награды
+betterquesting.tooltip.repeatable=Можно повторить
 betterquesting.tooltip.requires=Условия:
 betterquesting.tooltip.shift_advanced=Удерживать SHIFT для получения доп.информации
 betterquesting.tooltip.reset_time=Откат: %s
@@ -87,18 +107,29 @@ betterquesting.tooltip.main_quest=Основной квест: %s
 betterquesting.tooltip.global_quest=Глобальный квест: %s
 betterquesting.tooltip.global_share=Global Share: %s
 betterquesting.tooltip.task_logic=Логика задания: %s
+betterquesting.tooltip.quest_logic=Логика квеста: %s
 betterquesting.tooltip.simultaneous=Одновременные задания: %s
 betterquesting.tooltip.auto_claim=Авто-запрос: %s
 betterquesting.tooltip.repeat=Повторяется: %s
+betterquesting.tooltip.repeat_with_edit_mode=Режим редактирования включен, повторяющиеся квесты не сбрасываются.
 betterquesting.tooltip.update_quests=Update Available!%n§7A new quest line version is available.%nClick to install and migrate progress.
+betterquesting.tooltip.edit_name_desc.just_close_screen=Просто закройте экран, но окно останется.
+betterquesting.tooltip.edit_name_desc.just_close_window=Просто закрой окно, а экран останется.
 
 betterquesting.notice.complete=Квест завершён
 betterquesting.notice.update=Квест обновлён
 betterquesting.notice.unlock=Квест разблокирован
 
 betterquesting.msg.heart_disabled=Режим Хардкорных жизней выключен. Используйте "/bq_admin hardcore", чтобы включить его.
+betterquesting.msg.share_quest=§b[Квест: %s§b]
+betterquesting.msg.share_quest_invalid=§cНевозможно просмотреть квест %s
+betterquesting.msg.share_quest_hover_text_success=§aНажмите, чтобы просмотреть квест
+betterquesting.msg.share_quest_hover_text_failure=§cКвест в настоящее время недоступен
+betterquesting.msg.copy_quest_copied=§eСкопировано в буфер обмена: §b%s
+betterquesting.msg.copy_quest_failed=§cНе удалось скопировать §b%s§r§c в буфер обмена!
 
 key.betterquesting.quests=Открыть квесты
+key.betterquesting.back=Вернуться на предыдущую страницу
 key.betterquesting.party=Управление командами
 key.betterquesting.themes=Сменить тему
 
@@ -111,6 +142,7 @@ item.betterquesting.extra_life.full.name=Дополнительная жизнь
 item.betterquesting.extra_life.half.name=Пол-сердца
 item.betterquesting.extra_life.quarter.name=Четверть сердца
 item.betterquesting.guide.name=Better Questing: Руководство новичка
+item.betterquesting.quest_book.name=Книга квестов
 
 tile.betterquesting.submit_station.name=Станция отправки объектов (СОО)
 
@@ -162,6 +194,10 @@ betterquesting.toolbox.tool.scale.name=Масштаб Картинки
 betterquesting.toolbox.tool.scale.desc=Увеличиват и уменьшает Картинку квеста
 betterquesting.toolbox.tool.raw.name=Изменить исходный код
 betterquesting.toolbox.tool.raw.desc=Открывает Цепочку Квестов для редактирования, в виде исходного JSON кода. Содержит дополнительные скрытые настройки, такие как Изменение фона.
+betterquesting.toolbox.tool.frame.name=Изменить рамку значка
+betterquesting.toolbox.tool.frame.desc=Изменяет стиль рамки значков квестов.
+betterquesting.toolbox.tool.set_main.name=Сделать основным
+betterquesting.toolbox.tool.set_main.desc=Установить или отменить назначение квеста как основного, что увеличивает размер отрисовки ссылки.
 
 betterquesting.cmd.complete=Квест завершён на %s из %s
 betterquesting.cmd.default.save=База данных квестов сохранена, как база по умолчанию
@@ -174,6 +210,8 @@ betterquesting.cmd.delete.single=Квест %s удалён
 betterquesting.cmd.delete.all=Удалены все квесты
 betterquesting.cmd.edit=Режим редактирования: %s
 betterquesting.cmd.hardcore=Режим повышенной сложности: %s
+betterquesting.cmd.purge_hidden=Удалены скрытые квесты (%s)
+betterquesting.cmd.error=§Что-то пошло не так! Пожалуйста, проверьте свои журналы.
 
 betterquesting.cmd.lives.add_player=Добавлено %s жизней к %s (Всего: %s)
 betterquesting.cmd.lives.add_all=Добавлено %s жизней всем игрокам
@@ -190,6 +228,16 @@ betterquesting.cmd.reset.all_single=Сбросить квест '%s' у кажд
 betterquesting.cmd.reset.all_all=Сбросить все квесты у каждого игрока
 betterquesting.cmd.refresh=Обновление локальной базы данных...
 
+betterquesting.cmd.check_all=Все квесты выполнены %s:
+betterquesting.cmd.check_all.line=%d %s
+betterquesting.cmd.check.true=%s завершил %s
+betterquesting.cmd.check.false=%s не завершил %s
+betterquesting.cmd.check.no_id_match=Идентификатор квеста не соответствует ни одному квесту
+betterquesting.cmd.check.no_player_match=Игрок не найден в базе данных квестов
+
+betterquesting.cmd.cleanup_questline.confirm=Это опасная операция. Прежде чем делать это, подтвердите, что вы сделали резервную копию. Введите эту команду еще раз, чтобы начать очистку.
+betterquesting.cmd.cleanup_questline.completed=Удалены %d записей
+
 json.betterquesting.quest.name=Информация о квесте
 jdoc.betterquesting.quest.rewards.name=Награды
 jdoc.betterquesting.quest.rewards.desc=Список настраиваемых типов наград
@@ -202,3 +250,86 @@ jdoc.betterquesting.quest.properties.desc=Свойства, определяющ
 
 jdoc.betterquesting.quest.properties.betterquesting.name=BetterQuesting
 jdoc.betterquesting.quest.properties.betterquesting.desc=Свойства BetterQuesting
+
+bq_standard.task.retrieval=Задача поиска
+bq_standard.task.optional_retrieval=Дополнительная задача поиска
+bq_standard.task.crafting=Крафтовое задание
+bq_standard.task.hunt=Задание по охоте на мобов
+bq_standard.task.scoreboard=Задача табло
+bq_standard.task.location=Задача местоположения
+bq_standard.task.fluid=Жидкостная задача
+bq_standard.task.meeting=Meeting Task
+bq_standard.task.xp=Задача опыта
+bq_standard.task.block_break=Задача разрыва блока
+bq_standard.task.checkbox=Задача с флажком
+bq_standard.task.advancement=Продвинутая задача
+bq_standard.task.tame=Ручная задача
+bq_standard.task.interact_item=Задача взаимодействия с предметами
+bq_standard.task.interact_entity=Задача взаимодействия с сущностями
+bq_standard.task.trigger=Задача триггера критерия
+
+bq_standard.reward.choice=Выбор награды
+bq_standard.reward.item=Награда за предмет
+bq_standard.reward.scoreboard=Награда на табло
+bq_standard.reward.command=Командная награда
+bq_standard.reward.xp=Награда за опыт
+bq_standard.reward.recipe=Разблокировать рецепты
+
+bq_standard.title.edit_hunt=Редактировать задачу поиска
+bq_standard.title.edit_meeting=Изменить задачу собрания
+bq_standard.title.edit_loot_groups=Редактировать группы добычи
+bq_standard.title.edit_loot_entries=Редактировать записи о добыче
+bq_standard.title.edit_retrieval=Редактировать задачу извлечения
+bq_standard.title.edit_crafting=Редактировать задание на изготовление
+bq_standard.title.edit_scoreboard=Редактировать задачу табло
+bq_standard.title.edit_advancement=Изменить задачу продвижения
+bq_standard.title.edit_tame=Редактировать прирученную задачу
+bq_standard.title.edit_retrieval_task=Редактировать задачу извлечения
+
+bq_standard.btn.select_mob=Выберите Моб
+bq_standard.btn.add_remove_drops=Добавить/удалить капли
+bq_standard.btn.edit_items=Добавить/удалить элементы
+bq_standard.btn.consume=Потребление: %s
+bq_standard.btn.edit_nbt=Редактировать НБТ
+
+bq_standard.gui.amount=Количество
+bq_standard.gui.kill=Убить %s
+bq_standard.gui.location=Местоположение: %s
+bq_standard.gui.distance=Расстояние: %s
+bq_standard.gui.dimension=Размеры
+bq_standard.gui.biome=Биом: %s
+bq_standard.gui.structure=Структура: %s
+bq_standard.gui.found=Найденный!
+bq_standard.gui.undiscovered=Неоткрытый
+bq_standard.gui.condition=Условия
+bq_standard.gui.meet=Знакомьтесь: %s
+bq_standard.gui.weight=Масса
+bq_standard.gui.experience=Опыт
+bq_standard.gui.tame=Приручить %s
+
+bq_standard.importer.hqm_bag.name=Импортер сумок HQM
+bq_standard.importer.hqm_bag.desc=Импортирует сумки с наградами HQM, экспортированные в формате json.
+bq_standard.importer.hqm_quest.name=Импортер квестов HQM
+bq_standard.importer.hqm_quest.desc=Импортирует строки квестов HQM, экспортированные в формат json. Из-за странной природы индексации квестов HQM после экспорта между квестами с повторяющимися именами или условными разблокировками могут возникать ошибки.
+bq_standard.importer.nat_file.name=Собственный импортер файлов
+bq_standard.importer.nat_file.desc=Импортирует собственные файлы базы данных квестов и добавляет их к существующим.
+bq_standard.importer.nat_url.name=Импортер собственных URL-адресов
+bq_standard.importer.nat_url.desc=Импортирует собственные базы данных квестов из Интернета и добавляет их к существующим.
+bq_standard.importer.ftbq_quest.name=Импортер квестов FTB
+bq_standard.importer.ftbq_quest.desc=Импортирует главы и квесты из собственных файлов NBT мода FTB Quests.
+bq_standard.importer.adv_json.name=Импортер улучшений (JSON)
+bq_standard.importer.adv_json.desc=Импортирует ванильные улучшения, записанные в формате JSON. %n%nВНИМАНИЕ: для правильного импорта они должны находиться в оригинальном расположении файлов ванили или триумфа!
+
+item.bq_standard.loot_chest.name=Сундук с добычей
+
+bq_standard.tooltip.fixed_loot=Набор добычи: %s
+bq_standard.tooltip.fixed_loot_size=Содержит %s элементов
+bq_standard.tooltip.loot_table=Таблица добычи: %s
+bq_standard.tooltip.loot_chest=Редкость: %s
+
+betterquesting.notification.enabled=Уведомления о квестах: включено
+betterquesting.notification.disabled=Уведомления о квестах: выключено
+betterquesting.notification.tooltip=Переключить уведомления о квестах
+
+betterquesting.context.add_task=Добавить задачу
+betterquesting.context.add_reward=Добавить награду
