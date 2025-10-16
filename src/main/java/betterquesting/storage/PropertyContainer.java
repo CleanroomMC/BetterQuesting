@@ -64,6 +64,8 @@ public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTa
         if (prop == null || value == null) return;
         id2PropertyMap.put(prop.getKey(), prop);
         NBTTagCompound dom = getDomain(prop.getKey());
+
+        prop.notifyListeners(value);
         dom.setTag(prop.getKey().getPath(), prop.writeValue(value));
         nbtInfo.setTag(prop.getKey().getNamespace(), dom);
     }
