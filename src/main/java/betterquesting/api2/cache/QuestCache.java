@@ -9,6 +9,9 @@ import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.network.handlers.NetCacheSync;
 import betterquesting.questing.QuestDatabase;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
+import it.unimi.dsi.fastutil.ints.IntSortedSet;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,42 +25,30 @@ import java.util.UUID;
 
 public class QuestCache implements INBTSerializable<NBTTagCompound> {
     // Quests that are visible to the player
-    private final TreeSet<Integer> visibleQuests = new TreeSet<>();
+    private final IntArrayList visibleQuests = new IntArrayList();
 
     // Quests that are currently being undertaken. NOTE: Quests can be locked but still processing data if configured to do so
-    private final TreeSet<Integer> activeQuests = new TreeSet<>();
+    private final IntArrayList activeQuests = new IntArrayList();
 
     // Quests and their scheduled time of being reset
     private final TreeSet<QResetTime> resetSchedule = new TreeSet<>((o1, o2) -> o1.questID == o2.questID ? 0 : Long.compare(o1.time, o2.time));
 
     // Quests with pending auto claims (usually should be empty unless a condition needs to be met)
-    private final TreeSet<Integer> autoClaims = new TreeSet<>();
+    private final IntArrayList autoClaims = new IntArrayList();
 
     // Quests that need to be sent to the client to update progression (NOT for edits. Handle that elsewhere)
     private final TreeSet<Integer> markedDirty = new TreeSet<>();
 
     public synchronized int[] getActiveQuests() {
-        // Probably a better way of doing this but this will do for now
-        int i = 0;
-        int[] aryAct = new int[activeQuests.size()];
-        for (Integer q : activeQuests) aryAct[i++] = q;
-        return aryAct;
+        return activeQuests.toIntArray();
     }
 
     public synchronized int[] getVisibleQuests() {
-        // Probably a better way of doing this but this will do for now
-        int i = 0;
-        int[] aryVis = new int[visibleQuests.size()];
-        for (Integer q : visibleQuests) aryVis[i++] = q;
-        return aryVis;
+        return visibleQuests.toIntArray();
     }
 
     public synchronized int[] getPendingAutoClaims() {
-        // Probably a better way of doing this but this will do for now
-        int i = 0;
-        int[] aryAC = new int[autoClaims.size()];
-        for (Integer q : autoClaims) aryAC[i++] = q;
-        return aryAC;
+        return autoClaims.toIntArray();
     }
 
     public synchronized QResetTime[] getScheduledResets() // Already sorted by time
@@ -95,10 +86,11 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
         UUID uuid = QuestingAPI.getQuestingUUID(player);
         List<DBEntry<IQuest>> questDB = QuestingAPI.getAPI(ApiReference.QUEST_DB).getEntries();
 
-        NonNullList<Integer> tmpVisible = NonNullList.create();
-        NonNullList<Integer> tmpActive = NonNullList.create();
+        IntSortedSet tmpVisible = new IntRBTreeSet();
+        IntSortedSet tmpActive = new IntRBTreeSet();
+        IntSortedSet tmpAutoClaim = new IntRBTreeSet();
+
         NonNullList<QResetTime> tmpReset = NonNullList.create();
-        NonNullList<Integer> tmpAutoClaim = NonNullList.create();
 
         for (DBEntry<IQuest> entry : questDB) {
             if (entry.getValue().isUnlocked(uuid) || entry.getValue().isComplete(uuid) || entry.getValue().getProperty(NativeProps.LOCKED_PROGRESS)) // Unlocked or actively processing progression data
@@ -128,17 +120,16 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
                 tmpVisible.add(entry.getID());
             }
         }
-
         visibleQuests.clear();
-        visibleQuests.addAll(tmpVisible);
-
         activeQuests.clear();
-        activeQuests.addAll(tmpActive);
-
         resetSchedule.clear();
+        autoClaims.clear();
+
+        // Copy the temp sorted sets to array lists for better locality
+        visibleQuests.addAll(tmpVisible);
+        activeQuests.addAll(tmpActive);
         resetSchedule.addAll(tmpReset);
 
-        autoClaims.clear();
         autoClaims.addAll(tmpAutoClaim);
 
         if (player instanceof EntityPlayerMP) NetCacheSync.sendSync((EntityPlayerMP) player);
@@ -173,9 +164,9 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
         autoClaims.clear();
         markedDirty.clear();
 
-        for (int i : nbt.getIntArray("visibleQuests")) visibleQuests.add(i);
-        for (int i : nbt.getIntArray("activeQuests")) activeQuests.add(i);
-        for (int i : nbt.getIntArray("autoClaims")) autoClaims.add(i);
+        visibleQuests.addElements(0, nbt.getIntArray("visibleQuests"));
+        activeQuests.addElements(0, nbt.getIntArray("activeQuests"));
+        autoClaims.addElements(0, nbt.getIntArray("autoClaims"));
         for (int i : nbt.getIntArray("markedDirty")) markedDirty.add(i);
 
         NBTTagList tagList = nbt.getTagList("resetSchedule", 10);
