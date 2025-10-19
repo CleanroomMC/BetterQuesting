@@ -22,8 +22,9 @@ import betterquesting.questing.rewards.RewardStorage;
 import betterquesting.questing.tasks.TaskStorage;
 import betterquesting.storage.PropertyContainer;
 import betterquesting.storage.QuestSettings;
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.*;
@@ -41,7 +42,7 @@ public class QuestInstance implements IQuest {
 
     private final HashMap<UUID, NBTTagCompound> completeUsers = new HashMap<>();
     private int[] preRequisites = new int[0];
-    private final TIntObjectMap<RequirementType> prereqTypes = new TIntObjectHashMap<>();
+    private final Int2ObjectMap<RequirementType> prereqTypes = new Int2ObjectOpenHashMap<>();
 
     private final PropertyContainer qInfo = new PropertyContainer();
 
@@ -388,7 +389,7 @@ public class QuestInstance implements IQuest {
     }
 
     public void setRequirements(@Nonnull int[] req) {
-        prereqTypes.retainEntries((a, b) -> Arrays.stream(req).anyMatch(i -> i == a));
+        prereqTypes.keySet().retainAll(IntArrayList.wrap(req));
         this.preRequisites = req;
     }
 

@@ -1,14 +1,14 @@
 package betterquesting.api2.storage;
 
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.ArrayList;
 import java.util.List;
 
 class NaiveLookupLogic<T> extends LookupLogic<T> {
 
-    private TIntObjectMap<DBEntry<T>> backingMap;
+    private Int2ObjectMap<DBEntry<T>> backingMap;
 
     public NaiveLookupLogic(AbstractDatabase<T> abstractDatabase) {
         super(abstractDatabase);
@@ -23,7 +23,7 @@ class NaiveLookupLogic<T> extends LookupLogic<T> {
     @Override
     public List<DBEntry<T>> bulkLookup(int[] keys) {
         if (backingMap == null) {
-            backingMap = new TIntObjectHashMap<>(abstractDatabase.mapDB.size());
+            backingMap = new Int2ObjectOpenHashMap<>(abstractDatabase.mapDB.size());
             for (DBEntry<T> entry : getRefCache()) {
                 backingMap.put(entry.getID(), entry);
             }
