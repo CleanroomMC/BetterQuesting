@@ -11,10 +11,10 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.client.gui2.tasks.PanelTaskFluid;
 import betterquesting.core.BetterQuesting;
+import betterquesting.questing.party.PartyInventory;
 import betterquesting.questing.tasks.factory.FactoryTaskFluid;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
@@ -81,12 +81,13 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
 
     @Override
     public void detect(ParticipantInfo pInfo, DBEntry<IQuest> quest) {
-        if (isComplete(pInfo.UUID)) return;
+        if (isComplete(pInfo.UUID)) {
+            return;
+        }
+        boolean updated = false;
 
         // Removing the consume check here would make the task cheaper on groups and for that reason sharing is restricted to detect only
         final List<Tuple<UUID, int[]>> progress = getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
-        boolean updated = false;
-
         if (!consume) {
             if (groupDetect) // Reset all detect progress
             {
@@ -105,63 +106,72 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
             }
         }
 
-        final List<InventoryPlayer> invoList;
-        if (consume) {
-            // We do not support consuming resources from other member's invetories.
-            // This could otherwise be abused to siphon items/fluids unknowingly
-            invoList = Collections.singletonList(pInfo.PLAYER.inventory);
-        } else {
-            invoList = new ArrayList<>();
-            pInfo.ACTIVE_PLAYERS.forEach((p) -> invoList.add(p.inventory));
-        }
+        PartyInventory partyInv = pInfo.getPartyInventory();
 
-        for (InventoryPlayer invo : invoList) {
-            for (int i = 0; i < invo.getSizeInventory(); i++) {
-                ItemStack stack = invo.getStackInSlot(i);
-                if (stack.isEmpty()) continue;
-                IFluidHandlerItem handler = FluidUtil.getFluidHandler(stack);
-                if (handler == null) continue;
+        for (int reqI = 0, reqSize = requiredFluids.size(); reqI < reqSize; reqI++) {
+            final FluidStack rStack = requiredFluids.get(reqI);
 
-                boolean hasDrained = false;
+            var fluidHandlerContext = partyInv.getFluidHandlersFor(rStack, consume, ignoreNbt);
+            if (fluidHandlerContext == PartyInventory.FluidMatchContext.EMPTY) continue;
 
-                for (int j = 0; j < requiredFluids.size(); j++) {
-                    final FluidStack rStack = requiredFluids.get(j);
-                    FluidStack drainOG = rStack.copy();
-                    if (ignoreNbt) drainOG.tag = null;
+            // Theoretically this could work in consume mode for parties but the priority order and manual submission code would need changing
+            for (Tuple<UUID, int[]> value : progress) {
+                // Skip if already fulfilled
+                if (value.getSecond()[reqI] >= rStack.amount) continue;
 
-                    // Pre-check
-                    FluidStack sample = handler.drain(drainOG, false);
-                    if (sample == null || sample.amount <= 0) continue;
-
-                    // Theoretically this could work in consume mode for parties but the priority order and manual submission code would need changing
-                    for (Tuple<UUID, int[]> value : progress) {
-                        if (value.getSecond()[j] >= rStack.amount) continue;
-                        int remaining = rStack.amount - value.getSecond()[j];
-
-                        FluidStack drain = rStack.copy();
-                        drain.amount = remaining / stack.getCount(); // Must be a multiple of the stack size
-                        if (ignoreNbt) drain.tag = null;
-                        if (drain.amount <= 0) continue;
-
-                        FluidStack fluid = handler.drain(drain, consume); // TODO: Look into reducing this to a single call if possible
-                        if (fluid == null || fluid.amount <= 0) continue;
-
-                        value.getSecond()[j] += fluid.amount * stack.getCount();
-                        hasDrained = true;
-                        updated = true;
-                    }
+                int reqRemaining = rStack.amount - value.getSecond()[reqI];
+                int progressAmount = Math.min(reqRemaining, fluidHandlerContext.drainableAmount());
+                if (consume) {
+                    FluidStack drain = new FluidStack(rStack.getFluid(), progressAmount, ignoreNbt ? null : rStack.tag);
+                    value.getSecond()[reqI] += consumeRequired(drain, partyInv, fluidHandlerContext);
                 }
-
-                if (hasDrained && consume) invo.setInventorySlotContents(i, handler.getContainer());
+                else {
+                    value.getSecond()[reqI] += progressAmount;
+                }
+                updated = true;
             }
         }
 
-        if (updated) setBulkProgress(progress);
-        checkAndComplete(pInfo, quest, updated);
+        if (updated) {
+            setBulkProgress(progress);
+        }
+        // Reuse progress
+        checkAndComplete(pInfo, quest, updated, progress);
+    }
+
+    private int consumeRequired(FluidStack req, PartyInventory partyInv, PartyInventory.FluidMatchContext context) {
+        int remaining = req.amount;
+        int totalDrained = 0;
+        for (var indexedContainer : context.indexedFluidHandlers()) {
+            IFluidHandlerItem handler = indexedContainer.handler();
+            int numContainers = indexedContainer.handler().getContainer().getCount();
+
+            FluidStack toDrain = req.copy();
+            toDrain.amount = remaining / numContainers; // Must be a multiple of the stack size to drain evenly
+            if (toDrain.amount <= 0) continue;
+
+            // The context did the simulation, so do the actual drain.
+            FluidStack drained = handler.drain(toDrain, true);
+            if (drained == null || drained.amount <= 0) continue;
+
+            int amountDrained = drained.amount * numContainers; // Multiply back the number of containers drained
+            totalDrained += amountDrained;
+            remaining -= amountDrained;
+            if (remaining <= 0) {
+                break;
+            }
+        }
+
+        // Make sure to update the inventory and cached containers
+        partyInv.updateFluidContainers(context, consume);
+        return totalDrained;
     }
 
     private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, boolean resync) {
-        final List<Tuple<UUID, int[]>> progress = getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
+        checkAndComplete(pInfo, quest, resync, getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS));
+    }
+
+    private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, boolean resync, List<Tuple<UUID, int[]>> progress) {
         boolean updated = resync;
 
         topLoop:

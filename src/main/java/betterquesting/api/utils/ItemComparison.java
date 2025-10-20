@@ -235,4 +235,12 @@ public class ItemComparison {
 
         return false; // No shared ore dictionary types
     }
+
+    /**
+     * Check if a BigItemStack and a regular ItemStack match with optional NBT and OreDictionary checks
+     */
+    public static boolean BigStackMatch(BigItemStack req, ItemStack stack, boolean ignoreNBT, boolean partialMatch) {
+        return StackMatch(req.getBaseStack(), stack, !ignoreNBT, partialMatch)
+                || (req.hasOreDict() && OreDictionaryMatch(req.getOreIngredient(), req.GetTagCompound(), stack, !ignoreNBT, partialMatch));
+    }
 }

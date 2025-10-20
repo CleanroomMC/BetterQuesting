@@ -1,6 +1,7 @@
 package betterquesting.api.utils;
 
 import betterquesting.NBTUtil;
+import betterquesting.questing.party.PartyInventory;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -28,10 +29,14 @@ public class BigItemStack {
     private String oreDict = DEFAULT_OREDICT;
     private OreIngredient oreIng = NO_ORE;
 
+    // Cache item key to use for comparing to PartyInventory
+    private final int hashKey;
+
     public BigItemStack(ItemStack stack) {
         baseStack = stack.copy();
         this.stackSize = baseStack.getCount();
         baseStack.setCount(1);
+        this.hashKey = PartyInventory.getHashKey(baseStack);
     }
 
     public BigItemStack(@Nonnull Block block) {
@@ -57,6 +62,7 @@ public class BigItemStack {
     public BigItemStack(@Nonnull Item item, int amount, int damage) {
         baseStack = new ItemStack(item, 1, damage);
         this.stackSize = amount;
+        this.hashKey = PartyInventory.getHashKey(baseStack);
     }
 
     /**
@@ -64,6 +70,14 @@ public class BigItemStack {
      */
     public ItemStack getBaseStack() {
         return baseStack;
+    }
+
+    /**
+     * @see PartyInventory#getHashKey(ItemStack)
+     * @return the hash key to use for this BigItemStack to compare with other stacks
+     */
+    public int getHashKey() {
+        return hashKey;
     }
 
     public boolean hasOreDict() {
@@ -153,6 +167,7 @@ public class BigItemStack {
         this.setOreDict(tags.getString("OreDict"));
         this.baseStack = new ItemStack(itemNBT); // Minecraft does the ID conversions for me
         if (tags.getShort("Damage") < 0) this.baseStack.setItemDamage(OreDictionary.WILDCARD_VALUE);
+        this.hashKey = PartyInventory.getHashKey(baseStack);
     }
 
     @Deprecated

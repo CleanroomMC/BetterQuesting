@@ -38,4 +38,6 @@ public class BQ_Settings {
 
     public static boolean spawnWithQuestBook = true;
     public static boolean saveQuestsWithNames = false;
+
+    public static int retrievalDetectionDelay = 20;
 }

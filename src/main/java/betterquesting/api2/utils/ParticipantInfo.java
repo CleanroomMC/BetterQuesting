@@ -5,6 +5,7 @@ import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.questing.party.PartyInventory;
 import betterquesting.questing.party.PartyManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
@@ -23,6 +24,8 @@ public class ParticipantInfo {
     public final List<UUID> ACTIVE_UUIDS;
 
     public final DBEntry<IParty> PARTY_INSTANCE;
+
+    private PartyInventory inventory;
 
     public ParticipantInfo(@Nonnull EntityPlayer player) {
         this.PLAYER = player;
@@ -93,4 +96,12 @@ public class ParticipantInfo {
         PartyQuestMerger merger = new PartyQuestMerger(playerQuestLists);
         return merger.getSharedQuests();
     }
+
+    public PartyInventory getPartyInventory() {
+        if (inventory == null) {
+            inventory = new PartyInventory(PLAYER, ACTIVE_PLAYERS);
+        }
+        return inventory;
+    }
+
 }

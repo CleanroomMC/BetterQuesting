@@ -14,10 +14,11 @@ import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.client.gui2.editors.tasks.GuiEditTaskRetrieval;
 import betterquesting.client.gui2.tasks.PanelTaskRetrieval;
 import betterquesting.core.BetterQuesting;
+import betterquesting.questing.party.PartyInventory;
 import betterquesting.questing.tasks.factory.FactoryTaskRetrieval;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
@@ -30,6 +31,9 @@ import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.EmptyHandler;
+import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
@@ -84,13 +88,14 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
 
     @Override
     public void detect(ParticipantInfo pInfo, DBEntry<IQuest> quest) {
-        if (isComplete(pInfo.UUID))
+        if (isComplete(pInfo.UUID)) {
             return;
-
-        // List of (player uuid, [progress per required item])
-        final List<Tuple<UUID, int[]>> progress = getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
+        }
         boolean updated = false;
 
+        // TODO: rewrite progress retrieval/updating
+        // List of (player uuid, [progress per required item])
+        final List<Tuple<UUID, int[]>> progress = getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
         if (!consume) {
             if (groupDetect) // Reset all detect progress
             {
@@ -109,57 +114,66 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
             }
         }
 
-        final List<InventoryPlayer> invoList;
-        if (consume) {
-            invoList = Collections.singletonList(pInfo.PLAYER.inventory);
-        } else {
-            invoList = new ArrayList<>(pInfo.ACTIVE_PLAYERS.size());
-            pInfo.ACTIVE_PLAYERS.forEach((p) -> invoList.add(p.inventory));
-        }
+        IItemHandler playerInv = consume ? new PlayerInvWrapper(pInfo.PLAYER.inventory) : EmptyHandler.INSTANCE;
+        PartyInventory partyInv = pInfo.getPartyInventory();
 
-        int[] remCounts = new int[progress.size()];
-        for (InventoryPlayer invo : invoList) {
-            for (int i = 0; i < invo.getSizeInventory(); i++) {
-                ItemStack stack = invo.getStackInSlot(i);
-                if (stack.isEmpty())
-                    continue;
-                // Allows the stack detection to split across multiple requirements. Counts may vary per person
-                Arrays.fill(remCounts, stack.getCount());
+        for (int reqI = 0, reqSize = requiredItems.size(); reqI < reqSize; reqI++) {
+            BigItemStack rStack = requiredItems.get(reqI);
 
-                for (int j = 0; j < requiredItems.size(); j++) {
-                    BigItemStack rStack = requiredItems.get(j);
+            int partyStackCount = partyInv.getItemCountFor(rStack, consume, ignoreNBT, partialMatch);
+            if (partyStackCount <= 0) continue;
 
-                    if (!ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) && !ItemComparison.OreDictionaryMatch(rStack.getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
-                        continue;
-                    }
+            // Theoretically this could work in consume mode for parties but the priority order and manual submission code would need changing
+            for (Tuple<UUID, int[]> value : progress) {
+                // Skip if already fulfilled
+                if (value.getSecond()[reqI] >= rStack.stackSize) continue;
 
-                    // Theoretically this could work in consume mode for parties but the priority order and manual submission code would need changing
-                    for (int n = 0; n < progress.size(); n++) {
-                        Tuple<UUID, int[]> value = progress.get(n);
-                        if (value.getSecond()[j] >= rStack.stackSize)
-                            continue;
-
-                        int remaining = rStack.stackSize - value.getSecond()[j];
-
-                        if (consume) {
-                            ItemStack removed = invo.decrStackSize(i, remaining);
-                            value.getSecond()[j] += removed.getCount();
-                        } else {
-                            int temp = Math.min(remaining, remCounts[n]);
-                            remCounts[n] -= temp;
-                            value.getSecond()[j] += temp;
-                        }
-
-                        updated = true;
-                    }
+                int reqRemaining = rStack.stackSize - value.getSecond()[reqI];
+                int progressAmount = Math.min(reqRemaining, partyStackCount);
+                if (consume) {
+                    value.getSecond()[reqI] += consumeRequired(rStack, playerInv, pInfo.PLAYER, progressAmount);
                 }
+                else {
+                    value.getSecond()[reqI] += progressAmount;
+                }
+
+                updated = true;
             }
         }
 
-        if (updated)
+        if (updated) {
             setBulkProgress(progress);
+        }
         // Reuse progress
         checkAndComplete(pInfo, quest, updated, progress);
+    }
+
+    private int consumeRequired(BigItemStack req, IItemHandler inv, EntityPlayer player, int amountToConsume) {
+        int remaining = amountToConsume;
+        int totalConsumed = 0;
+        // Just scan the whole inventory, this shouldn't be called often
+        for (int slot = 0, numSlots = inv.getSlots(); slot < numSlots; slot++) {
+            ItemStack simulated = inv.extractItem(slot, remaining, true);
+            // Must match and be extractable
+            if (simulated.isEmpty() || !ItemComparison.BigStackMatch(req, simulated, ignoreNBT, partialMatch)) {
+                continue;
+            }
+
+            int toExtract = Math.min(simulated.getCount(), remaining);
+            ItemStack extracted = inv.extractItem(slot, toExtract, false);
+            if (!extracted.isEmpty()) {
+                int amountExtracted = extracted.getCount();
+                totalConsumed += amountExtracted;
+                remaining -= amountExtracted;
+                if (remaining <= 0) {
+                    break;
+                }
+            }
+        }
+        if (totalConsumed > 0) {
+            player.openContainer.detectAndSendChanges();
+        }
+        return totalConsumed;
     }
 
     private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, boolean resync) {
@@ -421,10 +435,13 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     }
 
     private List<Tuple<UUID, int[]>> getBulkProgress(@Nonnull List<UUID> uuids) {
-        if (uuids.size() <= 0)
+        if (uuids.isEmpty()) {
             return Collections.emptyList();
+        }
         List<Tuple<UUID, int[]>> list = new ArrayList<>(uuids.size());
-        uuids.forEach((key) -> list.add(new Tuple<>(key, getUsersProgress(key))));
+        for (var uuid : uuids) {
+            list.add(new Tuple<>(uuid, getUsersProgress(uuid)));
+        }
         return list;
     }
 
