@@ -377,7 +377,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
             String taskName = (i + 1) + ". " + QuestTranslation.translate(tsk.getUnlocalisedName());
             if (tsk instanceof TaskRetrieval) {
-                EnumLogic entryLogic = ((TaskRetrieval) tsk).entryLogic;
+                EnumLogic entryLogic = ((TaskRetrieval) tsk).getEntryLogic();
                 if (entryLogic != EnumLogic.AND)
                     taskName += " (" + entryLogic + ")";
             }

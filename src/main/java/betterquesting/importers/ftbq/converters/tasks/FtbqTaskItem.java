@@ -54,7 +54,7 @@ public class FtbqTaskItem {
                 FTBQQuestImporter.provideQuestIcon(item);
             }
             if (tagList.tagCount() >= 2)
-                task.entryLogic = EnumLogic.OR;
+                task.setEntryLogic(EnumLogic.OR);
         } else {
             BetterQuesting.logger.error("Unable read item tag!");
         }

@@ -39,7 +39,7 @@ public class PanelTaskFluid extends CanvasMinimum {
         int listW = initialRect.getWidth();
 
         UUID uuid = QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player);
-        int[] progress = task.getUsersProgress(uuid);
+        int[] progress = task.getUserProgress(uuid);
         boolean isComplete = task.isComplete(uuid);
 
         String sCon = (task.consume ? TextFormatting.RED : TextFormatting.GREEN) + QuestTranslation.translate(task.consume ? "gui.yes" : "gui.no");

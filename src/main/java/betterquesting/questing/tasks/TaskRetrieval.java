@@ -16,6 +16,9 @@ import betterquesting.client.gui2.tasks.PanelTaskRetrieval;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.party.PartyInventory;
 import betterquesting.questing.tasks.factory.FactoryTaskRetrieval;
+import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -27,7 +30,6 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -39,7 +41,6 @@ import org.apache.logging.log4j.Level;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class TaskRetrieval implements ITaskInventory, IItemTask {
 
@@ -49,15 +50,29 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     private static final boolean DEFAULT_GROUP_DETECT = false;
     private static final boolean DEFAULT_AUTO_CONSUME = false;
     private static final EnumLogic DEFAULT_ENTRY_LOGIC = EnumLogic.AND;
-    private final Set<UUID> completeUsers = new TreeSet<>();
+
+    private final Set<UUID> completeUsers = new ObjectOpenHashSet<>();
     public final NonNullList<BigItemStack> requiredItems = NonNullList.create();
-    private final TreeMap<UUID, int[]> userProgress = new TreeMap<>();
+    private final Map<UUID, int[]> userProgress = new Object2ObjectOpenHashMap<>();
     public boolean partialMatch = DEFAULT_PARTIAL_MATCH;
     public boolean ignoreNBT = DEFAULT_IGNORE_NBT;
     public boolean consume = DEFAULT_CONSUME;
     public boolean groupDetect = DEFAULT_GROUP_DETECT;
     public boolean autoConsume = DEFAULT_AUTO_CONSUME;
-    public EnumLogic entryLogic = DEFAULT_ENTRY_LOGIC;
+    private EnumLogic entryLogic = DEFAULT_ENTRY_LOGIC;
+    private boolean resync = false;
+
+    public EnumLogic getEntryLogic() {
+        return entryLogic;
+    }
+
+    public void setEntryLogic(EnumLogic entryLogic) {
+        this.resync = switch (entryLogic) {
+            case AND, NAND, OR -> false;
+            default -> true;
+        };
+        this.entryLogic = entryLogic;
+    }
 
     @Override
     public String getUnlocalisedName() {
@@ -91,71 +106,81 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         if (isComplete(pInfo.UUID)) {
             return;
         }
-        boolean updated = false;
-
-        // TODO: rewrite progress retrieval/updating
-        // List of (player uuid, [progress per required item])
-        final List<Tuple<UUID, int[]>> progress = getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS);
-        if (!consume) {
-            if (groupDetect) // Reset all detect progress
-            {
-                progress.forEach((value) -> Arrays.fill(value.getSecond(), 0));
-            } else {
-                for (int i = 0; i < requiredItems.size(); i++) {
-                    final int r = requiredItems.get(i).stackSize;
-                    for (Tuple<UUID, int[]> value : progress) {
-                        int n = value.getSecond()[i];
-                        if (n != 0 && n < r) {
-                            value.getSecond()[i] = 0;
-                            updated = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        IItemHandler playerInv = consume ? new PlayerInvWrapper(pInfo.PLAYER.inventory) : EmptyHandler.INSTANCE;
+        int updatedReqs = 0;
         PartyInventory partyInv = pInfo.getPartyInventory();
 
-        for (int reqI = 0, reqSize = requiredItems.size(); reqI < reqSize; reqI++) {
+        // The current progress so far for the player
+        int[] currentProgress;
+        // For easier interfacing with the player's inventory when consuming
+        IItemHandler playerInv;
+        if (consume) {
+            currentProgress = getUserProgress(pInfo.UUID);
+            playerInv = new PlayerInvWrapper(pInfo.PLAYER.inventory);
+        }
+        else {
+            currentProgress = null;
+            playerInv = EmptyHandler.INSTANCE;
+        }
+        int reqSize = requiredItems.size();
+        // The progress to fill based on current PartyInventory snapshot
+        int[] invProgress = new int[reqSize];
+
+        for (int reqI = 0; reqI < reqSize; reqI++) {
             BigItemStack rStack = requiredItems.get(reqI);
 
-            int partyStackCount = partyInv.getItemCountFor(rStack, consume, ignoreNBT, partialMatch);
-            if (partyStackCount <= 0) continue;
+            // Check the party has the required stack
+            var itemStackContext = partyInv.getItemCountFor(rStack, consume, ignoreNBT, partialMatch);
+            if (itemStackContext == PartyInventory.ItemMatchContext.EMPTY) continue;
 
-            // Theoretically this could work in consume mode for parties but the priority order and manual submission code would need changing
-            for (Tuple<UUID, int[]> value : progress) {
-                // Skip if already fulfilled
-                if (value.getSecond()[reqI] >= rStack.stackSize) continue;
+            int reqRemaining = rStack.stackSize;
+            if (consume) {
+                // Account for already consumed progress
+                assert currentProgress != null && currentProgress.length > reqI;
+                reqRemaining -= currentProgress[reqI];
+            }
 
-                int reqRemaining = rStack.stackSize - value.getSecond()[reqI];
-                int progressAmount = Math.min(reqRemaining, partyStackCount);
-                if (consume) {
-                    value.getSecond()[reqI] += consumeRequired(rStack, playerInv, pInfo.PLAYER, progressAmount);
-                }
-                else {
-                    value.getSecond()[reqI] += progressAmount;
-                }
-
-                updated = true;
+            int progressAmount = Math.min(reqRemaining, itemStackContext.availableAmount());
+            progressAmount = consumeRequired(playerInv, pInfo.PLAYER, progressAmount, itemStackContext);
+            if (progressAmount > 0) {
+                invProgress[reqI] += progressAmount;
+                // Allows the stack detection to split across multiple requirements.
+                itemStackContext.shrink(progressAmount);
+                updatedReqs++;
             }
         }
-
-        if (updated) {
-            setBulkProgress(progress);
+        // Reset counts used for split stack detection
+        if (updatedReqs > 0) {
+            partyInv.resetItemCounts(consume);
         }
-        // Reuse progress
-        checkAndComplete(pInfo, quest, updated, progress);
+
+        // Update cached progress and check completion
+        if (updatedReqs > 0 || resync) {
+            int[] updatedProgress = updateBulkProgress(invProgress, pInfo);
+            checkAndComplete(pInfo, quest, updatedProgress);
+        }
     }
 
-    private int consumeRequired(BigItemStack req, IItemHandler inv, EntityPlayer player, int amountToConsume) {
+    /**
+     * Consume the given amount from the player's inventory if necessary.
+     *
+     * @param inv              the item handler wrapping the player inventory
+     * @param player           the player
+     * @param amountToConsume  the amount to try to consume
+     * @param itemStackContext the context with matching item stacks
+     * @return how much was actually consumed, or amountToConsume if this is not a consume task
+     */
+    private int consumeRequired(IItemHandler inv, EntityPlayer player, int amountToConsume,
+                                PartyInventory.ItemMatchContext itemStackContext) {
+        // Theoretically this could work in consume mode for parties but the priority order and manual submission code would need changing
+        if (!consume) return amountToConsume;
+
         int remaining = amountToConsume;
         int totalConsumed = 0;
-        // Just scan the whole inventory, this shouldn't be called often
-        for (int slot = 0, numSlots = inv.getSlots(); slot < numSlots; slot++) {
+        // Scan each matching stack for their slot to extract from
+        for (PartyInventory.IndexedItemStack iStack : itemStackContext.indexedItemStacks()) {
+            int slot = iStack.slot();
             ItemStack simulated = inv.extractItem(slot, remaining, true);
-            // Must match and be extractable
-            if (simulated.isEmpty() || !ItemComparison.BigStackMatch(req, simulated, ignoreNBT, partialMatch)) {
+            if (simulated.isEmpty()) {
                 continue;
             }
 
@@ -176,40 +201,106 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         return totalConsumed;
     }
 
-    private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, boolean resync) {
-        checkAndComplete(pInfo, quest, resync, getBulkProgress(consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS));
+    @Nonnull
+    private int[] updateBulkProgress(int[] playerProgress, ParticipantInfo pInfo) {
+        List<UUID> uuidsToUpdate = consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS;
+
+        int[] updatedProgress = updateUserProgress(pInfo.UUID, playerProgress);
+        for (UUID uuid : uuidsToUpdate) {
+            if (uuid == pInfo.UUID) continue;
+            updateUserProgress(uuid, playerProgress);
+        }
+        return updatedProgress;
     }
 
-    private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, boolean resync, List<Tuple<UUID, int[]>> progress) {
-        boolean updated = resync;
-
-        for (Tuple<UUID, int[]> value : progress) {
-            int count = 0;
-            for (int j = 0; j < requiredItems.size(); j++) {
-                if (value.getSecond()[j] >= requiredItems.get(j).stackSize)
-                    count++;
+    /**
+     * Update the task progress for given user
+     *
+     * @param userUUID      the user's id
+     * @param progressIn    the progress to merge, treated as immutable
+     * @return the updated task progress
+     */
+    private int[] updateUserProgress(UUID userUUID, int[] progressIn) {
+        return userProgress.merge(userUUID, progressIn, (existingProgress, progressToMerge) -> {
+            Preconditions.checkArgument(existingProgress.length == progressToMerge.length
+                            && progressToMerge.length == requiredItems.size(),
+                    "Lengths of user's known progress and new detected progress to merge don't match!");
+            if (groupDetect) {
+                return progressToMerge;
             }
-            if (!entryLogic.getResult(count, requiredItems.size()))
-                continue;
 
-            updated = true;
+            for (int i = 0; i < existingProgress.length; i++) {
+                // Skip if already fulfilled
+                if (existingProgress[i] >= requiredItems.get(i).stackSize) continue;
 
-            if (consume) {
-                setComplete(value.getFirst());
-            } else {
-                progress.forEach((pair) -> setComplete(pair.getFirst()));
-                break;
+                if (consume) {
+                    // Make sure we keep the progress that has already consumed stuff before
+                    existingProgress[i] += progressToMerge[i];
+                }
+                else {
+                    // Otherwise the progressIn overwrites the current progress
+                    existingProgress[i] = progressToMerge[i];
+                }
+            }
+            return existingProgress;
+        });
+    }
+
+    /**
+     * Check if the detected progress would complete the quest.
+     * @param pInfo the participant's info
+     * @param quest the quest to possibly complete
+     * @param progress the updated progress
+     */
+    private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, int[] progress) {
+        int completedReqs = 0;
+        // Count up completed requirements
+        for (int i = 0; i < progress.length; i++) {
+            if (progress[i] >= requiredItems.get(i).stackSize) {
+                completedReqs++;
             }
         }
+        if (!entryLogic.getResult(completedReqs, requiredItems.size())) {
+            return;
+        }
 
-        if (updated) {
-            if (consume) {
-                pInfo.markDirty(Collections.singletonList(quest.getID()));
-            } else {
-                pInfo.markDirtyParty(Collections.singletonList(quest.getID()));
-            }
+        var questID = Collections.singletonList(quest.getID());
+        if (consume) {
+            setComplete(pInfo.UUID);
+            pInfo.markDirty(questID);
+        }
+        else {
+            pInfo.ALL_UUIDS.forEach(this::setComplete);
+            pInfo.markDirtyParty(questID);
         }
     }
+
+    /**
+     * Check if the given progress for a single player would complete the quest.
+     * @param uuid the UUID of the player
+     * @param progress the updated progress
+     */
+    private void checkAndComplete(UUID uuid, int[] progress) {
+        int completedReqs = 0;
+        // Count up completed requirements
+        for (int i = 0; i < progress.length; i++) {
+            if (progress[i] >= requiredItems.get(i).stackSize) {
+                completedReqs++;
+            }
+        }
+        if (!entryLogic.getResult(completedReqs, requiredItems.size())) {
+            return;
+        }
+
+        setComplete(uuid);
+    }
+
+    public int[] getUserProgress(UUID uuidIn) {
+        return userProgress.compute(uuidIn, (uuid, progress) ->
+                progress == null || progress.length != requiredItems.size() ? new int[requiredItems.size()] : progress);
+    }
+
+    /* NBT handling */
 
     @Deprecated
     @Override
@@ -242,7 +333,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         consume = NBTUtil.getBoolean(nbt, "consume", DEFAULT_CONSUME);
         groupDetect = NBTUtil.getBoolean(nbt, "groupDetect", DEFAULT_GROUP_DETECT);
         autoConsume = NBTUtil.getBoolean(nbt, "autoConsume", DEFAULT_AUTO_CONSUME);
-        entryLogic = NBTUtil.getEnum(nbt, "entryLogic", EnumLogic.class, true, DEFAULT_ENTRY_LOGIC);
+        setEntryLogic(NBTUtil.getEnum(nbt, "entryLogic", EnumLogic.class, true, DEFAULT_ENTRY_LOGIC));
 
         requiredItems.clear();
         NBTTagList iList = nbt.getTagList("requiredItems", 10);
@@ -294,8 +385,9 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
 
         if (users != null) {
             users.forEach((uuid) -> {
-                if (completeUsers.contains(uuid))
+                if (completeUsers.contains(uuid)) {
                     jArray.appendTag(new NBTTagString(uuid.toString()));
+                }
 
                 int[] data = userProgress.get(uuid);
                 if (data != null) {
@@ -310,9 +402,13 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
                 }
             });
         } else {
-            completeUsers.forEach((uuid) -> jArray.appendTag(new NBTTagString(uuid.toString())));
+            // Ensure consistent order when writing
+            TreeSet<UUID> sortedCompleteUsers = new TreeSet<>(completeUsers);
+            TreeMap<UUID, int[]> sortedProgress = new TreeMap<>(userProgress);
 
-            userProgress.forEach((uuid, data) -> {
+            sortedCompleteUsers.forEach((uuid) -> jArray.appendTag(new NBTTagString(uuid.toString())));
+
+            sortedProgress.forEach((uuid, data) -> {
                 NBTTagCompound pJson = new NBTTagCompound();
                 pJson.setString("uuid", uuid.toString());
                 NBTTagList pArray = new NBTTagList(); // TODO: Why the heck isn't this just an int array?!
@@ -352,7 +448,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
             return false;
         }
 
-        int[] progress = getUsersProgress(owner);
+        int[] progress = getUserProgress(owner);
 
         for (int j = 0; j < requiredItems.size(); j++) {
             BigItemStack rStack = requiredItems.get(j);
@@ -375,7 +471,8 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
 
         ItemStack stack = input.copy();
 
-        int[] progress = getUsersProgress(owner);
+        // Direct reference to value in userProgress
+        int[] progress = getUserProgress(owner);
         boolean updated = false;
 
         for (int j = 0; j < requiredItems.size(); j++) {
@@ -400,19 +497,13 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         }
 
         if (updated) {
-            setUserProgress(owner, progress);
-
             MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
             EntityPlayerMP player = server == null ? null : server.getPlayerList().getPlayerByUUID(owner);
 
             if (player != null) {
-                checkAndComplete(new ParticipantInfo(player), quest, true);
+                checkAndComplete(new ParticipantInfo(player), quest, progress);
             } else {
-                // It's implied to be a consume task so no need to lookup the party
-                int count = (int) IntStream.range(0, requiredItems.size()).filter(j -> progress[j] >= requiredItems.get(j).stackSize).count();
-
-                if (entryLogic.getResult(count, requiredItems.size()))
-                    setComplete(owner);
+                checkAndComplete(owner, progress);
             }
         }
 
@@ -423,30 +514,6 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     @SideOnly(Side.CLIENT)
     public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest) {
         return new GuiEditTaskRetrieval(parent, quest, this);
-    }
-
-    private void setUserProgress(UUID uuid, int[] progress) {
-        userProgress.put(uuid, progress);
-    }
-
-    public int[] getUsersProgress(UUID uuid) {
-        int[] progress = userProgress.get(uuid);
-        return progress == null || progress.length != requiredItems.size() ? new int[requiredItems.size()] : progress;
-    }
-
-    private List<Tuple<UUID, int[]>> getBulkProgress(@Nonnull List<UUID> uuids) {
-        if (uuids.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<Tuple<UUID, int[]>> list = new ArrayList<>(uuids.size());
-        for (var uuid : uuids) {
-            list.add(new Tuple<>(uuid, getUsersProgress(uuid)));
-        }
-        return list;
-    }
-
-    private void setBulkProgress(@Nonnull List<Tuple<UUID, int[]>> list) {
-        list.forEach((entry) -> setUserProgress(entry.getFirst(), entry.getSecond()));
     }
 
     @Override
