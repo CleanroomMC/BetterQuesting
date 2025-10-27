@@ -4,21 +4,55 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.RandomIndexDatabase;
+import betterquesting.api2.utils.ParticipantInfo;
+import betterquesting.core.BetterQuesting;
+import betterquesting.questing.party.PartyManager;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public final class QuestDatabase extends RandomIndexDatabase<IQuest> implements IQuestDatabase {
     public static final QuestDatabase INSTANCE = new QuestDatabase();
+
+    /** A cache for bulk lookups. The key is a party's UUID (each member has the same shared quests),
+     * or if not in a party, the player's UUID.
+     */
+    private final Cache<UUID, List<DBEntry<IQuest>>> bulkCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(1, TimeUnit.MINUTES).build();
 
     @Override
     public synchronized IQuest createNew(int id) {
         IQuest quest = new QuestInstance();
         if (id >= 0) this.add(id, quest);
         return quest;
+    }
+
+    @Override
+    public List<DBEntry<IQuest>> bulkLookupShared(@Nonnull ParticipantInfo pInfo) {
+        var identifier = pInfo.PARTY_INSTANCE == null ? pInfo.UUID : pInfo.PARTY_INSTANCE.getValue().getID();
+        try {
+            return bulkCache.get(identifier,
+                    () -> Collections.unmodifiableList(this.bulkLookup(pInfo.getSharedQuests())));
+        } catch (ExecutionException e) {
+            BetterQuesting.logger.error("Failed to get cached bulkLookup entries: {}", e);
+            return this.bulkLookup(pInfo.getSharedQuests());
+        }
+    }
+
+    @Override
+    public void invalidateBulkCache(@Nonnull UUID participantId) {
+        var party = PartyManager.INSTANCE.getParty(participantId);
+        var identifier = party == null ? participantId : party.getValue().getID();
+        bulkCache.invalidate(identifier);
     }
 
     @Override
@@ -35,6 +69,12 @@ public final class QuestDatabase extends RandomIndexDatabase<IQuest> implements 
         boolean success = this.removeValue(value);
         if (success) for (DBEntry<IQuest> entry : getEntries()) removeReq(entry.getValue(), id);
         return success;
+    }
+
+    @Override
+    public synchronized void reset() {
+        super.reset();
+        bulkCache.invalidateAll();
     }
 
     private void removeReq(IQuest quest, int id) {

@@ -19,6 +19,7 @@ public class PartyInstance implements IParty {
     private List<UUID> memCache = null;
 
     private final PropertyContainer pInfo = new PropertyContainer();
+    private final UUID partyId = UUID.randomUUID();
 
     public PartyInstance() {
         this.setupProps();
@@ -38,6 +39,11 @@ public class PartyInstance implements IParty {
 
     private void refreshCache() {
         memCache = Collections.unmodifiableList(new ArrayList<>(members.keySet()));
+    }
+
+    @Override
+    public UUID getID() {
+        return partyId;
     }
 
     @Override

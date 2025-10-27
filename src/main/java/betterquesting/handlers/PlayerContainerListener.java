@@ -95,7 +95,7 @@ public class PlayerContainerListener implements IContainerListener {
         if (player == null || player.inventory == null) return;
 
         ParticipantInfo pInfo = new ParticipantInfo(player);
-        var quests = QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookup(pInfo.getSharedQuests());
+        var quests = QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookupShared(pInfo);
         for (int i = 0, numQuests = quests.size(); i < numQuests; i++) {
             DBEntry<IQuest> questEntry = quests.get(i);
             var tasks = questEntry.getValue().getTasks().getEntries();

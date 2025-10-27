@@ -19,6 +19,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -120,6 +121,11 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
                 tmpVisible.add(entry.getID());
             }
         }
+        int[] tmpActiveArr = tmpActive.toIntArray();
+        if (!Arrays.equals(getActiveQuests(), tmpActiveArr)) {
+            QuestingAPI.getAPI(ApiReference.QUEST_DB).invalidateBulkCache(uuid);
+        }
+
         visibleQuests.clear();
         activeQuests.clear();
         resetSchedule.clear();
@@ -127,7 +133,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
 
         // Copy the temp sorted sets to array lists for better locality
         visibleQuests.addAll(tmpVisible);
-        activeQuests.addAll(tmpActive);
+        activeQuests.addElements(0, tmpActiveArr);
         resetSchedule.addAll(tmpReset);
 
         autoClaims.addAll(tmpAutoClaim);

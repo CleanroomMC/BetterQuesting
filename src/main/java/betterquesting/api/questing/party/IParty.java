@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IParty extends INBTSaveLoad<NBTTagCompound> {
+    UUID getID();
+
     IPropertyContainer getProperties();
 
     void kickUser(@Nonnull UUID uuid);

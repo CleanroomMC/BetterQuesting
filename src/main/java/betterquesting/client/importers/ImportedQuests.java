@@ -4,10 +4,12 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
+import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.questing.QuestInstance;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +20,15 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
     @Override
     public IQuest createNew(int id) {
         return this.add(id, new QuestInstance()).getValue();
+    }
+
+    @Override
+    public List<DBEntry<IQuest>> bulkLookupShared(@Nonnull ParticipantInfo pInfo) {
+        return bulkLookup(pInfo.getSharedQuests());
+    }
+
+    @Override
+    public void invalidateBulkCache(@Nonnull UUID participantId) {
     }
 
     @Override
