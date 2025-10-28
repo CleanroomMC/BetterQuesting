@@ -61,6 +61,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     public boolean autoConsume = DEFAULT_AUTO_CONSUME;
     private EnumLogic entryLogic = DEFAULT_ENTRY_LOGIC;
     private boolean resync = false;
+    private boolean progressChanged = false;
 
     public EnumLogic getEntryLogic() {
         return entryLogic;
@@ -226,6 +227,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
                             && progressToMerge.length == requiredItems.size(),
                     "Lengths of user's known progress and new detected progress to merge don't match!");
             if (groupDetect) {
+                progressChanged = true;
                 return progressToMerge;
             }
 
@@ -236,8 +238,12 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
                 if (consume) {
                     // Make sure we keep the progress that has already consumed stuff before
                     existingProgress[i] += progressToMerge[i];
+                    progressChanged = true;
                 }
                 else {
+                    if (existingProgress[i] != progressToMerge[i]) {
+                        progressChanged = true;
+                    }
                     // Otherwise the progressIn overwrites the current progress
                     existingProgress[i] = progressToMerge[i];
                 }
@@ -253,6 +259,16 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
      * @param progress the updated progress
      */
     private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, int[] progress) {
+        if (progressChanged) {
+            progressChanged = false;
+            var questID = Collections.singletonList(quest.getID());
+            if (consume) {
+                pInfo.markDirty(questID);
+            }
+            else {
+                pInfo.markDirtyParty(questID);
+            }
+        }
         int completedReqs = 0;
         // Count up completed requirements
         for (int i = 0; i < progress.length; i++) {
@@ -264,14 +280,11 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
             return;
         }
 
-        var questID = Collections.singletonList(quest.getID());
         if (consume) {
             setComplete(pInfo.UUID);
-            pInfo.markDirty(questID);
         }
         else {
             pInfo.ALL_UUIDS.forEach(this::setComplete);
-            pInfo.markDirtyParty(questID);
         }
     }
 

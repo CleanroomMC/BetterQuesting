@@ -54,6 +54,7 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
     public boolean consume = DEFAULT_CONSUME;
     public boolean groupDetect = DEFAULT_GROUP_DETECT;
     public boolean autoConsume = DEFAULT_AUTO_CONSUME;
+    private boolean progressChanged = false;
 
     @Override
     public ResourceLocation getFactoryID() {
@@ -195,6 +196,7 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
                             && progressToMerge.length == requiredFluids.size(),
                     "Lengths of user's known progress and new detected progress to merge don't match!");
             if (groupDetect) {
+                progressChanged = true;
                 return progressToMerge;
             }
 
@@ -205,8 +207,12 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
                 if (consume) {
                     // Make sure we keep the progress that has already consumed stuff before
                     existingProgress[i] += progressToMerge[i];
+                    progressChanged = true;
                 }
                 else {
+                    if (existingProgress[i] != progressToMerge[i]) {
+                        progressChanged = true;
+                    }
                     // Otherwise the progressIn overwrites the current progress
                     existingProgress[i] = progressToMerge[i];
                 }
@@ -227,6 +233,16 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
      * @param progress the updated progress
      */
     private void checkAndComplete(ParticipantInfo pInfo, DBEntry<IQuest> quest, int[] progress) {
+        if (progressChanged) {
+            progressChanged = false;
+            var questID = Collections.singletonList(quest.getID());
+            if (consume) {
+                pInfo.markDirty(questID);
+            }
+            else {
+                pInfo.markDirtyParty(questID);
+            }
+        }
         // Check all requirements are complete
         for (int i = 0; i < progress.length; i++) {
             if (progress[i] < requiredFluids.get(i).amount) {
@@ -234,14 +250,11 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
             }
         }
 
-        var questID = Collections.singletonList(quest.getID());
         if (consume) {
             setComplete(pInfo.UUID);
-            pInfo.markDirty(questID);
         }
         else {
             pInfo.ALL_UUIDS.forEach(this::setComplete);
-            pInfo.markDirtyParty(questID);
         }
     }
 
