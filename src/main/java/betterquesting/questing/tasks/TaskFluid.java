@@ -26,6 +26,7 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
@@ -144,28 +145,28 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         FluidStack drain = new FluidStack(rStack.getFluid(), amountToConsume, ignoreNbt ? null : rStack.tag);
         int remaining = drain.amount;
         int totalDrained = 0;
-        for (var indexedContainer : context.indexedFluidHandlers()) {
-            IFluidHandlerItem handler = indexedContainer.handler();
-            int numContainers = indexedContainer.handler().getContainer().getCount();
+        for (var indexedContainer : context.indexedFluidContainers()) {
+            IFluidHandlerItem handler = indexedContainer.handler(false);
+            if (handler == null) continue;
+            int numContainers = indexedContainer.stackCount();
 
             FluidStack toDrain = drain.copy();
-            toDrain.amount = remaining / numContainers; // Must be a multiple of the stack size to drain evenly
-            if (toDrain.amount <= 0) continue;
-
             // The context did the simulation, so do the actual drain.
             FluidStack drained = handler.drain(toDrain, true);
             if (drained == null || drained.amount <= 0) continue;
 
-            int amountDrained = drained.amount * numContainers; // Multiply back the number of containers drained
+            int itemsNeeded = MathHelper.ceil((double) remaining / drained.amount);
+            int itemsToConsume = Math.min(numContainers, itemsNeeded);
+            int amountDrained = drained.amount * itemsToConsume;
+
+            // Make sure to update the inventory and cached container
+            indexedContainer.updateFluidContainer(handler, itemsToConsume, consume);
             totalDrained += amountDrained;
             remaining -= amountDrained;
             if (remaining <= 0) {
                 break;
             }
         }
-
-        // Make sure to update the inventory and cached containers
-        partyInv.updateFluidContainers(context, consume);
         return totalDrained;
     }
 

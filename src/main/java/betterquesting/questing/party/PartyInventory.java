@@ -12,8 +12,10 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,9 +30,9 @@ public class PartyInventory {
     /** The collapsed inventory of all party members, keys are item ids. */
     private final Int2ObjectMap<List<IndexedItemStack>> partyStacks;
     /** The main player's collected fluid containers. */
-    private final List<IndexedFluidHandler> playerFluidContainers;
+    private final List<IndexedFluidContainer> playerFluidContainers;
     /** The collected fluid containers of all party members. */
-    private final List<IndexedFluidHandler> partyFluidContainers;
+    private final List<IndexedFluidContainer> partyFluidContainers;
 
     public PartyInventory(EntityPlayer mainPlayer, List<EntityPlayer> party) {
         // Player inventories should usually all be the same size
@@ -52,11 +54,14 @@ public class PartyInventory {
                 ItemStack stack = mainInventory.get(i);
                 if (stack.isEmpty()) continue;
 
-                var indexedStack = new IndexedItemStack(stack, i, player.inventory);
-                var fluidHandler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
-                IndexedFluidHandler indexedFluidHandler = null;
-                if (fluidHandler != null) {
-                    indexedFluidHandler = new IndexedFluidHandler(fluidHandler, i, player.inventory);
+                IndexedItemStack indexedStack;
+                IndexedFluidContainer indexedFluidContainer;
+                if (stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)) {
+                    indexedStack = indexedFluidContainer = new IndexedFluidContainer(stack, i, player.inventory);
+                }
+                else {
+                    indexedStack = new IndexedItemStack(stack, i, player.inventory);
+                    indexedFluidContainer = null;
                 }
 
                 int itemHash = getHashKey(stack);
@@ -67,8 +72,8 @@ public class PartyInventory {
                         playerStacks.put(itemHash, subStacks);
                     }
                     subStacks.add(indexedStack);
-                    if (indexedFluidHandler != null) {
-                        playerFluidContainers.add(indexedFluidHandler);
+                    if (indexedFluidContainer != null) {
+                        playerFluidContainers.add(indexedFluidContainer);
                     }
                 }
                 // Don't put duplicates in solo parties
@@ -79,8 +84,8 @@ public class PartyInventory {
                         partyStacks.put(itemHash, subStacks);
                     }
                     subStacks.add(indexedStack);
-                    if (indexedFluidHandler != null) {
-                        partyFluidContainers.add(indexedFluidHandler);
+                    if (indexedFluidContainer != null) {
+                        partyFluidContainers.add(indexedFluidContainer);
                     }
                 }
             }
@@ -135,59 +140,26 @@ public class PartyInventory {
         }
 
         int amount = 0;
-        var handlers = new ArrayList<IndexedFluidHandler>();
+        var handlers = new ArrayList<IndexedFluidContainer>();
         for (var indexedHandler : gatheredHandlers) {
-            int numContainers = indexedHandler.handler.getContainer().getCount();
             // Even though we're simulating, make a defensive copy
             FluidStack toDrain = req.copy();
             if (ignoreNBT) {
                 toDrain.tag = null;
             }
-            toDrain.amount /= numContainers; // Must be a multiple of the stack size to drain evenly
-            if (toDrain.amount <= 0) continue;
 
             // Simulate the drain
-            FluidStack drained = indexedHandler.handler().drain(toDrain, false);
-            if (drained == null || drained.amount <= 0) continue;
+            var handler = indexedHandler.handler(true);
+            if (handler == null) continue;
+            FluidStack drainable = handler.drain(toDrain, false);
+            if (drainable == null || drainable.amount <= 0) continue;
 
-            int drainedAmount = drained.amount * numContainers; // Multiply back the number of containers drained
-            amount += Math.min(indexedHandler.getAvailableAmount(drained), drainedAmount);
+            // The handler is for a single stack, so multiply the actual stack count
+            drainable.amount *= indexedHandler.count;
+            amount += indexedHandler.getAvailableAmount(drainable);
             handlers.add(indexedHandler);
         }
         return handlers.isEmpty() ? FluidMatchContext.EMPTY : new FluidMatchContext(amount, handlers);
-    }
-
-    /**
-     * Update any cached item stacks with a corresponding fluid handler. Must be called after any non-simulated drains
-     * of a fluid handler from the context.
-     *
-     * @param context the fluid match context
-     * @param taskConsumes if true, will only update the main player's cached stacks
-     * @see net.minecraftforge.fluids.FluidUtil#getFluidHandler(ItemStack) the contract this fulfills
-     */
-    public void updateFluidContainers(FluidMatchContext context, boolean taskConsumes) {
-        // Consume tasks for parties aren't currently supported.
-        if (!taskConsumes) return;
-
-        int toUpdate = 0;
-        for (List<IndexedItemStack> possibleStacks : playerStacks.values()) {
-            for (IndexedItemStack iStack : possibleStacks) {
-                for (IndexedFluidHandler iContainerStack : context.indexedFluidHandlers()) {
-                    if (iContainerStack.slot == iStack.slot && iContainerStack.sourceInv == iStack.sourceInv) {
-                        ItemStack container = iContainerStack.handler.getContainer();
-                        if (container == iStack.stack) break;
-
-                        // Update the player's inventory
-                        iContainerStack.sourceInv.setInventorySlotContents(iStack.slot, container);
-                        // As well as the cached stack
-                        iStack.updateCachedStack(container);
-                        toUpdate++;
-                        break;
-                    }
-                }
-                if (toUpdate >= context.indexedFluidHandlers.size()) return;
-            }
-        }
     }
 
     /**
@@ -216,18 +188,18 @@ public class PartyInventory {
         }
     }
 
-    public static final class IndexedItemStack {
-        /** The cached stack */
-        private ItemStack stack;
+    public static class IndexedItemStack {
+        /** The actual stack belonging to a player's inventory */
+        protected final ItemStack stack;
         /**
          * The cached stack count.
-         * This should always be resynced by the start of any item task detection (the caller is responsible to reset).
+         * This should be used over the direct stack count, in order to support split stack detection within one task.
          */
-        private int count;
+        protected int count;
         /** The slot index of the stack */
-        private final int slot;
+        protected final int slot;
         /** The player inventory this stack belongs to */
-        private final InventoryPlayer sourceInv;
+        protected final InventoryPlayer sourceInv;
 
         private IndexedItemStack(ItemStack stack, int slot, InventoryPlayer sourceInv) {
             this.stack = stack;
@@ -240,18 +212,12 @@ public class PartyInventory {
             return slot;
         }
 
-        /** @see #updateFluidContainers(FluidMatchContext, boolean) */
-        private void updateCachedStack(ItemStack stack) {
-            this.stack = stack;
-            resetCount();
-        }
-
         private void shrink(int amount) {
             count -= amount;
         }
 
         /** Resync the cached count to the actual stack's count. Call this at the end of task detection if needed. */
-        private void resetCount() {
+        protected void resetCount() {
             count = stack.getCount();
         }
 
@@ -288,38 +254,84 @@ public class PartyInventory {
     }
 
     /**
-     * A fluid handler associated with a fluid container belonging to a certain player's inventory
+     * A fluid container belonging to a certain player's inventory
      */
-    public static final class IndexedFluidHandler {
-        /** The fluid handler */
-        @Nonnull
-        private final IFluidHandlerItem handler;
-        /** The slot index of the handler's container */
-        private final int slot;
-        /** The player inventory this stack belongs to */
-        private final InventoryPlayer sourceInv;
+    public static final class IndexedFluidContainer extends IndexedItemStack {
+        /** A fluid handler only to be used for simulated drains. */
+        private IFluidHandlerItem simulatedHandler;
         /**
-         * A list of fluid stacks and their amounts that were matched for this fluid handler.
+         * A list of fluid stacks and their amounts that were matched for this fluid container.
          * This should always be empty at the start of any fluid task detection (the caller is responsible to reset).
          */
         @Nonnull
         private final List<FluidStack> cachedFluidAmounts;
 
         /**
-         * @param handler   the fluid container's handler
+         * @param container   the fluid container
          * @param slot      the associated container's slot in the inventory
          * @param sourceInv the player's inventory this fluid handler belongs to
          */
-        public IndexedFluidHandler(@Nonnull IFluidHandlerItem handler, int slot, InventoryPlayer sourceInv) {
-            this.handler = handler;
-            this.slot = slot;
-            this.sourceInv = sourceInv;
+        public IndexedFluidContainer(@Nonnull ItemStack container, int slot, InventoryPlayer sourceInv) {
+            super(container, slot, sourceInv);
             cachedFluidAmounts = new ArrayList<>();
         }
 
-        @Nonnull
-        public IFluidHandlerItem handler() {
-            return handler;
+        @Nullable
+        public IFluidHandlerItem handler(boolean simulated) {
+            ItemStack source;
+            if (simulated) {
+                if (simulatedHandler == null) {
+                    source = determineHandlerSource();
+                    simulatedHandler = source.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+                }
+                return simulatedHandler;
+            }
+            source = determineHandlerSource();
+            return source.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+        }
+
+        private ItemStack determineHandlerSource() {
+            ItemStack containerCopy;
+            if (stack.getCount() == 1) {
+                containerCopy = stack;
+            }
+            else {
+                // Some IFluidHandlerItems require the stack count to be 1.
+                containerCopy = ItemHandlerHelper.copyStackWithSize(stack, 1);
+            }
+            return containerCopy;
+        }
+
+        /** The stack count of the fluid container. */
+        public int stackCount() {
+            return count;
+        }
+
+        /**
+         * Update the inventory and cached item stack with the fluid handler's result.
+         * Must be called after any real drains.
+         * Similar to {@link net.minecraftforge.fluids.FluidUtil#tryEmptyContainerAndStow}.
+         *
+         * @param handler the fluid handler that the actual drain happened with
+         * @param itemsToConsume the number of containers to consume from the stack
+         * @param taskConsumes if true, will only update the main player's cached stacks
+         * @see net.minecraftforge.fluids.FluidUtil#getFluidHandler(ItemStack) the contract this fulfills
+         */
+        public void updateFluidContainer(IFluidHandlerItem handler, int itemsToConsume, boolean taskConsumes) {
+            // Consume tasks for parties aren't currently supported.
+            if (!taskConsumes) return;
+
+            ItemStack container = handler.getContainer();
+            if (container != this.stack) {
+                // Stow the resulting containers
+                if (!container.isEmpty()) {
+                    container.setCount(itemsToConsume);
+                    ItemHandlerHelper.giveItemToPlayer(sourceInv.player, container);
+                }
+                // And consume the appropriate amount
+                stack.shrink(itemsToConsume);
+                this.resetCount();
+            }
         }
 
         /**
@@ -357,9 +369,11 @@ public class PartyInventory {
         @Override
         public String toString() {
             return "IndexedFluidHandler[" +
-                    "handler=" + handler + ", " +
+                    "stack=" + stack + ", " +
+                    "count=" + count + ", " +
                     "slot=" + slot + ", " +
-                    "sourceInv=" + sourceInv + ", " +
+                    "sourceInv=" + sourceInv +
+                    "handler=" + simulatedHandler + ", " +
                     "cachedFluidAmounts=" + cachedFluidAmounts + ']';
         }
     }
@@ -367,10 +381,10 @@ public class PartyInventory {
     /**
      * Fluid stack context with available fluid amount and the matched slots of the applicable fluid handlers
      * @param drainableAmount total amount of the fluid that can be drained
-     * @param indexedFluidHandlers applicable fluid handlers
+     * @param indexedFluidContainers applicable fluid handlers
      */
     @Desugar
-    public record FluidMatchContext(int drainableAmount, List<IndexedFluidHandler> indexedFluidHandlers) {
+    public record FluidMatchContext(int drainableAmount, List<IndexedFluidContainer> indexedFluidContainers) {
         public static final FluidMatchContext EMPTY = new FluidMatchContext(0, Collections.emptyList());
 
         /**
@@ -382,9 +396,9 @@ public class PartyInventory {
         public void shrink(FluidStack reqFluid, int amount) {
             int remaining = amount;
             FluidStack fluid = new FluidStack(reqFluid.getFluid(), amount, reqFluid.tag);
-            for (var iHandler : indexedFluidHandlers) {
-                int amountShrunk = Math.min(iHandler.getAvailableAmount(fluid), remaining);
-                iHandler.shrink(fluid, amountShrunk);
+            for (var iFluidContainer : indexedFluidContainers) {
+                int amountShrunk = Math.min(iFluidContainer.getAvailableAmount(fluid), remaining);
+                iFluidContainer.shrink(fluid, amountShrunk);
                 remaining -= amountShrunk;
                 if (remaining <= 0) {
                     return;
