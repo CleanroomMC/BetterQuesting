@@ -111,7 +111,7 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
             }
 
             int progressAmount = Math.min(reqRemaining, fluidHandlerContext.drainableAmount());
-            progressAmount = consumeRequired(rStack, partyInv, progressAmount, fluidHandlerContext);
+            progressAmount = consumeRequired(rStack, progressAmount, fluidHandlerContext);
             if (progressAmount > 0) {
                 invProgress[reqI] += progressAmount;
                 // Allows the fluid detection to split across multiple requirements.
@@ -133,13 +133,11 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
      * Consume the given amount from the player's inventory if necessary.
      *
      * @param rStack          the required fluid stack
-     * @param partyInv        the party inventory
      * @param amountToConsume the amount to try to consume
      * @param context         the context with compatible fluid handlers
      * @return how much was actually consumed, or amountToConsume if this is not a consume task
      */
-    private int consumeRequired(FluidStack rStack, PartyInventory partyInv, int amountToConsume,
-                                PartyInventory.FluidMatchContext context) {
+    private int consumeRequired(FluidStack rStack, int amountToConsume, PartyInventory.FluidMatchContext context) {
         // Theoretically this could work in consume mode for parties but the priority order and manual submission code would need changing
         if (!consume) return amountToConsume;
 
@@ -147,23 +145,45 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         int remaining = drain.amount;
         int totalDrained = 0;
         for (var indexedContainer : context.indexedFluidContainers()) {
-            IFluidHandlerItem handler = indexedContainer.handler(false);
+            final IFluidHandlerItem handler = indexedContainer.handler(false);
             if (handler == null) continue;
             int numContainers = indexedContainer.stackCount();
 
-            FluidStack toDrain = drain.copy();
+            final FluidStack toDrain = drain.copy();
             // The context did the simulation, so do the actual drain.
-            FluidStack drained = handler.drain(toDrain, true);
+            final FluidStack drained = handler.drain(toDrain, true);
             if (drained == null || drained.amount <= 0) continue;
 
             int itemsNeeded = MathHelper.ceil((double) remaining / drained.amount);
             int itemsToConsume = Math.min(numContainers, itemsNeeded);
-            int amountDrained = drained.amount * itemsToConsume;
+            // Amount of items that were drained fully
+            int amountFullDrained = drained.amount * itemsToConsume;
 
-            // Make sure to update the inventory and cached container
+            if (amountFullDrained > remaining) {
+                // Handle partial drain for last needed container
+                int partialAmount = remaining % drained.amount;
+                IFluidHandlerItem partialHandler = indexedContainer.handler(false);
+                if (partialHandler != null) {
+                    // Build the handler's state after partial drain
+                    FluidStack toDrainPartial = drain.copy();
+                    toDrainPartial.amount = partialAmount;
+                    FluidStack drainedPartial = partialHandler.drain(toDrainPartial, true);
+                    if (drainedPartial != null && drainedPartial.amount > 0) {
+                        // Update the single, partially drained container
+                        indexedContainer.updateFluidContainer(partialHandler, 1, consume);
+                        totalDrained += drainedPartial.amount;
+                        remaining -= drainedPartial.amount;
+                        // Partial drain succeeded and updated, so don't count it with the other full drains
+                        amountFullDrained -= drained.amount;
+                        itemsToConsume--;
+                    }
+                }
+            }
+
+            // Make sure to update the inventory and cached container (fully drained ones only)
             indexedContainer.updateFluidContainer(handler, itemsToConsume, consume);
-            totalDrained += amountDrained;
-            remaining -= amountDrained;
+            totalDrained += amountFullDrained;
+            remaining -= amountFullDrained;
             if (remaining <= 0) {
                 break;
             }
