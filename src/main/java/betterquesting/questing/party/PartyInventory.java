@@ -323,13 +323,13 @@ public class PartyInventory {
 
             ItemStack container = handler.getContainer();
             if (container != this.stack) {
-                // Stow the resulting containers
+                // Consume the appropriate amount
+                stack.shrink(itemsToConsume);
+                // Then stow the resulting containers
                 if (!container.isEmpty()) {
                     container.setCount(itemsToConsume);
                     ItemHandlerHelper.giveItemToPlayer(sourceInv.player, container);
                 }
-                // And consume the appropriate amount
-                stack.shrink(itemsToConsume);
                 this.resetCount();
             }
         }
