@@ -89,7 +89,7 @@ public class ParticipantInfo {
         if (playerQuestLists.isEmpty()) {
             return new int[0];
         }
-        else if (playerQuestLists.size() == 1) {
+        if (playerQuestLists.size() == 1) {
             // No need to merge
             return playerQuestLists.get(0);
         }

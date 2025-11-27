@@ -85,7 +85,7 @@ public class PlayerContainerListener implements IContainerListener {
     /**
      * Update quest tasks for this player if necessary.
      */
-    @SuppressWarnings({"ForLoopReplaceableByForEach", "ConstantValue"})
+    @SuppressWarnings("ConstantValue")
     private void updateTasks() {
         if (!this.isDirty()) return;
         this.setDirty(false);
@@ -95,12 +95,8 @@ public class PlayerContainerListener implements IContainerListener {
         if (player == null || player.inventory == null) return;
 
         ParticipantInfo pInfo = new ParticipantInfo(player);
-        var quests = QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookupShared(pInfo);
-        for (int i = 0, numQuests = quests.size(); i < numQuests; i++) {
-            DBEntry<IQuest> questEntry = quests.get(i);
-            var tasks = questEntry.getValue().getTasks().getEntries();
-            for (int j = 0, numTasks = tasks.size(); j < numTasks; j++) {
-                DBEntry<ITask> taskEntry = tasks.get(j);
+        for (DBEntry<IQuest> questEntry : QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookupShared(pInfo)) {
+            for (DBEntry<ITask> taskEntry : questEntry.getValue().getTasks().getEntries()) {
                 if (taskEntry.getValue() instanceof ITaskInventory task) task.onInventoryChange(questEntry, pInfo);
             }
         }
@@ -135,7 +131,7 @@ public class PlayerContainerListener implements IContainerListener {
      * Deduplicates requests to avoid scanning it multiple times per tick.
      */
     private void scheduleChange() {
-        // Sanity check to ensure this only happens on the main server thread
+        // Guarantee changes are only scheduled on the main server thread
         if (!FMLCommonHandler.instance().getMinecraftServerInstance().isCallingFromMinecraftThread()) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(this::scheduleChange);
         }

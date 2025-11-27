@@ -110,11 +110,12 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         int updatedReqs = 0;
         PartyInventory partyInv = pInfo.getPartyInventory();
 
+        boolean taskConsumes = consume;
         // The current progress so far for the player
         int[] currentProgress;
         // For easier interfacing with the player's inventory when consuming
         IItemHandler playerInv;
-        if (consume) {
+        if (taskConsumes) {
             currentProgress = getUserProgress(pInfo.UUID);
             playerInv = new PlayerInvWrapper(pInfo.PLAYER.inventory);
         }
@@ -130,13 +131,12 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
             BigItemStack rStack = requiredItems.get(reqI);
 
             // Check the party has the required stack
-            var itemStackContext = partyInv.getItemCountFor(rStack, consume, ignoreNBT, partialMatch);
+            var itemStackContext = partyInv.getItemCountFor(rStack, taskConsumes, ignoreNBT, partialMatch);
             if (itemStackContext == PartyInventory.ItemMatchContext.EMPTY) continue;
 
             int reqRemaining = rStack.stackSize;
-            if (consume) {
+            if (taskConsumes) {
                 // Account for already consumed progress
-                assert currentProgress != null && currentProgress.length > reqI;
                 reqRemaining -= currentProgress[reqI];
             }
 
@@ -151,7 +151,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         }
         // Reset counts used for split stack detection
         if (updatedReqs > 0) {
-            partyInv.resetItemCounts(consume);
+            partyInv.resetItemCounts(taskConsumes);
         }
 
         // Update cached progress and check completion
@@ -204,12 +204,13 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
 
     @Nonnull
     private int[] updateBulkProgress(int[] playerProgress, ParticipantInfo pInfo) {
-        List<UUID> uuidsToUpdate = consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS;
-
         int[] updatedProgress = updateUserProgress(pInfo.UUID, playerProgress);
-        for (UUID uuid : uuidsToUpdate) {
-            if (uuid == pInfo.UUID) continue;
-            updateUserProgress(uuid, playerProgress);
+        if (!consume) {
+            // Update all other party member's progress with playerProgress
+            for (UUID uuid : pInfo.ALL_UUIDS) {
+                if (uuid == pInfo.UUID) continue;
+                updateUserProgress(uuid, playerProgress);
+            }
         }
         return updatedProgress;
     }
@@ -240,12 +241,10 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
                     existingProgress[i] += progressToMerge[i];
                     progressChanged = true;
                 }
-                else {
-                    if (existingProgress[i] != progressToMerge[i]) {
-                        progressChanged = true;
-                    }
+                else if (existingProgress[i] != progressToMerge[i]) {
                     // Otherwise the progressIn overwrites the current progress
                     existingProgress[i] = progressToMerge[i];
+                    progressChanged = true;
                 }
             }
             return existingProgress;
@@ -308,6 +307,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         setComplete(uuid);
     }
 
+    @Nonnull
     public int[] getUserProgress(UUID uuidIn) {
         return userProgress.compute(uuidIn, (uuid, progress) ->
                 progress == null || progress.length != requiredItems.size() ? new int[requiredItems.size()] : progress);

@@ -19,7 +19,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A snapshot of a party's inventories, accumulating counts of all item stacks.
@@ -64,7 +63,7 @@ public class PartyInventory {
                     indexedFluidContainer = null;
                 }
 
-                int itemHash = getHashKey(stack);
+                int itemHash = BigItemStack.getHashKey(stack);
                 if (player == mainPlayer) {
                     var subStacks = playerStacks.get(itemHash);
                     if (subStacks == null) {
@@ -90,10 +89,6 @@ public class PartyInventory {
                 }
             }
         }
-    }
-
-    public static int getHashKey(ItemStack stack) {
-        return Objects.requireNonNull(stack.getItem().getRegistryName()).hashCode();
     }
 
     /**

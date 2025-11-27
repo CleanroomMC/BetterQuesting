@@ -91,8 +91,9 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         int updatedReqs = 0;
         PartyInventory partyInv = pInfo.getPartyInventory();
 
+        boolean taskConsumes = consume;
         // The current progress so far for the player
-        int[] currentProgress = consume ? getUserProgress(pInfo.UUID) : null;
+        int[] currentProgress = taskConsumes ? getUserProgress(pInfo.UUID) : null;
         int reqSize = requiredFluids.size();
         // The progress to fill based on current PartyInventory snapshot
         int[] invProgress = new int[reqSize];
@@ -100,13 +101,12 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         for (int reqI = 0; reqI < reqSize; reqI++) {
             final FluidStack rStack = requiredFluids.get(reqI);
 
-            var fluidHandlerContext = partyInv.getFluidHandlersFor(rStack, consume, ignoreNbt);
+            var fluidHandlerContext = partyInv.getFluidHandlersFor(rStack, taskConsumes, ignoreNbt);
             if (fluidHandlerContext == PartyInventory.FluidMatchContext.EMPTY) continue;
 
             int reqRemaining = rStack.amount;
-            if (consume) {
+            if (taskConsumes) {
                 // Account for already consumed progress
-                assert currentProgress != null && currentProgress.length > reqI;
                 reqRemaining -= currentProgress[reqI];
             }
 
@@ -122,7 +122,7 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
 
         if (updatedReqs > 0) {
             // Reset counts used for split stack detection
-            partyInv.resetFluidAmounts(consume);
+            partyInv.resetFluidAmounts(taskConsumes);
             // Update cached progress and check completion
             int[] updatedProgress = updateBulkProgress(invProgress, pInfo);
             checkAndComplete(pInfo, quest, updatedProgress);
@@ -193,12 +193,13 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
 
     @Nonnull
     private int[] updateBulkProgress(int[] playerProgress, ParticipantInfo pInfo) {
-        List<UUID> uuidsToUpdate = consume ? Collections.singletonList(pInfo.UUID) : pInfo.ALL_UUIDS;
-
         int[] updatedProgress = updateUserProgress(pInfo.UUID, playerProgress);
-        for (UUID uuid : uuidsToUpdate) {
-            if (uuid == pInfo.UUID) continue;
-            updateUserProgress(uuid, playerProgress);
+        if (!consume) {
+            // Update all other party member's progress with playerProgress
+            for (UUID uuid : pInfo.ALL_UUIDS) {
+                if (uuid == pInfo.UUID) continue;
+                updateUserProgress(uuid, playerProgress);
+            }
         }
         return updatedProgress;
     }
@@ -229,18 +230,17 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
                     existingProgress[i] += progressToMerge[i];
                     progressChanged = true;
                 }
-                else {
-                    if (existingProgress[i] != progressToMerge[i]) {
-                        progressChanged = true;
-                    }
+                else if (existingProgress[i] != progressToMerge[i]) {
                     // Otherwise the progressIn overwrites the current progress
                     existingProgress[i] = progressToMerge[i];
+                    progressChanged = true;
                 }
             }
             return existingProgress;
         });
     }
 
+    @Nonnull
     public int[] getUserProgress(UUID uuidIn) {
         return userProgress.compute(uuidIn, (uuid, progress) ->
                 progress == null || progress.length != requiredFluids.size() ? new int[requiredFluids.size()] : progress);
