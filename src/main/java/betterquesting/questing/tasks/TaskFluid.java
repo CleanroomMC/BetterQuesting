@@ -149,7 +149,9 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
             if (handler == null) continue;
             int numContainers = indexedContainer.stackCount();
 
+            // Amount remaining to drain
             final FluidStack toDrain = drain.copy();
+            toDrain.amount = remaining;
             // The context did the simulation, so do the actual drain.
             final FluidStack drained = handler.drain(toDrain, true);
             if (drained == null || drained.amount <= 0) continue;
