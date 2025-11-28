@@ -213,9 +213,12 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
      */
     private int[] updateUserProgress(UUID userUUID, int[] progressIn) {
         return userProgress.merge(userUUID, progressIn, (existingProgress, progressToMerge) -> {
-            Preconditions.checkArgument(existingProgress.length == progressToMerge.length
-                            && progressToMerge.length == requiredFluids.size(),
-                    "Lengths of user's known progress and new detected progress to merge don't match!");
+            // Somehow the existing progress doesn't reflect current requirements, only use new progress.
+            if (existingProgress.length != requiredFluids.size()) {
+                progressChanged = true;
+                return progressToMerge;
+            }
+            // Group-detect requires all requirements to be met within this single detection.
             if (groupDetect) {
                 progressChanged = true;
                 return progressToMerge;
