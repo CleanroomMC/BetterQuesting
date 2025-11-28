@@ -134,6 +134,7 @@ public class PlayerContainerListener implements IContainerListener {
         // Guarantee changes are only scheduled on the main server thread
         if (!FMLCommonHandler.instance().getMinecraftServerInstance().isCallingFromMinecraftThread()) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(this::scheduleChange);
+            return;
         }
 
         // 0 & 1 tick delay are effectively the same as the handler runs at the start of next tick
