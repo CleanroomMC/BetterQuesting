@@ -472,7 +472,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
             if (progress[j] >= rStack.stackSize)
                 continue;
 
-            if (ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) || ItemComparison.OreDictionaryMatch(rStack.getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
+            if (ItemComparison.BigStackMatch(rStack, stack, ignoreNBT, partialMatch)) {
                 return true;
             }
         }
@@ -502,7 +502,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
 
             int remaining = rStack.stackSize - progress[j];
 
-            if (ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) || ItemComparison.OreDictionaryMatch(rStack.getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
+            if (ItemComparison.BigStackMatch(rStack, stack, ignoreNBT, partialMatch)) {
                 int removed = Math.min(stack.getCount(), remaining);
                 stack.shrink(removed);
                 progress[j] += removed;

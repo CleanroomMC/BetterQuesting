@@ -90,10 +90,9 @@ public class TaskInteractEntity implements ITask {
             if (!ItemComparison.CompareNBTTag(entityTags, subjectTags, true)) return;
         }
 
+        // Check that we're interacting using the correct item (if one is needed)
         if (targetItem.getBaseStack().getItem() != Items.AIR) {
-            if (targetItem.hasOreDict() && !ItemComparison.OreDictionaryMatch(targetItem.getOreIngredient(), targetItem.GetTagCompound(), item, !ignoreItemNBT, partialItemMatch)) {
-                return;
-            } else if (!ItemComparison.StackMatch(targetItem.getBaseStack(), item, !ignoreItemNBT, partialItemMatch)) {
+            if (!ItemComparison.BigStackMatch(targetItem, item, ignoreItemNBT, partialItemMatch)) {
                 return;
             }
         }

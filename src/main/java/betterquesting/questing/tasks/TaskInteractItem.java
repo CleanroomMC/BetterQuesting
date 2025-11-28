@@ -84,10 +84,9 @@ public class TaskInteractItem implements ITask {
             }
         }
 
+        // Check that we're interacting using the correct item (if one is needed)
         if (targetItem.getBaseStack().getItem() != Items.AIR) {
-            if (targetItem.hasOreDict() && !ItemComparison.OreDictionaryMatch(targetItem.getOreIngredient(), targetItem.GetTagCompound(), item, !ignoreNBT, partialMatch)) {
-                return;
-            } else if (!ItemComparison.StackMatch(targetItem.getBaseStack(), item, !ignoreNBT, partialMatch)) {
+            if (!ItemComparison.BigStackMatch(targetItem, item, ignoreNBT, partialMatch)) {
                 return;
             }
         }

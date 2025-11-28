@@ -107,7 +107,7 @@ public class TaskCrafting implements ITask {
             final BigItemStack rStack = requiredItems.get(i);
             final int index = i;
 
-            if (ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch) || ItemComparison.OreDictionaryMatch(rStack.getOreIngredient(), rStack.GetTagCompound(), stack, !ignoreNBT, partialMatch)) {
+            if (ItemComparison.BigStackMatch(rStack, stack, ignoreNBT, partialMatch)) {
                 progress.forEach((entry) -> {
                     if (entry.getSecond()[index] >= rStack.stackSize) return;
                     entry.getSecond()[index] = Math.min(entry.getSecond()[index] + stack.getCount(), rStack.stackSize);
