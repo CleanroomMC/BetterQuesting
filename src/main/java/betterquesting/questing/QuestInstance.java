@@ -402,10 +402,11 @@ public class QuestInstance implements IQuest {
 
     @Override
     public void setRequirementType(int req, @Nonnull RequirementType kind) {
-        if (kind == RequirementType.NORMAL)
+        if (kind == RequirementType.NORMAL) {
             prereqTypes.remove(req);
-        else
+        } else {
             prereqTypes.put(req, kind);
+        }
     }
 
     @Deprecated

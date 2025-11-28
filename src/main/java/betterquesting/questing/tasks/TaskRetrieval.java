@@ -118,8 +118,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         if (taskConsumes) {
             currentProgress = getUserProgress(pInfo.UUID);
             playerInv = new PlayerInvWrapper(pInfo.PLAYER.inventory);
-        }
-        else {
+        } else {
             currentProgress = null;
             playerInv = EmptyHandler.INSTANCE;
         }
@@ -243,8 +242,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
                     // Make sure we keep the progress that has already consumed stuff before
                     existingProgress[i] += progressToMerge[i];
                     progressChanged = true;
-                }
-                else if (existingProgress[i] != progressToMerge[i]) {
+                } else if (existingProgress[i] != progressToMerge[i]) {
                     // Otherwise the progressIn overwrites the current progress
                     existingProgress[i] = progressToMerge[i];
                     progressChanged = true;
@@ -266,8 +264,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
             var questID = Collections.singletonList(quest.getID());
             if (consume) {
                 pInfo.markDirty(questID);
-            }
-            else {
+            } else {
                 pInfo.markDirtyParty(questID);
             }
         }
@@ -284,8 +281,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
 
         if (consume) {
             setComplete(pInfo.UUID);
-        }
-        else {
+        } else {
             pInfo.ALL_UUIDS.forEach(this::setComplete);
         }
     }

@@ -70,8 +70,7 @@ public class PartyQuestMerger {
                 // Preload the first element
                 bins[i] = playerActiveQuests[0];
                 binIndices[i]++;
-            }
-            else {
+            } else {
                 bins[i] = EMPTY_BIN;
             }
 
@@ -112,19 +111,16 @@ public class PartyQuestMerger {
             // if right is empty, left loses
             winner = right;
             loser = left;
-        }
-        else if (bins[left] == EMPTY_BIN) {
+        } else if (bins[left] == EMPTY_BIN) {
             // if left is empty, right loses
             winner = left;
             loser = right;
-        }
-        else {
+        } else {
             // play the game
             if (bins[right] > bins[left]) {
                 winner = right;
                 loser = left;
-            }
-            else {
+            } else {
                 winner = left;
                 loser = right;
             }
@@ -151,8 +147,7 @@ public class PartyQuestMerger {
             // if there's still elements in the bin, get the next element
             int[] binSource = binSources[curMin];
             bins[curMin] = binSource[binIndices[curMin]++];
-        }
-        else {
+        } else {
             // otherwise the bin is empty
             bins[curMin] = EMPTY_BIN;
             fullBins--;

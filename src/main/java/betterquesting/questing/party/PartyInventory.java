@@ -41,8 +41,7 @@ public class PartyInventory {
         if (party.size() <= 1) {
             this.partyStacks = this.playerStacks;
             this.partyFluidContainers = this.playerFluidContainers;
-        }
-        else {
+        } else {
             this.partyStacks = new Int2ObjectOpenHashMap<>(maxSize);
             this.partyFluidContainers = new ArrayList<>();
         }
@@ -57,8 +56,7 @@ public class PartyInventory {
                 IndexedFluidContainer indexedFluidContainer;
                 if (stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)) {
                     indexedStack = indexedFluidContainer = new IndexedFluidContainer(stack, i, player.inventory);
-                }
-                else {
+                } else {
                     indexedStack = new IndexedItemStack(stack, i, player.inventory);
                     indexedFluidContainer = null;
                 }
@@ -289,8 +287,7 @@ public class PartyInventory {
             ItemStack containerCopy;
             if (stack.getCount() == 1) {
                 containerCopy = stack;
-            }
-            else {
+            } else {
                 // Some IFluidHandlerItems require the stack count to be 1.
                 containerCopy = ItemHandlerHelper.copyStackWithSize(stack, 1);
             }

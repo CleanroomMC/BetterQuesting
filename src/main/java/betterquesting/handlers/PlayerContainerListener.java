@@ -139,8 +139,7 @@ public class PlayerContainerListener implements IContainerListener {
         // 0 & 1 tick delay are effectively the same as the handler runs at the start of next tick
         if (BQ_Settings.retrievalDetectionDelay <= 1) {
             setDirty(true);
-        }
-        else if (!listenersToUpdate.containsKey(playerId)) {
+        } else if (!listenersToUpdate.containsKey(playerId)) {
             listenersToUpdate.put(playerId, System.currentTimeMillis() + BQ_Settings.retrievalDetectionDelay * MILLIS_PER_TICK);
         }
     }
