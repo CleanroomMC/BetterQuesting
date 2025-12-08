@@ -410,8 +410,9 @@ public class EventHandler {
     public void onCommand(CommandEvent event) {
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 
-        if (server != null && (event.getCommand().getName().equalsIgnoreCase("op") || event.getCommand().getName().equalsIgnoreCase("deop"))) {
-            EntityPlayerMP playerMP = server.getPlayerList().getPlayerByUsername(event.getParameters()[0]);
+        String[] params = event.getParameters();
+        if (server != null && (event.getCommand().getName().equalsIgnoreCase("op") || event.getCommand().getName().equalsIgnoreCase("deop")) && params.length > 0) {
+            EntityPlayerMP playerMP = server.getPlayerList().getPlayerByUsername(params[0]);
             if (playerMP != null)
                 opQueue.add(playerMP); // Has to be delayed until after the event when the command has executed
         }
