@@ -1,5 +1,6 @@
 package betterquesting.handlers;
 
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.properties.NativeProps;
@@ -13,7 +14,6 @@ import betterquesting.commands.admin.QuestCommandDefaults;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ModReference;
 import betterquesting.legacy.ILegacyLoader;
-import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyInvitations;
@@ -28,6 +28,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
+import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.util.*;
@@ -237,9 +238,29 @@ public class SaveLoadHandler {
             QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false); // Force edit off
         }
 
+        if (packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER)) {
+            if (BQ_Settings.updateDefaultQuestsOnStartup) {
+                attemptUpdate();
+                // mark it as having an update if the new pack version doesn't match that from the settings.
+                hasUpdate = packVer != QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
+            } else {
+                hasUpdate = true;
+            }
+        }
+    }
 
+    private void attemptUpdate() {
+        final File dir = new File(BQ_Settings.defaultDir, QuestCommandDefaults.DEFAULT_FILE);
+        final File file = new File(BQ_Settings.defaultDir, QuestCommandDefaults.DEFAULT_FILE + ".json");
 
-        hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
+        QuestingAPI.getLogger().log(Level.INFO, "Attempting to load quest data...");
+        if (dir.exists()) {
+            QuestCommandDefaults.load(null, null, dir, false);
+        } else if (file.exists()) {
+            QuestCommandDefaults.loadLegacy(null, null, file, false);
+        } else {
+            QuestingAPI.getLogger().log(Level.WARN, "Could not update the quest database, as neither directory nor file exists");
+        }
     }
 
     private void loadProgress() {
