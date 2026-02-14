@@ -35,6 +35,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,6 +61,8 @@ public class QuestCommandDefaults extends QuestCommandBase {
     public static final String MULTI_QUEST_LINE_DIRECTORY = "MultipleQuestLine";
 
     public static final int FILE_NAME_MAX_LENGTH = 16;
+
+    private static final Function<File, NBTTagCompound> READ_NBT = file -> NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(file), new NBTTagCompound(), true);
 
     @Override
     public String getUsageSuffix() {
@@ -269,9 +272,6 @@ public class QuestCommandDefaults extends QuestCommandBase {
             return;
         }
 
-        Function<File, NBTTagCompound> readNbt =
-                file -> NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(file), new NBTTagCompound(), true);
-
         boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
         boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
         NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
@@ -282,7 +282,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
             sendChatMessage(sender, "betterquesting.cmd.error");
             return;
         }
-        QuestSettings.INSTANCE.readFromNBT(readNbt.apply(settingsFile));
+        QuestSettings.INSTANCE.readFromNBT(READ_NBT.apply(settingsFile));
         File questLineDir = new File(dataDir, QUEST_LINE_DIR);
         NBTTagList questLineDatabase = new NBTTagList();
         List<File> sortedQuestLineFiles = new ArrayList<>();
@@ -308,7 +308,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
         }
 
         sortedQuestLineFiles.stream()
-                .map(readNbt)
+                .map(READ_NBT)
                 .forEach(questLineDatabase::appendTag);
 
         QuestLineDatabase.INSTANCE.readFromNBT(questLineDatabase, false);
@@ -316,25 +316,26 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
         File questDir = new File(dataDir, QUEST_DIR);
         try (Stream<Path> paths = Files.walk(questDir.toPath())) {
-            paths.filter(Files::isRegularFile).forEach(
-                    path -> {
-                        File questFile = path.toFile();
-                        NBTTagCompound questTag = readNbt.apply(questFile);
-                        int questId = questTag.hasKey("questID", Constants.NBT.TAG_ANY_NUMERIC) ? questTag.getInteger("questID") : -1;
+            paths.filter(Files::isRegularFile)
+                    .map(Path::toFile)
+                    .filter(x -> FilenameUtils.isExtension(x.getName(), "json"))
+                    .forEach(questFile -> {
+                                NBTTagCompound questTag = READ_NBT.apply(questFile);
+                                int questId = questTag.hasKey("questID", Constants.NBT.TAG_ANY_NUMERIC) ? questTag.getInteger("questID") : -1;
 
-                        if (questId < 0) {
-                            questId = Integer.parseInt(questFile.getName().replaceAll("[^0-9]+", ""));
-                        }
+                                if (questId < 0) {
+                                    questId = Integer.parseInt(questFile.getName().replaceAll("[^0-9]+", ""));
+                                }
 
-                        if (questId < 0) {
-                            return;
-                        }
+                                if (questId < 0) {
+                                    return;
+                                }
 
-                        IQuest quest = new QuestInstance();
-                        quest.readFromNBT(questTag);
-                        QuestDatabase.INSTANCE.add(questId, quest);
-                    }
-            );
+                                IQuest quest = new QuestInstance();
+                                quest.readFromNBT(questTag);
+                                QuestDatabase.INSTANCE.add(questId, quest);
+                            }
+                    );
         } catch (IOException e) {
             QuestingAPI.getLogger().log(Level.ERROR, "Failed to traverse directory\n" + questDir, e);
             sendChatMessage(sender, "betterquesting.cmd.error");
