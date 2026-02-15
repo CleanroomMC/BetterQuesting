@@ -694,17 +694,18 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             openQuestLine(entry.getQuestLineEntry());
             int selectedQuestId = entry.getQuest().getID();
             Optional<PanelButtonQuest> targetQuestButton = cvQuest.getQuestButtons().stream().filter(panelButtonQuest -> panelButtonQuest.getStoredValue().getID() == selectedQuestId).findFirst();
-            targetQuestButton.ifPresent(panelButtonQuest -> {
-                GuiTextureColored newTexture = new GuiTextureColored(panelButtonQuest.txFrame,
-                        new GuiColorPulse(
-                                new GuiColorStatic(255, 220, 115, 255),
-                                new GuiColorStatic(255, 191, 0, 255),
-                                1, 0
-                        ));
-                panelButtonQuest.setTextures(newTexture, newTexture, newTexture);
-            });
+            targetQuestButton.ifPresent(this::highlightButton);
         });
         mc.displayGuiScreen(guiQuestSearch);
+    }
+
+    private void highlightButton(PanelButtonQuest panelButtonQuest) {
+        GuiTextureColored newTexture = new GuiTextureColored(
+                panelButtonQuest.txFrame,
+                new GuiColorPulse(new GuiColorStatic(64, 32, 0, 255), new GuiColorStatic(255, 191, 0, 255), 0.5f, 0));
+        panelButtonQuest.setTextures(newTexture, newTexture, newTexture);
+        cvQuest.setZoom(2f);
+        cvQuest.centerOn(panelButtonQuest);
     }
 
     public static class ScrollPosition{

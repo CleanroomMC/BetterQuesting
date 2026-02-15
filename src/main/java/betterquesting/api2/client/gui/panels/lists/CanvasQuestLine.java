@@ -63,6 +63,19 @@ public class CanvasQuestLine extends CanvasScrolling {
         return null;
     }
 
+    public void centerOn(PanelButtonQuest btn) {
+        if (!btnList.contains(btn)) return; // button not on in questline
+        final int x = btn.rect.x;
+        final int y = btn.rect.y;
+        final int width = btn.rect.w;
+        final int height = btn.rect.h;
+        final int btnCenterX = x + width / 2;
+        final int btnCenterY = y + height / 2;
+
+        this.setScrollX(btnCenterX - scrollWindow.w / 2);
+        this.setScrollY(btnCenterY - scrollWindow.h / 2);
+    }
+
     public IQuestLine getQuestLine() {
         return lastQL;
     }
