@@ -9,6 +9,7 @@ import betterquesting.api2.client.gui.popups.PopChoice;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
+import betterquesting.client.gui2.GuiHome;
 import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -201,8 +202,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
             return;
         }
         if (keyCode == BQ_Keybindings.backPage.getKeyCode()) {
-            if (this.mc.currentScreen instanceof GuiScreenCanvas) {
-                GuiScreenCanvas canvas = (GuiScreenCanvas) mc.currentScreen;
+            if (this.mc.currentScreen instanceof GuiScreenCanvas canvas) {
                 boolean hasKeyAction = false;
                 for (IGuiPanel panel : canvas.getChildren()) {
                     if (panel.isEnabled() && panel.onKeyTyped(c, keyCode)) {
@@ -210,9 +210,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
                         break;
                     }
                 }
-                if (!hasKeyAction && canvas.parent != null) {
-                    mc.displayGuiScreen(canvas.parent);
-                }
+                if (!hasKeyAction) returnToParent(canvas);
                 return;
             }
         }
@@ -253,9 +251,8 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
             }
         }
 
-        if (!used && mc.currentScreen instanceof GuiScreenCanvas && GameSettings.isKeyDown(BQ_Keybindings.backPage)) {
-            mc.displayGuiScreen(((GuiScreenCanvas) mc.currentScreen).parent);
-            used = true;
+        if (!used && mc.currentScreen instanceof GuiScreenCanvas canvas && GameSettings.isKeyDown(BQ_Keybindings.backPage)) {
+            used = returnToParent(canvas);
         }
 
         return used;
@@ -334,6 +331,13 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
         }
 
         return used;
+    }
+
+    private boolean returnToParent(GuiScreenCanvas canvas) {
+        if (canvas.parent == null) return false;
+        if (BQ_Settings.limitBack && canvas.parent instanceof GuiHome) return false;
+        mc.displayGuiScreen(canvas.parent);
+        return true;
     }
 
     private void confirmVolatileClose() {
