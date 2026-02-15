@@ -23,6 +23,7 @@ public class ConfigHandler {
         BQ_Settings.useBookmark = config.getBoolean("Use Quest Bookmark", Configuration.CATEGORY_GENERAL, true, "Jumps the user to the last opened quest");
         BQ_Settings.guiWidth = config.getInt("Max GUI Width", Configuration.CATEGORY_GENERAL, -1, -1, Integer.MAX_VALUE, "Clamps the max UI width (-1 to disable)");
         BQ_Settings.guiHeight = config.getInt("Max GUI Height", Configuration.CATEGORY_GENERAL, -1, -1, Integer.MAX_VALUE, "Clamps the max UI height (-1 to disable)");
+        BQ_Settings.separateDescriptionEditor = config.getBoolean("Automatically Open Separate Text Editor for Descriptions", Configuration.CATEGORY_GENERAL, false, "If true, when editing the description of a quest or questline, automatically open a separate window for editing. This window will display text without applying formatting codes, unlike the inbuilt editor. Regardless of this setting, a button will appear to open the separate window.");
 
         BQ_Settings.scrollMultiplier = config.getFloat("Scroll Speed Multiplier", Configuration.CATEGORY_GENERAL, 1F, 0F, 10F, "Increases or decreases the scrolling speed");
 

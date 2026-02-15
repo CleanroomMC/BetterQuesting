@@ -3,6 +3,7 @@ package betterquesting.client.gui2.editors;
 import javax.annotation.Nullable;
 
 import betterquesting.api.properties.IPropertyContainer;
+import betterquesting.api.storage.BQ_Settings;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 
@@ -35,8 +36,6 @@ import net.minecraft.util.text.TextFormatting;
 
 public class GuiQuestDescEditor<T extends IPropertyContainer> extends GuiScreenCanvas implements IPEventListener, IVolatileScreen {
 
-    private static final boolean FORCE_OPEN_WINDOW = true;
-
     private final T container;
     private final String beforeName;
     private final String beforeDesc;
@@ -53,7 +52,7 @@ public class GuiQuestDescEditor<T extends IPropertyContainer> extends GuiScreenC
         beforeName = container.getProperty(NativeProps.NAME);
         beforeDesc = container.getProperty(NativeProps.DESC);
         TextEditorFrame window = TextEditorFrame.get(container);
-        if (FORCE_OPEN_WINDOW && window == null) {
+        if (BQ_Settings.separateDescriptionEditor && window == null) {
             window = TextEditorFrame.getOrCreate(container, runnable, beforeName, beforeName, beforeDesc);
         }
         if (window != null) {
