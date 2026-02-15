@@ -13,6 +13,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -198,7 +199,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
             confirmVolatileClose();
             return;
         }
-        if (keyCode == BQ_Keybindings.backPage.getKeyCode()) { // BACKSPACE
+        if (keyCode == BQ_Keybindings.backPage.getKeyCode()) {
             if (this.mc.currentScreen instanceof GuiScreenCanvas) {
                 GuiScreenCanvas canvas = (GuiScreenCanvas) mc.currentScreen;
                 boolean hasKeyAction = false;
@@ -249,6 +250,11 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
                 used = true;
                 break;
             }
+        }
+
+        if (!used && mc.currentScreen instanceof GuiScreenCanvas && GameSettings.isKeyDown(BQ_Keybindings.backPage)) {
+            mc.displayGuiScreen(((GuiScreenCanvas) mc.currentScreen).parent);
+            used = true;
         }
 
         return used;
