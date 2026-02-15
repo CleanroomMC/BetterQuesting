@@ -287,12 +287,10 @@ public class QuestCommandDefaults extends QuestCommandBase {
         NBTTagList questLineDatabase = new NBTTagList();
         List<File> sortedQuestLineFiles = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(questLineDir.toPath())) {
-            paths.filter(Files::isRegularFile).forEach(
-                    path -> {
-                        File questLineFile = path.toFile();
-                        sortedQuestLineFiles.add(questLineFile);
-                    }
-            );
+            paths.filter(Files::isRegularFile)
+                    .map(Path::toFile)
+                    .filter(x -> FilenameUtils.isExtension(x.getName(), "json"))
+                    .forEach(sortedQuestLineFiles::add);
         } catch (IOException e) {
             QuestingAPI.getLogger().log(Level.ERROR, "Failed to traverse directory\n" + questLineDir, e);
             sendChatMessage(sender, "betterquesting.cmd.error");
