@@ -48,6 +48,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     private PanelButton btnDesign;
     private PanelButton btnVis;
     private PanelButton btnIcon;
+    private PanelButton btnTextEditor;
 
     private IQuestLine selected;
     private int selID = -1;
@@ -63,12 +64,14 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
 
             if (selected == null) {
                 selID = -1;
+                btnTextEditor.setActive(false);
                 btnDesign.setActive(false);
                 btnIcon.setActive(false);
                 btnVis.setActive(false);
                 tfName.setText("");
                 tfDesc.setText("");
             } else {
+                btnTextEditor.setActive(true);
                 btnDesign.setActive(true);
                 btnIcon.setActive(true);
                 btnVis.setActive(true);
@@ -167,7 +170,8 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         btnDesign.setActive(selected != null);
         cvRight.addPanel(btnDesign);
 
-        PanelButton btnTextEditor = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, new GuiPadding(-16, 48, 0, -64), 0), 8, "Aa");
+        btnTextEditor = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, new GuiPadding(-16, 48, 0, -64), 0), 8, "Aa");
+        btnTextEditor.setActive(selected != null);
         cvRight.addPanel(btnTextEditor);
 
         // Dividers
@@ -184,12 +188,14 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
 
             if (selected == null) {
                 selID = -1;
+                btnTextEditor.setActive(false);
                 btnDesign.setActive(false);
                 btnIcon.setActive(false);
                 btnVis.setActive(false);
                 tfName.setText("");
                 tfDesc.setText("");
             } else {
+                btnTextEditor.setActive(true);
                 btnDesign.setActive(true);
                 btnIcon.setActive(true);
                 btnVis.setActive(true);
@@ -266,6 +272,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             selID = entry.getID();
             tfName.setText(selected.getUnlocalisedName());
             tfDesc.setText(selected.getUnlocalisedDescription());
+            btnTextEditor.setActive(true);
             btnDesign.setActive(true);
             btnIcon.setActive(true);
             btnVis.setActive(true);
