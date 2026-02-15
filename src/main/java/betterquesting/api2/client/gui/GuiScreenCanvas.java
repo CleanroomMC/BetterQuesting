@@ -9,6 +9,7 @@ import betterquesting.api2.client.gui.popups.PopChoice;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
+import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -115,7 +116,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
         }
 
         this.guiPanels.clear();
-        Arrays.fill(mBtnState, false); // Reset mouse states // TODO: See if I can just make this static across all GUIs
+        mBtnState.clear(); // Reset mouse states // TODO: See if I can just make this static across all GUIs
 
         if (popup != null) {
             popup = null;
@@ -167,7 +168,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
     }
 
     // Remembers the last mouse buttons states. Required to fire release events
-    private boolean[] mBtnState = new boolean[3];
+    private final Int2BooleanArrayMap mBtnState = new Int2BooleanArrayMap();
 
     @Override
     public void handleMouseInput() throws IOException {
@@ -179,13 +180,13 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
         int SDX = (int) -Math.signum(Mouse.getEventDWheel());
         boolean flag = Mouse.getEventButtonState();
 
-        if (k >= 0 && k < 3 && mBtnState[k] != flag) {
+        if (k >= 0 && mBtnState.get(k) != flag) {
             if (flag) {
                 this.onMouseClick(i, j, k);
             } else {
                 this.onMouseRelease(i, j, k);
             }
-            mBtnState[k] = flag;
+            mBtnState.put(k, flag);
         }
 
         if (SDX != 0) {
