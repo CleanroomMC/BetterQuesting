@@ -77,7 +77,7 @@ public class QuestCommandComplete extends QuestCommandBase {
                 list.add(i.getID());
             }
             NetQuestEdit.setQuestStates(list.elements(), true, uuid);
-            sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.complete_all", pName));
+            sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.complete_all", list.size(), pName));
         } else {
             int id = Integer.parseInt(action);
             IQuest quest = QuestDatabase.INSTANCE.getValue(id);
