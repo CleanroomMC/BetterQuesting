@@ -47,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class QuestCommandDefaults extends QuestCommandBase {
@@ -61,8 +60,6 @@ public class QuestCommandDefaults extends QuestCommandBase {
     public static final String MULTI_QUEST_LINE_DIRECTORY = "MultipleQuestLine";
 
     public static final int FILE_NAME_MAX_LENGTH = 16;
-
-    private static final Function<File, NBTTagCompound> READ_NBT = file -> NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(file), new NBTTagCompound(), true);
 
     @Override
     public String getUsageSuffix() {
@@ -282,7 +279,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
             sendChatMessage(sender, "betterquesting.cmd.error");
             return;
         }
-        QuestSettings.INSTANCE.readFromNBT(READ_NBT.apply(settingsFile));
+        QuestSettings.INSTANCE.readFromNBT(readNBT(settingsFile));
         File questLineDir = new File(dataDir, QUEST_LINE_DIR);
         NBTTagList questLineDatabase = new NBTTagList();
         List<File> sortedQuestLineFiles = new ArrayList<>();
@@ -306,7 +303,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
         }
 
         sortedQuestLineFiles.stream()
-                .map(READ_NBT)
+                .map(QuestCommandDefaults::readNBT)
                 .forEach(questLineDatabase::appendTag);
 
         QuestLineDatabase.INSTANCE.readFromNBT(questLineDatabase, false);
@@ -318,7 +315,7 @@ public class QuestCommandDefaults extends QuestCommandBase {
                     .map(Path::toFile)
                     .filter(x -> FilenameUtils.isExtension(x.getName(), "json"))
                     .forEach(questFile -> {
-                                NBTTagCompound questTag = READ_NBT.apply(questFile);
+                                NBTTagCompound questTag = readNBT(questFile);
                                 int questId = questTag.hasKey("questID", Constants.NBT.TAG_ANY_NUMERIC) ? questTag.getInteger("questID") : -1;
 
                                 if (questId < 0) {
@@ -462,6 +459,10 @@ public class QuestCommandDefaults extends QuestCommandBase {
 
     private static String removeChatFormatting(String string) {
         return string.replaceAll("§[0-9a-fk-or]", "");
+    }
+
+    private static NBTTagCompound readNBT(File file) {
+        return NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(file), new NBTTagCompound(), true);
     }
 
     /** Helper method that handles having null sender. */

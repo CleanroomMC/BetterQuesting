@@ -76,11 +76,7 @@ public class TextEditorFrame extends JFrame {
     }
 
     public static TextEditorFrame getOrCreate(IPropertyContainer container, Runnable runnable, String title, String name, String description) {
-        if (open.containsKey(container))
-            return open.get(container);
-        TextEditorFrame frame = new TextEditorFrame(container, runnable, title, name, description);
-        open.put(container, frame);
-        return frame;
+        return open.computeIfAbsent(container, c -> new TextEditorFrame(c, runnable, title, name, description));
     }
 
     private final IPropertyContainer container;
