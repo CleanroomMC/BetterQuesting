@@ -68,6 +68,8 @@ betterquesting.btn.share_quest=Share to Chat
 betterquesting.btn.copy_id=Copy Quest ID
 betterquesting.btn.edit_name_desc.just_close=Just Close
 betterquesting.btn.edit_name_desc.open_window=Open Window
+betterquesting.btn.copy.tooltip.main=Click to copy description
+betterquesting.btn.copy.tooltip.shift=Hold shift to copy description without formatting
 
 betterquesting.home.exit=Exit
 betterquesting.home.quests=Quests

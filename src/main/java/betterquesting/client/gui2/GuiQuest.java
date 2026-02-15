@@ -26,6 +26,7 @@ import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.popups.PopContextMenu;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
@@ -36,9 +37,11 @@ import betterquesting.client.gui2.editors.GuiTaskEditor;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.tasks.TaskRetrieval;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.HashMap;
@@ -152,6 +155,11 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         } else {
             cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
         }
+
+        PanelButton copyButton = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 16, 10, 16, 16, 0), 8, "");
+        copyButton.setIcon(PresetIcon.ICON_COPY.getTexture());
+        copyButton.setTooltip(ImmutableList.of(QuestTranslation.translate("betterquesting.btn.copy.tooltip.main"), QuestTranslation.translate("betterquesting.btn.copy.tooltip.shift")));
+        cvBackground.addPanel(copyButton);
 
         cvInner = new CanvasEmpty(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 32, 16, 24), 0));
         cvBackground.addPanel(cvInner);
@@ -296,6 +304,13 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             NetQuestAction.requestClaim(new int[]{questID});
         } else if (btn.getButtonID() == 7) { // Task detect/submit
             NetQuestAction.requestDetect(new int[]{questID});
+        } else if (btn.getButtonID() == 8) { // copy quest description
+            var string = QuestTranslation.translate(quest.getProperty(NativeProps.DESC));
+            if (isShiftKeyDown()) {
+                string = TextFormatting.getTextWithoutFormattingCodes(string);
+            }
+            //noinspection DataFlowIssue
+            setClipboardString(string);
         }
     }
 
