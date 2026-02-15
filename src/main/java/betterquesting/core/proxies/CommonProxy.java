@@ -12,7 +12,6 @@ import betterquesting.handlers.EventHandler;
 import betterquesting.handlers.GuiHandler;
 import betterquesting.network.handlers.*;
 import betterquesting.questing.rewards.factory.*;
-import betterquesting.questing.rewards.loot.LootRegistry;
 import betterquesting.questing.tasks.factory.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
@@ -27,7 +26,6 @@ public class CommonProxy {
         ExpansionLoader.INSTANCE.initCommonAPIs();
 
         MinecraftForge.EVENT_BUS.register(EventHandler.INSTANCE);
-        MinecraftForge.EVENT_BUS.register(new LootRegistry());
         MinecraftForge.TERRAIN_GEN_BUS.register(EventHandler.INSTANCE);
 
         NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
