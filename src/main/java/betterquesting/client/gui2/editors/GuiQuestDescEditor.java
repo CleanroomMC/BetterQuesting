@@ -2,13 +2,14 @@ package betterquesting.client.gui2.editors;
 
 import javax.annotation.Nullable;
 
+import betterquesting.api.properties.IPropertyContainer;
+import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Lists;
 
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -32,28 +33,28 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.util.text.TextFormatting;
 
-public class GuiQuestDescEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen {
+public class GuiQuestDescEditor<T extends IPropertyContainer> extends GuiScreenCanvas implements IPEventListener, IVolatileScreen {
 
     private static final boolean FORCE_OPEN_WINDOW = true;
 
-    private final int questID;
-    private final IQuest quest;
+    private final T container;
     private final String beforeName;
     private final String beforeDesc;
+    public final Runnable runnable;
     private String name; //TODO: Add this to GUI
     private PanelTextField<String> description;
     private PanelButton close;
     private @Nullable TextEditorFrame window;
 
-    public GuiQuestDescEditor(GuiQuestEditor parent, int questID, IQuest quest) {
+    public GuiQuestDescEditor(GuiScreen parent, T container, Runnable runnable) {
         super(parent);
-        this.questID = questID;
-        this.quest = quest;
-        beforeName = quest.getProperty(NativeProps.NAME);
-        beforeDesc = quest.getProperty(NativeProps.DESC);
-        TextEditorFrame window = TextEditorFrame.get(questID);
+        this.container = container;
+        this.runnable = runnable;
+        beforeName = container.getProperty(NativeProps.NAME);
+        beforeDesc = container.getProperty(NativeProps.DESC);
+        TextEditorFrame window = TextEditorFrame.get(container);
         if (FORCE_OPEN_WINDOW && window == null) {
-            window = TextEditorFrame.getOrCreate(questID, beforeName, beforeName, beforeDesc);
+            window = TextEditorFrame.getOrCreate(container, runnable, beforeName, beforeName, beforeDesc);
         }
         if (window != null) {
             this.window = window;
@@ -74,7 +75,7 @@ public class GuiQuestDescEditor extends GuiScreenCanvas implements IPEventListen
      */
     public void showWindow() {
         if (window == null)
-            window = TextEditorFrame.getOrCreate(questID, beforeName, name, description.getRawText());
+            window = TextEditorFrame.getOrCreate(container, runnable, beforeName, name, description.getRawText());
         window.setGui(this);
         window.toFront();
         window.requestFocus();
@@ -107,9 +108,10 @@ public class GuiQuestDescEditor extends GuiScreenCanvas implements IPEventListen
      * Save the name and the desc, and close the screen and the window.
      */
     public void saveAndClose() {
-        quest.setProperty(NativeProps.NAME, name.trim());
-        quest.setProperty(NativeProps.DESC, description.getRawText());
-        GuiQuestEditor.sendChanges(questID);
+        container.setProperty(NativeProps.NAME, name.trim());
+        container.setProperty(NativeProps.DESC, description.getRawText());
+        runnable.run();
+
         removeWindow();
         close();
     }

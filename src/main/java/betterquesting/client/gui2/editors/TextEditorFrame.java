@@ -48,14 +48,13 @@ import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
 
+import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.IQuest;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ModReference;
-import betterquesting.questing.QuestDatabase;
-import io.netty.util.collection.IntObjectHashMap;
-import io.netty.util.collection.IntObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -69,34 +68,36 @@ public class TextEditorFrame extends JFrame {
     // This is NOT a cache.
     // This contains windows that is open.
     // This makes it possible to show and remain multiple editor windows.
-    // questID -> TextEditorFrame
-    private static final IntObjectMap<TextEditorFrame> open = new IntObjectHashMap<>();
+    // IPropertyContainer -> TextEditorFrame
+    private static final Object2ObjectMap<IPropertyContainer, TextEditorFrame> open = new Object2ObjectOpenHashMap<>();
 
-    public static @Nullable TextEditorFrame get(int questID) {
-        return open.get(questID);
+    public static @Nullable TextEditorFrame get(IPropertyContainer container) {
+        return open.get(container);
     }
 
-    public static TextEditorFrame getOrCreate(int questID, String title, String name, String description) {
-        if (open.containsKey(questID))
-            return open.get(questID);
-        TextEditorFrame frame = new TextEditorFrame(questID, title, name, description);
-        open.put(questID, frame);
+    public static TextEditorFrame getOrCreate(IPropertyContainer container, Runnable runnable, String title, String name, String description) {
+        if (open.containsKey(container))
+            return open.get(container);
+        TextEditorFrame frame = new TextEditorFrame(container, runnable, title, name, description);
+        open.put(container, frame);
         return frame;
     }
 
-    private final int questID;
+    private final IPropertyContainer container;
+    private final Runnable runnable;
     private final JTextField nameText;
     private final JButton close;
     private final JTextArea descText;
 
-    private @Nullable GuiQuestDescEditor gui = null;
+    private @Nullable GuiQuestDescEditor<?> gui = null;
 
     private boolean valueChangedByGuiScreen = false;
     private boolean byTopCornerCloseButton = true;
 
-    private TextEditorFrame(int questID, String title, String name, String description) {
+    private TextEditorFrame(IPropertyContainer container, Runnable runnable, String title, String name, String description) {
         super("Better Questing Text Editor | " + title);
-        this.questID = questID;
+        this.container = container;
+        this.runnable = runnable;
 
         initLogoCache();
 
@@ -116,7 +117,7 @@ public class TextEditorFrame extends JFrame {
                         gui.cancel();
                     }
                 } else {
-                    open.remove(questID);
+                    open.remove(container);
                     setVisible(false);
                     dispose();
                 }
@@ -238,7 +239,7 @@ public class TextEditorFrame extends JFrame {
         setVisible(true);
     }
 
-    public void setGui(@Nullable GuiQuestDescEditor gui) {
+    public void setGui(@Nullable GuiQuestDescEditor<?> gui) {
         this.gui = gui;
         close.setEnabled(gui != null);
     }
@@ -300,10 +301,9 @@ public class TextEditorFrame extends JFrame {
     }
 
     private void saveAndClose() {
-        IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
-        quest.setProperty(NativeProps.NAME, getName().trim());
-        quest.setProperty(NativeProps.DESC, getDesc());
-        GuiQuestEditor.sendChanges(questID);
+        container.setProperty(NativeProps.NAME, getName().trim());
+        container.setProperty(NativeProps.DESC, getDesc());
+        runnable.run();
         close();
     }
 
