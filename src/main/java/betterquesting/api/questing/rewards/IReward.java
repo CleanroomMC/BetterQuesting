@@ -1,6 +1,7 @@
 package betterquesting.api.questing.rewards;
 
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.ISearchable;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
@@ -14,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 
-public interface IReward extends INBTSaveLoad<NBTTagCompound> {
+public interface IReward extends INBTSaveLoad<NBTTagCompound>, ISearchable {
     String getUnlocalisedName();
 
     ResourceLocation getFactoryID();

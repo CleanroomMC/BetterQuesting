@@ -15,6 +15,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class RewardRecipe implements IReward {
     public String recipeNames = "minecraft:crafting_table\nminecraft:chest";
@@ -73,5 +76,12 @@ public class RewardRecipe implements IReward {
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         recipeNames = nbt.getString("recipes");
+    }
+
+    @Override
+    public List<String> getTextForSearch() {
+        List<String> texts = new ArrayList<>();
+        Collections.addAll(texts, recipeNames.split("\n"));
+        return texts;
     }
 }

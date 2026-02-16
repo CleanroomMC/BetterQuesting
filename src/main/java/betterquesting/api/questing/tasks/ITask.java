@@ -1,6 +1,7 @@
 package betterquesting.api.questing.tasks;
 
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.ISearchable;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
@@ -17,7 +18,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound> {
+public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, ISearchable {
     String getUnlocalisedName();
 
     ResourceLocation getFactoryID();
@@ -47,9 +48,5 @@ public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTag
 
     default boolean displaysCenteredAlone() {
         return false;
-    }
-
-    default List<String> getTextForSearch() {
-        return null;
     }
 }

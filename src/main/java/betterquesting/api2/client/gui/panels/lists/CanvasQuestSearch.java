@@ -86,11 +86,23 @@ public class CanvasQuestSearch extends CanvasSearch<QuestSearchEntry, QuestSearc
             results.add(entry);
         } else {
             // task-specific search text
-            for (DBEntry<ITask> task : entry.getQuest().getValue().getTasks().getEntries()) {
-                if (task.getValue().getTextForSearch() == null) continue;
-                for (String text : task.getValue().getTextForSearch()) {
+            for (var task : value.getTasks().getEntries()) {
+                var list = task.getValue().getTextForSearch();
+                if (list == null) continue;
+                for (String text : list) {
                     if (StringUtils.containsIgnoreCase(text, query)) {
                         results.add(entry);
+                        return;
+                    }
+                }
+            }
+            for (var reward : value.getRewards().getEntries()) {
+                var list = reward.getValue().getTextForSearch();
+                if (list == null) continue;
+                for (String text : list) {
+                    if (StringUtils.containsIgnoreCase(text, query)) {
+                        results.add(entry);
+                        return;
                     }
                 }
             }

@@ -26,6 +26,8 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public class RewardCommand implements IReward {
@@ -120,6 +122,11 @@ public class RewardCommand implements IReward {
     @Override
     public GuiScreen getRewardEditor(GuiScreen screen, DBEntry<IQuest> quest) {
         return null;
+    }
+
+    @Override
+    public List<String> getTextForSearch() {
+        return Collections.singletonList(command);
     }
 
     public static class RewardCommandSender extends CommandBlockBaseLogic {

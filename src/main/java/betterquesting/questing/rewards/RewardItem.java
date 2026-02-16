@@ -98,4 +98,17 @@ public class RewardItem implements IReward {
     public GuiScreen getRewardEditor(GuiScreen screen, DBEntry<IQuest> quest) {
         return null;
     }
+
+    @Override
+    public List<String> getTextForSearch() {
+        List<String> texts = new ArrayList<>();
+        for (BigItemStack bigStack : items) {
+            ItemStack stack = bigStack.getBaseStack();
+            texts.add(stack.getDisplayName());
+            if (bigStack.hasOreDict()) {
+                texts.add(bigStack.getOreDict());
+            }
+        }
+        return texts;
+    }
 }

@@ -18,6 +18,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RewardScoreboard implements IReward {
 
     private static final String DEFAULT_TYPE = "dummy";
@@ -105,5 +108,13 @@ public class RewardScoreboard implements IReward {
     @SideOnly(Side.CLIENT)
     public GuiScreen getRewardEditor(GuiScreen screen, DBEntry<IQuest> quest) {
         return null;
+    }
+
+    @Override
+    public List<String> getTextForSearch() {
+        List<String> texts = new ArrayList<>();
+        texts.add(score);
+        texts.add(String.valueOf(value));
+        return texts;
     }
 }
