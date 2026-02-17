@@ -33,6 +33,7 @@ public class PanelTextField<T> implements IGuiPanel {
     private boolean isFocused = false;
     private boolean isActive = true;
     private boolean canWrap = false;
+    private boolean clearOnRightClick = false;
     private int maxLength = 32;
 
     private String text;
@@ -105,6 +106,11 @@ public class PanelTextField<T> implements IGuiPanel {
     public PanelTextField<T> enableWrapping(boolean state) {
         this.canWrap = state;
         updateScrollBounds();
+        return this;
+    }
+
+    public PanelTextField<T> enableClearingOnRightClick(boolean state) {
+        this.clearOnRightClick = state;
         return this;
     }
 
@@ -663,6 +669,13 @@ public class PanelTextField<T> implements IGuiPanel {
             if (!this.isFocused) {
                 this.isFocused = true;
                 updateScrollBounds(); // Just in case
+            }
+
+            if (clearOnRightClick && button == 1) {
+                setText("");
+                if (callback != null) {
+                    callback.setValue(filter.parseValue(this.text));
+                }
             }
 
             if (canWrap) {
