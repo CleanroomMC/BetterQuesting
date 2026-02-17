@@ -24,6 +24,7 @@ import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui2.GuiHome;
+import betterquesting.client.gui2.GuiQuest;
 import betterquesting.client.gui2.GuiQuestLines;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.commands.client.QuestCommandShow;
@@ -54,6 +55,7 @@ import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.GameType;
+import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -120,9 +122,9 @@ public class EventHandler {
     public void onClientChatReceived(ClientChatReceivedEvent event) {
         if (event.getMessage() != null) {
             String text = event.getMessage().getFormattedText();
-            int index = text.indexOf("betterquesting.msg.share_quest:");
+            int index = text.indexOf(QuestCommandShow.PREFIX);
             if (index != -1) {
-                int lastIndex = index + "betterquesting.msg.share_quest:".length();
+                int lastIndex = index + QuestCommandShow.PREFIX.length();
                 int endIndex = lastIndex;
                 int questId = 0;
                 for (int i = lastIndex; i < text.length(); i++) {
@@ -144,15 +146,27 @@ public class EventHandler {
                 Style newMessageStyle;
                 EntityPlayerSP player = Minecraft.getMinecraft().player;
                 if (QuestCache.isQuestShown(quest, QuestingAPI.getQuestingUUID(player), player)) {
-                    QuestCommandShow.sentViaClick = true;
                     newMessageStyle = newMessage.getStyle()
-                            .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bq_client show " + questId))
+                            .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, QuestCommandShow.VIEW + questId))
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("betterquesting.msg.share_quest_hover_text_success")));
                 } else {
                     newMessageStyle = newMessage.getStyle()
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("betterquesting.msg.share_quest_hover_text_failure")));
                 }
                 event.setMessage(newMessage.setStyle(newMessageStyle));
+            }
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onClientChatEvent(ClientChatEvent event) {
+        if (event.getOriginalMessage().startsWith(QuestCommandShow.VIEW)) {
+            try {
+                int questId = Integer.parseInt(event.getOriginalMessage().substring(QuestCommandShow.VIEW.length()));
+                Minecraft.getMinecraft().addScheduledTask(() -> Minecraft.getMinecraft().displayGuiScreen(new GuiQuest(new GuiQuestLines(null), questId)));
+                event.setCanceled(true);
+            } catch (NumberFormatException ignored) {
             }
         }
     }

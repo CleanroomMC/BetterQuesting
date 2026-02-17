@@ -47,6 +47,7 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.GuiQuestEditor;
 import betterquesting.client.gui2.editors.GuiQuestLinesEditor;
 import betterquesting.client.gui2.editors.designer.GuiDesigner;
+import betterquesting.commands.client.QuestCommandShow;
 import betterquesting.handlers.ConfigHandler;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
@@ -346,7 +347,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                     }
                     if (questExistsUnderMouse) {
                         Runnable questSharer = () -> {
-                            mc.player.sendChatMessage("betterquesting.msg.share_quest:" + cvQuest.getButtonAt(mx, my).getStoredValue().getID());
+                            QuestCommandShow.sendTrigger(mc.player, cvQuest.getButtonAt(mx, my).getStoredValue().getID());
                             mc.displayGuiScreen(null);
                         };
                         popup.addButton(QuestTranslation.translate("betterquesting.btn.share_quest"), null, questSharer);
