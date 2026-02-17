@@ -636,7 +636,7 @@ public class PanelTextField<T> implements IGuiPanel {
         GlStateManager.translate(-getScrollX(), -getScrollY(), 0);
 
         if (text.length() <= 0) {
-            if (!isFocused) {
+            if (lockFocus || !isFocused) {
                 mc.fontRenderer.drawString(watermark, bounds.getX() + 4, bounds.getY() + 4, colWatermark.getRGB(), false);
             }
         } else {
