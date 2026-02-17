@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 
 public class GuiQuestSearch extends GuiScreenCanvas {
 
+    private static String priorSearchText = null;
     private PanelTextField<String> searchBox;
 
     public GuiQuestSearch(GuiScreen parent) {
@@ -65,7 +66,13 @@ public class GuiQuestSearch extends GuiScreenCanvas {
         CanvasQuestSearch canvasQuestSearch = createSearchCanvas();
         cvInner.addPanel(canvasQuestSearch);
 
-        searchBox.setCallback(canvasQuestSearch::setSearchFilter);
+        searchBox.setCallback(text -> {
+            GuiQuestSearch.priorSearchText = text;
+            canvasQuestSearch.setSearchFilter(text);
+        });
+        if (priorSearchText != null) {
+            searchBox.writeText(priorSearchText);
+        }
 
         PanelVScrollBar scDb = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 32, 0, 24), 0));
         cvInner.addPanel(scDb);
