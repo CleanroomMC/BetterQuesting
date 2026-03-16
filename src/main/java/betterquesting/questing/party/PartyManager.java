@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PartyManager extends SimpleDatabase<IParty> implements IPartyDatabase {
     public static final PartyManager INSTANCE;
@@ -22,12 +23,12 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
     static {
         INSTANCE = new PartyManager();
         QuestSettings.INSTANCE.addPropertyListener(NativeProps.PARTY_ENABLE,
-                (partyEnabledProp, isEnabled) -> PartyManager.INSTANCE.partyEnabled = isEnabled);
+                (partyEnabledProp, isEnabled) -> PartyManager.INSTANCE.partyEnabled.set(isEnabled));
     }
 
     private final HashMap<UUID, Integer> partyCache = new HashMap<>();
     // Cache PARTY_ENABLED prop due to frequent checks when creating ParticipantInfo in tick handler.
-    private boolean partyEnabled;
+    private final AtomicBoolean partyEnabled = new AtomicBoolean(false);
 
     @Override
     public synchronized IParty createNew(int id) {
@@ -39,7 +40,7 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
     @Nullable
     @Override
     public synchronized DBEntry<IParty> getParty(@Nonnull UUID uuid) {
-        if (!partyEnabled)
+        if (!partyEnabled.get())
             return null; // We're merely preventing access. Not erasing data
 
         Integer cachedID = partyCache.get(uuid);
