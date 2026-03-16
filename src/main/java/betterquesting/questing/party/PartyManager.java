@@ -1,8 +1,6 @@
 package betterquesting.questing.party;
 
 import betterquesting.api.enums.EnumPartyStatus;
-import betterquesting.api.properties.IPropertyListener;
-import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.party.IPartyDatabase;
@@ -11,8 +9,6 @@ import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,12 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class PartyManager extends SimpleDatabase<IParty> implements IPartyDatabase, IPropertyListener<Boolean> {
+public class PartyManager extends SimpleDatabase<IParty> implements IPartyDatabase {
     public static final PartyManager INSTANCE;
 
     static {
         INSTANCE = new PartyManager();
-        NativeProps.PARTY_ENABLE.addListener(INSTANCE);
+        QuestSettings.INSTANCE.addPropertyListener(NativeProps.PARTY_ENABLE,
+                (partyEnabledProp, isEnabled) -> PartyManager.INSTANCE.partyEnabled = isEnabled);
     }
 
     private final HashMap<UUID, Integer> partyCache = new HashMap<>();
@@ -106,12 +103,5 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
     public synchronized void reset() {
         super.reset();
         partyCache.clear();
-    }
-
-    @Override
-    public void propertyChanged(IPropertyType<Boolean> prop, Boolean newValue) {
-        if (prop == NativeProps.PARTY_ENABLE && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
-            partyEnabled = newValue;
-        }
     }
 }

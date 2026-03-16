@@ -11,8 +11,4 @@ public interface IPropertyType<T> {
     T readValue(NBTBase nbt);
 
     NBTBase writeValue(T value);
-
-    void addListener(IPropertyListener<T> listener);
-
-    void notifyListeners(T newValue);
 }

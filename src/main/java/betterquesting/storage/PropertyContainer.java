@@ -1,11 +1,15 @@
 package betterquesting.storage;
 
 import betterquesting.api.properties.IPropertyContainer;
+import betterquesting.api.properties.IPropertyListener;
 import betterquesting.api.properties.IPropertyReducible;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api2.storage.INBTSaveLoad;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -19,6 +23,8 @@ public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTa
     // For reducing nbt
     // To hold nbt values if the properties are not used (ex: the addon is temporarily removed), we cache and use only used properties to reduce nbt.
     private final BiMap<ResourceLocation, IPropertyType<?>> id2PropertyMap = HashBiMap.create(); // property.getKey() -> property
+    @SuppressWarnings("UnstableApiUsage")
+    private final Multimap<ResourceLocation, IPropertyListener<?>> propListeners = MultimapBuilder.hashKeys().arrayListValues().build();
 
     @Override
     public synchronized <T> T getProperty(IPropertyType<T> prop) {
@@ -59,13 +65,19 @@ public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTa
         if (jProp.isEmpty()) nbtInfo.removeTag(prop.getKey().getNamespace());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public synchronized <T> void setProperty(IPropertyType<T> prop, T value) {
         if (prop == null || value == null) return;
         id2PropertyMap.put(prop.getKey(), prop);
         NBTTagCompound dom = getDomain(prop.getKey());
 
-        prop.notifyListeners(value);
+        if (propListeners.containsKey(prop.getKey())) {
+            for (IPropertyListener<?> listener : propListeners.get(prop.getKey())) {
+                ((IPropertyListener<T>) listener).propertyChanged(prop, value);
+            }
+        }
+
         dom.setTag(prop.getKey().getPath(), prop.writeValue(value));
         nbtInfo.setTag(prop.getKey().getNamespace(), dom);
     }
@@ -74,6 +86,10 @@ public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTa
     public synchronized void removeAllProps() {
         List<String> keys = new ArrayList<>(nbtInfo.getKeySet());
         for (String key : keys) nbtInfo.removeTag(key);
+    }
+
+    public synchronized <T> void addPropertyListener(IPropertyType<T> prop, IPropertyListener<T> listener) {
+        propListeners.put(prop.getKey(), listener);
     }
 
     @Deprecated
