@@ -1,7 +1,6 @@
 package betterquesting.storage;
 
 import betterquesting.api.properties.IPropertyContainer;
-import betterquesting.api.properties.IPropertyListener;
 import betterquesting.api.properties.IPropertyReducible;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api2.storage.INBTSaveLoad;
@@ -17,14 +16,16 @@ import net.minecraft.util.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTagCompound> {
     private final NBTTagCompound nbtInfo = new NBTTagCompound();
     // For reducing nbt
     // To hold nbt values if the properties are not used (ex: the addon is temporarily removed), we cache and use only used properties to reduce nbt.
     private final BiMap<ResourceLocation, IPropertyType<?>> id2PropertyMap = HashBiMap.create(); // property.getKey() -> property
+    /* Key is property type's key, value is consumer of the property's new value. */
     @SuppressWarnings("UnstableApiUsage")
-    private final Multimap<ResourceLocation, IPropertyListener<?>> propListeners = MultimapBuilder.hashKeys().arrayListValues().build();
+    private final Multimap<ResourceLocation, Consumer<?>> propListeners = MultimapBuilder.hashKeys().arrayListValues().build();
 
     @Override
     public synchronized <T> T getProperty(IPropertyType<T> prop) {
@@ -73,8 +74,8 @@ public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTa
         NBTTagCompound dom = getDomain(prop.getKey());
 
         if (propListeners.containsKey(prop.getKey())) {
-            for (IPropertyListener<?> listener : propListeners.get(prop.getKey())) {
-                ((IPropertyListener<T>) listener).propertyChanged(prop, value);
+            for (Consumer<?> listener : propListeners.get(prop.getKey())) {
+                ((Consumer<T>) listener).accept(value);
             }
         }
 
@@ -88,7 +89,7 @@ public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTa
         for (String key : keys) nbtInfo.removeTag(key);
     }
 
-    public synchronized <T> void addPropertyListener(IPropertyType<T> prop, IPropertyListener<T> listener) {
+    public synchronized <T> void addPropertyListener(IPropertyType<T> prop, Consumer<T> listener) {
         propListeners.put(prop.getKey(), listener);
     }
 

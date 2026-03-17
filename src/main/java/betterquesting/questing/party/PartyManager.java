@@ -22,8 +22,7 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 
     static {
         INSTANCE = new PartyManager();
-        QuestSettings.INSTANCE.addPropertyListener(NativeProps.PARTY_ENABLE,
-                (partyEnabledProp, isEnabled) -> PartyManager.INSTANCE.partyEnabled.set(isEnabled));
+        QuestSettings.INSTANCE.addPropertyListener(NativeProps.PARTY_ENABLE, PartyManager.INSTANCE.partyEnabled::set);
     }
 
     private final HashMap<UUID, Integer> partyCache = new HashMap<>();
