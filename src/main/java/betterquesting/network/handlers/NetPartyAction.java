@@ -150,7 +150,7 @@ public class NetPartyAction {
         if (party != null) return;
         if (PartyInvitations.INSTANCE.acceptInvite(playerID, partyID)) {
             NetPartySync.quickSync(partyID);
-            NetNameSync.quickSync(sender, partyID);
+            NetNameSync.quickSync(null, partyID);
         } else {
             BetterQuesting.logger.error("Invalid invite for " + sender.getName() + " to party " + partyID);
         }
