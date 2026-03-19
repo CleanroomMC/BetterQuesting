@@ -37,6 +37,7 @@ import net.minecraft.util.text.TextFormatting;
 public class GuiQuestDescEditor<T extends IPropertyContainer> extends GuiScreenCanvas implements IPEventListener, IVolatileScreen {
 
     private final T container;
+    private final String title;
     private final String beforeName;
     private final String beforeDesc;
     public final Runnable runnable;
@@ -45,9 +46,10 @@ public class GuiQuestDescEditor<T extends IPropertyContainer> extends GuiScreenC
     private PanelButton close;
     private @Nullable TextEditorFrame window;
 
-    public GuiQuestDescEditor(GuiScreen parent, T container, Runnable runnable) {
+    public GuiQuestDescEditor(GuiScreen parent, T container, String title, Runnable runnable) {
         super(parent);
         this.container = container;
+        this.title = title;
         this.runnable = runnable;
         beforeName = container.getProperty(NativeProps.NAME);
         beforeDesc = container.getProperty(NativeProps.DESC);
@@ -185,8 +187,7 @@ public class GuiQuestDescEditor<T extends IPropertyContainer> extends GuiScreenC
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 0 + 20, -16, 80, 16, 0), 1, QuestTranslation.translate("gui.cancel")));
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_RIGHT, -80 - 20, -16, 80, 16, 0), 2, QuestTranslation.translate("gui.done")));
 
-        PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
-                                                QuestTranslation.translate("betterquesting.title.edit_quest")).setAlignment(1);
+        PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), title).setAlignment(1);
         txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
 

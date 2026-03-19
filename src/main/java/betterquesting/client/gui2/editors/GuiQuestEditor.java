@@ -223,7 +223,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             }
             case 7: // Description Editor
             {
-                mc.displayGuiScreen(new GuiQuestDescEditor<>(this, quest, () -> sendChanges(questID)));
+                mc.displayGuiScreen(new GuiQuestDescEditor<>(this, quest, QuestTranslation.translate("betterquesting.title.edit_quest"), () -> sendChanges(questID)));
                 break;
             }
             case 8: {

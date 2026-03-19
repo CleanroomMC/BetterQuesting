@@ -293,7 +293,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             if (order > 0) SendReorder(order);
         } else if (btn.getButtonID() == 8) // Big Description Editor
         {
-            mc.displayGuiScreen(new GuiQuestDescEditor<>(this, selected, () -> SendChanges(new DBEntry<>(selID, selected))));
+            mc.displayGuiScreen(new GuiQuestDescEditor<>(this, selected, QuestTranslation.translate("betterquesting.title.edit_line"), () -> SendChanges(new DBEntry<>(selID, selected))));
         }
     }
 
