@@ -71,7 +71,7 @@ public class QuestCommandComplete extends QuestCommandBase {
 
         String pName = NameCache.INSTANCE.getName(uuid);
 
-        if ("all".equalsIgnoreCase(action)) {
+        if (action.equalsIgnoreCase("all")) {
             var list = new IntArrayList();
             for (var i : QuestDatabase.INSTANCE.getEntries()) {
                 list.add(i.getID());
