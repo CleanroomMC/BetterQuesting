@@ -25,7 +25,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.Level;
 
 import java.util.UUID;
 
@@ -46,16 +45,17 @@ public class NetPartyAction {
     }
 
     private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message) {
+        NBTTagCompound compound = message.getFirst();
         EntityPlayerMP sender = message.getSecond();
 
-        int action = !message.getFirst().hasKey("action", 99) ? -1 : message.getFirst().getInteger("action");
-        int partyID = !message.getFirst().hasKey("partyID", 99) ? -1 : message.getFirst().getInteger("partyID");
+        int action = !compound.hasKey("action", 99) ? -1 : compound.getInteger("action");
+        int partyID = !compound.hasKey("partyID", 99) ? -1 : compound.getInteger("partyID");
         IParty party = PartyManager.INSTANCE.getValue(partyID);
         int permission = party == null ? 0 : checkPermission(QuestingAPI.getQuestingUUID(sender), party);
 
         switch (action) {
             case 0: {
-                createParty(sender, message.getFirst().getString("name"));
+                createParty(sender, compound.getString("name"));
                 break;
             }
             case 1: {
@@ -65,12 +65,12 @@ public class NetPartyAction {
             }
             case 2: {
                 if (permission < 2) break;
-                editParty(partyID, party, message.getFirst().getCompoundTag("data"));
+                editParty(partyID, party, compound.getCompoundTag("data"));
                 break;
             }
             case 3: {
                 if (permission < 2) break;
-                inviteUser(partyID, message.getFirst().getString("username"), message.getFirst().getLong("expiry"));
+                inviteUser(partyID, compound.getString("username"), compound.getLong("expiry"));
                 break;
             }
             case 4: {
@@ -78,13 +78,28 @@ public class NetPartyAction {
                 break;
             }
             case 5: {
-                kickUser(partyID, sender, party, message.getFirst().getString("username"), permission);
+                kickUser(partyID, sender, party, compound.getString("username"), permission);
+                break;
+            }
+            case 6: {
+                promotePlayer(partyID, party, compound.getString("username"), permission);
+                break;
+            }
+            case 7: {
+                demotePlayer(partyID, party, compound.getString("username"), permission);
                 break;
             }
             default: {
-                BetterQuesting.logger.log(Level.ERROR, "Invalid party action '" + action + "'. Full payload:\n" + message.getFirst().toString());
+                BetterQuesting.logger.error("Invalid party action '" + action + "'. Full payload:\n" + compound);
             }
         }
+    }
+
+    private static UUID getUUID(String username) {
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(username);
+        UUID uuid = QuestingAPI.getQuestingUUID(player);
+        return uuid == null ? NameCache.INSTANCE.getUUID(username) : uuid;
     }
 
     private static void createParty(EntityPlayerMP sender, String name) {
@@ -114,19 +129,18 @@ public class NetPartyAction {
     }
 
     private static void inviteUser(int partyID, String username, long expiry) {
-        UUID uuid = null;
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(username);
-        if (player != null) uuid = QuestingAPI.getQuestingUUID(player);
-        if (uuid == null) uuid = NameCache.INSTANCE.getUUID(username);
-        if (uuid != null) {
-            PartyInvitations.INSTANCE.postInvite(uuid, partyID, expiry);
-            if (player != null) {
-                NetPartySync.sendSync(new EntityPlayerMP[]{player}, new int[]{partyID});
-                NetInviteSync.sendSync(player);
-            }
-        } else {
-            BetterQuesting.logger.error("Unable to identify " + username + " to invite to party " + partyID); // No idea who this is
+        UUID uuid = getUUID(username);
+        if (uuid == null) {
+            BetterQuesting.logger.error("Unable to identify " + username + " to invite to party " + partyID);
+            return; // No idea who this is
+        }
+        PartyInvitations.INSTANCE.postInvite(uuid, partyID, expiry);
+        // despite what the annotations claim, this can return null
+        var player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(uuid);
+        //noinspection ConstantValue
+        if (player != null) {
+            NetPartySync.sendSync(new EntityPlayerMP[]{player}, new int[]{partyID});
+            NetInviteSync.sendSync(player);
         }
     }
 
@@ -150,11 +164,7 @@ public class NetPartyAction {
             return;
         }
 
-        UUID uuid = null;
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(username);
-        if (player != null) uuid = QuestingAPI.getQuestingUUID(player);
-        if (uuid == null) uuid = NameCache.INSTANCE.getUUID(username);
+        UUID uuid = getUUID(username);
         if (uuid == null) {
             BetterQuesting.logger.error("Unable to identify " + username + " to remove them from party " + partyID);
             return; // No idea who this is
@@ -167,6 +177,9 @@ public class NetPartyAction {
 
             if (party.getMembers().size() > 0) {
                 NetPartySync.quickSync(partyID);
+                // despite what the annotations claim, this can return null
+                var player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(uuid);
+                //noinspection ConstantValue
                 if (player != null) {
                     NBTTagCompound payload = new NBTTagCompound();
                     payload.setInteger("action", 5);
@@ -185,6 +198,54 @@ public class NetPartyAction {
             }
         } else {
             BetterQuesting.logger.error("Insufficient permissions to kick " + username + " from party " + partyID);
+        }
+    }
+
+    private static void promotePlayer(int partyID, IParty party, String username, int permission) {
+        if (permission < EnumPartyStatus.ADMIN.ordinal()) {
+            BetterQuesting.logger.error("Tried to promote a player, but didn't have a high enough permission to do so!");
+            return;
+        }
+        if (party == null) {
+            BetterQuesting.logger.error("Tried to increase a player's permission level of a non-existent party (" + partyID + ")");
+            return;
+        }
+
+        UUID uuid = getUUID(username);
+        if (uuid == null) {
+            BetterQuesting.logger.error("Unable to identify " + username + " to promote them in " + partyID);
+            return; // No idea who this is
+        }
+
+        if (checkPermission(uuid, party) < permission) {
+            party.setStatus(uuid, EnumPartyStatus.ADMIN);
+            NetPartySync.quickSync(partyID);
+        } else {
+            BetterQuesting.logger.error("Insufficient permissions to increase the status level of " + username + " from party " + partyID);
+        }
+    }
+
+    private static void demotePlayer(int partyID, IParty party, String username, int permission) {
+        if (permission < EnumPartyStatus.OWNER.ordinal()) {
+            BetterQuesting.logger.error("Tried to demote a player, but didn't have a high enough permission to do so!");
+            return;
+        }
+        if (party == null) {
+            BetterQuesting.logger.error("Tried to decrease a player's permission level of a non-existent party (" + partyID + ")");
+            return;
+        }
+
+        UUID uuid = getUUID(username);
+        if (uuid == null) {
+            BetterQuesting.logger.error("Unable to identify " + username + " to demote them in " + partyID);
+            return; // No idea who this is
+        }
+
+        if (checkPermission(uuid, party) < permission) {
+            party.setStatus(uuid, EnumPartyStatus.MEMBER);
+            NetPartySync.quickSync(partyID);
+        } else {
+            BetterQuesting.logger.error("Insufficient permissions to decrease the status level of " + username + " from party " + partyID);
         }
     }
 

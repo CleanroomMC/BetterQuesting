@@ -43,8 +43,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, INeedsRefresh {
     private IParty party;
@@ -54,6 +54,13 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
 
     public GuiPartyManage(GuiScreen parent) {
         super(parent);
+    }
+
+    // 0 = INVITE, 1 = MEMBER, 2 = ADMIN, 3 = OWNER/OP
+    private EnumPartyStatus getStatus(UUID id) {
+        if (NameCache.INSTANCE.isOP(id)) return EnumPartyStatus.OWNER;
+        EnumPartyStatus perm = party.getStatus(id);
+        return perm == null ? EnumPartyStatus.MEMBER : perm; // Fallback (potentially exploitable I know)
     }
 
     @Override
@@ -94,9 +101,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         Keyboard.enableRepeatEvents(true);
 
-        // 0 = INVITE, 1 = MEMBER, 2 = ADMIN, 3 = OWNER/OP
-        EnumPartyStatus status = NameCache.INSTANCE.isOP(playerID) ? EnumPartyStatus.OWNER : party.getStatus(playerID);
-        if (status == null) status = EnumPartyStatus.MEMBER; // Fallback (potentially exploitable I know)
+        EnumPartyStatus status = getStatus(playerID);
 
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -140,10 +145,6 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         CanvasEmpty cvRightHalf = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 32, 16, 32), 0));
         cvBackground.addPanel(cvRightHalf);
 
-        PanelTextBox txInvite = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("betterquesting.gui.party_members")).setAlignment(1);
-        txInvite.setColor(PresetColor.TEXT_HEADER.getColor());
-        cvRightHalf.addPanel(txInvite);
-
         CanvasScrolling cvUserList = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 8, 0), 0));
         cvRightHalf.addPanel(cvUserList);
 
@@ -153,44 +154,71 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         scUserList.getTransform().setParent(cvUserList.getTransform());
         cvUserList.setScrollDriverY(scUserList);
 
-        List<UUID> partyMemList = party.getMembers();
         int elSize = RenderUtils.getStringWidth("...", fontRenderer);
         int cvWidth = cvUserList.getTransform().getWidth();
         boolean hardcore = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
         ItemTexture txHeart = new ItemTexture(new BigItemStack(BetterQuesting.extraLife));
 
-        for (int i = 0; i < partyMemList.size(); i++) {
-            UUID mid = partyMemList.get(i);
-            String mName = NameCache.INSTANCE.getName(mid);
+        int heightOffset = 0;
 
-            if (RenderUtils.getStringWidth(mName, fontRenderer) > cvWidth - 58) {
-                mName = mc.fontRenderer.trimStringToWidth(mName, cvWidth - 58 - elSize) + "...";
+        // Iterate through the statuses in descending order
+        for (EnumPartyStatus statusEntry : Arrays.asList(EnumPartyStatus.OWNER, EnumPartyStatus.ADMIN, EnumPartyStatus.MEMBER)) {
+            List<UUID> members = party.getMembers().stream().filter(id -> getStatus(id).equals(statusEntry)).collect(Collectors.toList());
+
+            if (members.isEmpty()) continue;
+
+            String statusNameKey = switch (statusEntry) {
+                case OWNER -> "betterquesting.gui.party_owner";
+                case ADMIN -> "betterquesting.gui.party_admins";
+                case MEMBER -> "betterquesting.gui.party_members";
+            };
+
+            PanelTextBox txStatusName = new PanelTextBox(new GuiRectangle(0, heightOffset, cvWidth, 16, 0), QuestTranslation.translate(statusNameKey)).setAlignment(1);
+            txStatusName.setColor(PresetColor.TEXT_HEADER.getColor());
+            cvUserList.addPanel(txStatusName);
+
+            heightOffset += 16;
+
+            for (UUID id : members) {
+                String username = NameCache.INSTANCE.getName(id);
+                boolean displayKickButton = statusEntry.ordinal() < status.ordinal() && playerID != id;
+                boolean displayAdminButton = displayKickButton && status == EnumPartyStatus.OWNER;
+
+                PanelPlayerPortrait pnPortrait = new PanelPlayerPortrait(new GuiRectangle(0, heightOffset, 32, 32, 0), id, username);
+                cvUserList.addPanel(pnPortrait);
+
+                int maxAllowedWidth = cvWidth - 32;
+                if (displayKickButton) maxAllowedWidth -= 32;
+                if (displayAdminButton) maxAllowedWidth -= 48;
+
+                String shortenedName = RenderUtils.getStringWidth(username, fontRenderer) > maxAllowedWidth ? fontRenderer.trimStringToWidth(username, maxAllowedWidth - elSize) + "..." : username;
+                PanelTextBox txMemName = new PanelTextBox(new GuiRectangle(32, heightOffset + 4, cvWidth - 32, 12, 0), shortenedName);
+                txMemName.setColor(PresetColor.TEXT_MAIN.getColor());
+                cvUserList.addPanel(txMemName);
+
+                if (displayKickButton) {
+                    PanelButtonStorage<String> btnKick = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 32, heightOffset, 32, 32, 0), 3, QuestTranslation.translate("betterquesting.btn.party_kick"), username);
+                    cvUserList.addPanel(btnKick);
+
+                    if (displayAdminButton) {
+                        var rect = new GuiRectangle(cvWidth - 80, heightOffset, 48, 32, 0);
+                        if (statusEntry == EnumPartyStatus.MEMBER) {
+                            cvUserList.addPanel(new PanelButtonStorage<>(rect, 5, QuestTranslation.translate("betterquesting.btn.party_promote"), username));
+                        } else {
+                            cvUserList.addPanel(new PanelButtonStorage<>(rect, 6, QuestTranslation.translate("betterquesting.btn.party_demote"), username));
+                        }
+                    }
+                }
+
+                PanelGeneric pnItem = new PanelGeneric(new GuiRectangle(32, heightOffset + 16, 16, 16, 0), txHeart);
+                cvUserList.addPanel(pnItem);
+
+                PanelTextBox txLives = new PanelTextBox(new GuiRectangle(48, heightOffset + 20, cvWidth - 48 - 32, 12, 0), " x " + (hardcore ? LifeDatabase.INSTANCE.getLives(id) : "∞"));
+                txLives.setColor(PresetColor.TEXT_MAIN.getColor());
+                cvUserList.addPanel(txLives);
+
+                heightOffset += 32;
             }
-
-            PanelPlayerPortrait pnPortrait = new PanelPlayerPortrait(new GuiRectangle(0, i * 32, 32, 32, 0), mid, mName);
-            cvUserList.addPanel(pnPortrait);
-
-            PanelTextBox txMemName = new PanelTextBox(new GuiRectangle(32, i * 32 + 4, cvWidth - 32, 12, 0), mName);
-            txMemName.setColor(PresetColor.TEXT_MAIN.getColor());
-            cvUserList.addPanel(txMemName);
-
-            PanelButtonStorage<String> btnKick = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 32, i * 32, 32, 32, 0), 3, QuestTranslation.translate("betterquesting.btn.party_kick"), mName);
-            cvUserList.addPanel(btnKick);
-
-            PanelGeneric pnItem = new PanelGeneric(new GuiRectangle(32, i * 32 + 16, 16, 16, 0), txHeart);
-            cvUserList.addPanel(pnItem);
-
-            String lifeCount;
-
-            if (hardcore) {
-                lifeCount = " x " + LifeDatabase.INSTANCE.getLives(mid);
-            } else {
-                lifeCount = " x \u221E";
-            }
-
-            PanelTextBox txLives = new PanelTextBox(new GuiRectangle(48, i * 32 + 20, cvWidth - 48 - 32, 12, 0), lifeCount);
-            txLives.setColor(PresetColor.TEXT_MAIN.getColor());
-            cvUserList.addPanel(txLives);
         }
 
         scUserList.setActive(cvUserList.getScrollBounds().getHeight() > 0);
@@ -237,6 +265,22 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             payload.setInteger("action", 2);
             payload.setInteger("partyID", partyID);
             payload.setTag("data", party.writeProperties(new NBTTagCompound()));
+            NetPartyAction.sendAction(payload);
+        } else if (btn.getButtonID() == 5 && btn instanceof PanelButtonStorage) // Toggle permission level of user between ADMIN and MEMBER
+        {
+            String id = ((PanelButtonStorage<String>) btn).getStoredValue();
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setInteger("action", 6);
+            payload.setInteger("partyID", partyID);
+            payload.setString("username", id);
+            NetPartyAction.sendAction(payload);
+        } else if (btn.getButtonID() == 6 && btn instanceof PanelButtonStorage) // Toggle permission level of user between ADMIN and MEMBER
+        {
+            String id = ((PanelButtonStorage<String>) btn).getStoredValue();
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setInteger("action", 7);
+            payload.setInteger("partyID", partyID);
+            payload.setString("username", id);
             NetPartyAction.sendAction(payload);
         }
     }
