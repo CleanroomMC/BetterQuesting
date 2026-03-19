@@ -181,14 +181,14 @@ public class GuiHome extends GuiScreenCanvas {
                 FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                     QuestCommandDefaults.load(null, null, dir, false);
                     SaveLoadHandler.INSTANCE.resetUpdate();
-                    mc.displayGuiScreen(null);
                 });
+                mc.displayGuiScreen(null);
             } else if (file.exists()) {
                 FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
                     QuestCommandDefaults.loadLegacy(null, null, file, false);
                     SaveLoadHandler.INSTANCE.resetUpdate();
-                    mc.displayGuiScreen(null);
                 });
+                mc.displayGuiScreen(null);
             } else {
                 QuestingAPI.getLogger().log(Level.WARN, "Could not update the quest database, as neither directory nor file exists");
             }
