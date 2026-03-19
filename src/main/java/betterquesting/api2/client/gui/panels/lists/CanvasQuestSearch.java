@@ -5,7 +5,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
-import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api.questing.ISearchable;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.controls.PanelButtonCustom;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
@@ -22,12 +22,10 @@ import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.entity.player.EntityPlayer;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CanvasQuestSearch extends CanvasSearch<QuestSearchEntry, QuestSearchEntry> {
     private List<QuestSearchEntry> questList;
@@ -85,27 +83,15 @@ public class CanvasQuestSearch extends CanvasSearch<QuestSearchEntry, QuestSearc
 
             results.add(entry);
         } else {
-            // task-specific search text
-            for (var task : value.getTasks().getEntries()) {
-                var list = task.getValue().getTextForSearch();
-                if (list == null) continue;
-                for (String text : list) {
-                    if (StringUtils.containsIgnoreCase(text, query)) {
-                        results.add(entry);
-                        return;
-                    }
-                }
-            }
-            for (var reward : value.getRewards().getEntries()) {
-                var list = reward.getValue().getTextForSearch();
-                if (list == null) continue;
-                for (String text : list) {
-                    if (StringUtils.containsIgnoreCase(text, query)) {
-                        results.add(entry);
-                        return;
-                    }
-                }
-            }
+            // search tasks and rewards
+            Stream.concat(value.getTasks().getEntries().stream(), value.getRewards().getEntries().stream())
+                    .map(DBEntry::getValue)
+                    .map(ISearchable::getTextForSearch)
+                    .filter(Objects::nonNull)
+                    .flatMap(List::stream)
+                    .filter(text -> StringUtils.containsIgnoreCase(text, query))
+                    .findAny()
+                    .ifPresent(text -> results.add(entry));
         }
     }
 
