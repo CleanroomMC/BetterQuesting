@@ -5,6 +5,9 @@ import betterquesting.api.utils.ItemComparison;
 import com.github.bsideup.jabel.Desugar;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntList;
+
+import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -24,9 +27,9 @@ import java.util.List;
  * A snapshot of a party's inventories, accumulating counts of all item stacks.
  */
 public class PartyInventory {
-    /** The main player's collected inventory, keys are item ids. */
+    /** The main player's collected inventory, keys are stacks packed by {@link RecipeItemHelper#pack(ItemStack)}. */
     private final Int2ObjectMap<List<IndexedItemStack>> playerStacks;
-    /** The collapsed inventory of all party members, keys are item ids. */
+    /** The collapsed inventory of all party members, keys are stacks packed by {@link RecipeItemHelper#pack(ItemStack)}. */
     private final Int2ObjectMap<List<IndexedItemStack>> partyStacks;
     /** The main player's collected fluid containers. */
     private final List<IndexedFluidContainer> playerFluidContainers;
@@ -61,7 +64,7 @@ public class PartyInventory {
                     indexedFluidContainer = null;
                 }
 
-                int itemHash = BigItemStack.getHashKey(stack);
+                int itemHash = RecipeItemHelper.pack(stack);
                 if (player == mainPlayer) {
                     var subStacks = playerStacks.get(itemHash);
                     if (subStacks == null) {
@@ -103,9 +106,12 @@ public class PartyInventory {
         List<IndexedItemStack> subStacks = null;
         if (req.hasOreDict()) {
             // Stacks matched by any ore-dict item
-            for (ItemStack oreStack : req.getOreIngredient().getMatchingStacks()) {
-                int itemHash = BigItemStack.getHashKey(oreStack);
-                subStacks = gatheredStacks.get(itemHash);
+            IntList oreHashes = req.getOreIngredient().getValidItemStacksPacked();
+
+            // for-each causes autoboxing, suppress
+            //noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < oreHashes.size(); i++) {
+                subStacks = gatheredStacks.get(oreHashes.get(i));
                 if (subStacks != null) break;
             }
         } else {
