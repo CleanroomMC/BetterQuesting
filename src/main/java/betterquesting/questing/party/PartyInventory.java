@@ -5,6 +5,8 @@ import betterquesting.api.utils.ItemComparison;
 import com.github.bsideup.jabel.Desugar;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -100,13 +102,19 @@ public class PartyInventory {
     public ItemMatchContext getItemCountFor(BigItemStack req, boolean taskConsumes, boolean ignoreNBT, boolean partialMatch) {
         var gatheredStacks = taskConsumes ? playerStacks : partyStacks;
 
-        List<IndexedItemStack> subStacks = null;
+        List<IndexedItemStack> subStacks;
         if (req.hasOreDict()) {
             // Stacks matched by any ore-dict item
+            subStacks = new ArrayList<>();
+            var checkedHashes = new IntOpenHashSet();
             for (ItemStack oreStack : req.getOreIngredient().getMatchingStacks()) {
                 int itemHash = BigItemStack.getHashKey(oreStack);
-                subStacks = gatheredStacks.get(itemHash);
-                if (subStacks != null) break;
+                if (checkedHashes.add(itemHash)) {
+                    var matchedSubStacks = gatheredStacks.get(itemHash);
+                    if (matchedSubStacks != null) {
+                        subStacks.addAll(matchedSubStacks);
+                    }
+                }
             }
         } else {
             // Stacks matched by base item
