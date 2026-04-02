@@ -100,8 +100,18 @@ public class PartyInventory {
     public ItemMatchContext getItemCountFor(BigItemStack req, boolean taskConsumes, boolean ignoreNBT, boolean partialMatch) {
         var gatheredStacks = taskConsumes ? playerStacks : partyStacks;
 
-        // The stacks matched by Item
-        var subStacks = gatheredStacks.get(req.getHashKey());
+        List<IndexedItemStack> subStacks = null;
+        if (req.hasOreDict()) {
+            // Stacks matched by any ore-dict item
+            for (ItemStack oreStack : req.getOreIngredient().getMatchingStacks()) {
+                int itemHash = BigItemStack.getHashKey(oreStack);
+                subStacks = gatheredStacks.get(itemHash);
+                if (subStacks != null) break;
+            }
+        } else {
+            // Stacks matched by base item
+            subStacks = gatheredStacks.get(req.getHashKey());
+        }
         if (subStacks == null || subStacks.isEmpty()) {
             return ItemMatchContext.EMPTY;
         }
