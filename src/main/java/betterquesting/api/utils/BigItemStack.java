@@ -2,10 +2,10 @@ package betterquesting.api.utils;
 
 import betterquesting.NBTUtil;
 import net.minecraft.block.Block;
-import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.OreIngredient;
@@ -36,7 +36,7 @@ public class BigItemStack {
         baseStack = stack.copy();
         this.stackSize = baseStack.getCount();
         baseStack.setCount(1);
-        this.hashKey = RecipeItemHelper.pack(baseStack);
+        this.hashKey = getHashKey(baseStack);
     }
 
     public BigItemStack(@Nonnull Block block) {
@@ -62,7 +62,15 @@ public class BigItemStack {
     public BigItemStack(@Nonnull Item item, int amount, int damage) {
         baseStack = new ItemStack(item, 1, damage);
         this.stackSize = amount;
-        this.hashKey = RecipeItemHelper.pack(baseStack);
+        this.hashKey = getHashKey(baseStack);
+    }
+
+    public static int getHashKey(ItemStack stack) {
+        ResourceLocation registryName = stack.getItem().getRegistryName();
+        if (registryName == null) {
+            return 0;
+        }
+        return registryName.hashCode();
     }
 
     /**
@@ -73,7 +81,7 @@ public class BigItemStack {
     }
 
     /**
-     * @see RecipeItemHelper#pack(ItemStack)
+     * @see BigItemStack#getHashKey(ItemStack)
      * @return the hash key to use for this BigItemStack to compare with other stacks
      */
     public int getHashKey() {
@@ -167,7 +175,7 @@ public class BigItemStack {
         this.setOreDict(tags.getString("OreDict"));
         this.baseStack = new ItemStack(itemNBT); // Minecraft does the ID conversions for me
         if (tags.getShort("Damage") < 0) this.baseStack.setItemDamage(OreDictionary.WILDCARD_VALUE);
-        this.hashKey = RecipeItemHelper.pack(baseStack);
+        this.hashKey = getHashKey(baseStack);
     }
 
     @Deprecated
