@@ -36,6 +36,7 @@ public class TaskScoreboard implements ITaskTickable {
     private static final float DEFAULT_CONVERSION = 1F;
     private static final String DEFAULT_SUFFIX = "";
     private static final ScoreOperation DEFAULT_OPERATION = ScoreOperation.MORE_OR_EQUAL;
+    private static final boolean DEFAULT_OPTIONAL = false;
     private final Set<UUID> completeUsers = new TreeSet<>();
     public String scoreName = "Score";
     public String scoreDisp = "Score";
@@ -44,6 +45,7 @@ public class TaskScoreboard implements ITaskTickable {
     public float conversion = DEFAULT_CONVERSION;
     public String suffix = DEFAULT_SUFFIX;
     public ScoreOperation operation = DEFAULT_OPERATION;
+    public boolean optional = DEFAULT_OPTIONAL;
 
     @Override
     public ResourceLocation getFactoryID() {
@@ -124,6 +126,7 @@ public class TaskScoreboard implements ITaskTickable {
         NBTUtil.setFloat(nbt, "unitConversion", conversion, DEFAULT_CONVERSION, reduce);
         NBTUtil.setString(nbt, "unitSuffix", suffix, DEFAULT_SUFFIX, reduce);
         NBTUtil.setString(nbt, "operation", operation.name(), DEFAULT_OPERATION.name(), reduce);
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
         return nbt;
     }
 
@@ -136,6 +139,7 @@ public class TaskScoreboard implements ITaskTickable {
         conversion = NBTUtil.getFloat(nbt, "unitConversion", DEFAULT_CONVERSION);
         suffix = NBTUtil.getString(nbt, "unitSuffix", DEFAULT_SUFFIX);
         operation = NBTUtil.getEnum(nbt, "operation", ScoreOperation.class, true, DEFAULT_OPERATION);
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
     }
 
     @Override
@@ -212,6 +216,11 @@ public class TaskScoreboard implements ITaskTickable {
     @SideOnly(Side.CLIENT)
     public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest) {
         return new GuiEditTaskScoreboard(parent, quest, this);
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

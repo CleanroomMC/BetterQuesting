@@ -37,6 +37,7 @@ public class TaskCrafting implements ITask {
     private static final boolean DEFAULT_ALLOW_ANVIL = false;
     private static final boolean DEFAULT_ALLOW_SMELT = true;
     private static final boolean DEFAULT_ALLOW_CRAFT = true;
+    private static final boolean DEFAULT_OPTIONAL = false;
     private final Set<UUID> completeUsers = new TreeSet<>();
     public final NonNullList<BigItemStack> requiredItems = NonNullList.create();
     public final TreeMap<UUID, int[]> userProgress = new TreeMap<>();
@@ -45,6 +46,7 @@ public class TaskCrafting implements ITask {
     public boolean allowAnvil = DEFAULT_ALLOW_ANVIL;
     public boolean allowSmelt = DEFAULT_ALLOW_SMELT;
     public boolean allowCraft = DEFAULT_ALLOW_CRAFT;
+    public boolean optional = DEFAULT_OPTIONAL;
 
     @Override
     public ResourceLocation getFactoryID() {
@@ -135,6 +137,7 @@ public class TaskCrafting implements ITask {
         NBTUtil.setBoolean(nbt, "allowCraft", allowCraft, DEFAULT_ALLOW_CRAFT, reduce);
         NBTUtil.setBoolean(nbt, "allowSmelt", allowSmelt, DEFAULT_ALLOW_SMELT, reduce);
         NBTUtil.setBoolean(nbt, "allowAnvil", allowAnvil, DEFAULT_ALLOW_ANVIL, reduce);
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
 
         NBTTagList itemArray = new NBTTagList();
         for (BigItemStack stack : this.requiredItems) {
@@ -152,6 +155,7 @@ public class TaskCrafting implements ITask {
         allowCraft = NBTUtil.getBoolean(nbt, "allowCraft", DEFAULT_ALLOW_CRAFT);
         allowSmelt = NBTUtil.getBoolean(nbt, "allowSmelt", DEFAULT_ALLOW_SMELT);
         allowAnvil = NBTUtil.getBoolean(nbt, "allowAnvil", DEFAULT_ALLOW_ANVIL);
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
 
         requiredItems.clear();
         NBTTagList iList = nbt.getTagList("requiredItems", 10);
@@ -274,6 +278,11 @@ public class TaskCrafting implements ITask {
 
     private void setBulkProgress(@Nonnull List<Tuple<UUID, int[]>> list) {
         list.forEach((entry) -> setUserProgress(entry.getFirst(), entry.getSecond()));
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

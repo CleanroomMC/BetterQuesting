@@ -46,6 +46,7 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
     private static final boolean DEFAULT_CONSUME = false;
     private static final boolean DEFAULT_GROUP_DETECT = false;
     private static final boolean DEFAULT_AUTO_CONSUME = false;
+    private static final boolean DEFAULT_OPTIONAL = false;
     private final Set<UUID> completeUsers = new ObjectOpenHashSet<>();
     public final NonNullList<FluidStack> requiredFluids = NonNullList.create();
     public final Map<UUID, int[]> userProgress = new Object2ObjectOpenHashMap<>();
@@ -54,6 +55,7 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
     public boolean consume = DEFAULT_CONSUME;
     public boolean groupDetect = DEFAULT_GROUP_DETECT;
     public boolean autoConsume = DEFAULT_AUTO_CONSUME;
+    public boolean optional = DEFAULT_OPTIONAL;
     private boolean progressChanged = false;
 
     @Override
@@ -311,6 +313,7 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         NBTUtil.setBoolean(nbt, "consume", consume, DEFAULT_CONSUME, reduce);
         NBTUtil.setBoolean(nbt, "groupDetect", groupDetect, DEFAULT_GROUP_DETECT, reduce);
         NBTUtil.setBoolean(nbt, "autoConsume", autoConsume, DEFAULT_AUTO_CONSUME, reduce);
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
 
         NBTTagList itemArray = new NBTTagList();
         for (FluidStack stack : this.requiredFluids) {
@@ -328,6 +331,7 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         consume = NBTUtil.getBoolean(nbt, "consume", DEFAULT_CONSUME);
         groupDetect = NBTUtil.getBoolean(nbt, "groupDetect", DEFAULT_GROUP_DETECT);
         autoConsume = NBTUtil.getBoolean(nbt, "autoConsume", DEFAULT_AUTO_CONSUME);
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
 
         requiredFluids.clear();
         NBTTagList fList = nbt.getTagList("requiredFluids", 10);
@@ -556,6 +560,11 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
         }
 
         return hasDrained ? handler.getContainer() : item;
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

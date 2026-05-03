@@ -1,5 +1,6 @@
 package betterquesting.questing.tasks;
 
+import betterquesting.NBTUtil;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -27,6 +28,11 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class TaskAdvancement implements ITask {
+
+    private static final boolean DEFAULT_OPTIONAL = false;
+
+    public boolean optional = DEFAULT_OPTIONAL;
+
     private final Set<UUID> completeUsers = new TreeSet<>();
     public ResourceLocation advID;
 
@@ -124,14 +130,21 @@ public class TaskAdvancement implements ITask {
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt, boolean reduce) {
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
         nbt.setString("advancement_id", advID == null ? "" : advID.toString());
         return nbt;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
         String id = nbt.getString("advancement_id");
         advID = StringUtils.isNullOrEmpty(id) ? null : new ResourceLocation(id);
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

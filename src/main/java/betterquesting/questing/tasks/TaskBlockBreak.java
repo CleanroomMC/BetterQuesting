@@ -1,5 +1,6 @@
 package betterquesting.questing.tasks;
 
+import betterquesting.NBTUtil;
 import betterquesting.NbtBlockType;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
@@ -34,6 +35,9 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class TaskBlockBreak implements ITask {
+    private static final boolean DEFAULT_OPTIONAL = false;
+
+    public boolean optional = DEFAULT_OPTIONAL;
     private final Set<UUID> completeUsers = new TreeSet<>();
     private final TreeMap<UUID, int[]> userProgress = new TreeMap<>();
     public final List<NbtBlockType> blockTypes = new ArrayList<>();
@@ -116,6 +120,7 @@ public class TaskBlockBreak implements ITask {
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt, boolean reduce) {
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
         NBTTagList bAry = new NBTTagList();
         for (NbtBlockType block : blockTypes) {
             bAry.appendTag(block.writeToNBT(new NBTTagCompound(), reduce));
@@ -127,6 +132,7 @@ public class TaskBlockBreak implements ITask {
 
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
         blockTypes.clear();
         NBTTagList bList = nbt.getTagList("blocks", 10);
         for (int i = 0; i < bList.tagCount(); i++) {
@@ -267,6 +273,11 @@ public class TaskBlockBreak implements ITask {
 
     private void setBulkProgress(@Nonnull List<Tuple<UUID, int[]>> list) {
         list.forEach((entry) -> setUserProgress(entry.getFirst(), entry.getSecond()));
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

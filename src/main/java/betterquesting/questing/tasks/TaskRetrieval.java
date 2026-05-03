@@ -49,6 +49,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     private static final boolean DEFAULT_CONSUME = false;
     private static final boolean DEFAULT_GROUP_DETECT = false;
     private static final boolean DEFAULT_AUTO_CONSUME = false;
+    private static final boolean DEFAULT_OPTIONAL = false;
     private static final EnumLogic DEFAULT_ENTRY_LOGIC = EnumLogic.AND;
 
     private final Set<UUID> completeUsers = new ObjectOpenHashSet<>();
@@ -59,6 +60,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     public boolean consume = DEFAULT_CONSUME;
     public boolean groupDetect = DEFAULT_GROUP_DETECT;
     public boolean autoConsume = DEFAULT_AUTO_CONSUME;
+    public boolean optional = DEFAULT_OPTIONAL;
     private EnumLogic entryLogic = DEFAULT_ENTRY_LOGIC;
     private boolean resync = false;
     private boolean progressChanged = false;
@@ -328,6 +330,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         NBTUtil.setBoolean(nbt, "groupDetect", groupDetect, DEFAULT_GROUP_DETECT, reduce);
         NBTUtil.setBoolean(nbt, "autoConsume", autoConsume, DEFAULT_AUTO_CONSUME, reduce);
         NBTUtil.setString(nbt, "entryLogic", entryLogic.name(), DEFAULT_ENTRY_LOGIC.name(), reduce);
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
 
         NBTTagList itemArray = new NBTTagList();
         for (BigItemStack stack : this.requiredItems) {
@@ -346,6 +349,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
         groupDetect = NBTUtil.getBoolean(nbt, "groupDetect", DEFAULT_GROUP_DETECT);
         autoConsume = NBTUtil.getBoolean(nbt, "autoConsume", DEFAULT_AUTO_CONSUME);
         setEntryLogic(NBTUtil.getEnum(nbt, "entryLogic", EnumLogic.class, true, DEFAULT_ENTRY_LOGIC));
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
 
         requiredItems.clear();
         NBTTagList iList = nbt.getTagList("requiredItems", 10);
@@ -526,6 +530,11 @@ public class TaskRetrieval implements ITaskInventory, IItemTask {
     @SideOnly(Side.CLIENT)
     public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest) {
         return new GuiEditTaskRetrieval(parent, quest, this);
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

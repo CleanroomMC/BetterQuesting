@@ -33,6 +33,7 @@ public class TaskMeeting implements ITaskTickable {
     private static final int DEFAULT_AMOUNT = 1;
     private static final boolean DEFAULT_IGNORE_NBT = true;
     private static final boolean DEFAULT_SUBTYPES = true;
+    private static final boolean DEFAULT_OPTIONAL = false;
     private final Set<UUID> completeUsers = new TreeSet<>();
 
     public String idName = DEFAULT_ENTITY;
@@ -40,6 +41,7 @@ public class TaskMeeting implements ITaskTickable {
     public int amount = DEFAULT_AMOUNT;
     public boolean ignoreNBT = DEFAULT_IGNORE_NBT;
     public boolean subtypes = DEFAULT_SUBTYPES;
+    public boolean optional = DEFAULT_OPTIONAL;
 
     /**
      * NBT representation of the intended target. Used only for NBT comparison checks
@@ -135,6 +137,7 @@ public class TaskMeeting implements ITaskTickable {
         NBTUtil.setBoolean(json, "subtypes", subtypes, DEFAULT_SUBTYPES, reduce);
         NBTUtil.setBoolean(json, "ignoreNBT", ignoreNBT, DEFAULT_IGNORE_NBT, reduce);
         NBTUtil.setTag(json, "targetNBT", targetTags, reduce);
+        NBTUtil.setBoolean(json, "optional", optional, DEFAULT_OPTIONAL, reduce);
 
         return json;
     }
@@ -147,6 +150,7 @@ public class TaskMeeting implements ITaskTickable {
         subtypes = NBTUtil.getBoolean(nbt, "subtypes", DEFAULT_SUBTYPES);
         ignoreNBT = NBTUtil.getBoolean(nbt, "ignoreNBT", DEFAULT_IGNORE_NBT);
         targetTags = nbt.getCompoundTag("targetNBT");
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
     }
 
     @Override
@@ -187,6 +191,11 @@ public class TaskMeeting implements ITaskTickable {
     @Override
     public IGuiPanel getTaskGui(IGuiRect rect, DBEntry<IQuest> quest) {
         return new PanelTaskMeeting(rect, this);
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

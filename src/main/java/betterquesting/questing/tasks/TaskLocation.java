@@ -39,6 +39,7 @@ public class TaskLocation implements ITaskTickable {
     private static final boolean DEFAULT_HIDE_INFO = false;
     private static final boolean DEFAULT_INVERT = false;
     private static final boolean DEFAULT_TAXI_CAB = false;
+    private static final boolean DEFAULT_OPTIONAL = false;
     private final Set<UUID> completeUsers = new TreeSet<>();
     public String name = "New Location";
     public String structure = DEFAULT_STRUCTURE;
@@ -52,6 +53,7 @@ public class TaskLocation implements ITaskTickable {
     public boolean hideInfo = DEFAULT_HIDE_INFO;
     public boolean invert = DEFAULT_INVERT;
     public boolean taxiCab = DEFAULT_TAXI_CAB;
+    public boolean optional = DEFAULT_OPTIONAL;
 
     @Override
     public ResourceLocation getFactoryID() {
@@ -155,6 +157,7 @@ public class TaskLocation implements ITaskTickable {
         NBTUtil.setBoolean(nbt, "hideInfo", hideInfo, DEFAULT_HIDE_INFO, reduce);
         NBTUtil.setBoolean(nbt, "invert", invert, DEFAULT_INVERT, reduce);
         NBTUtil.setBoolean(nbt, "taxiCabDist", taxiCab, DEFAULT_TAXI_CAB, reduce);
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
         return nbt;
     }
 
@@ -172,6 +175,7 @@ public class TaskLocation implements ITaskTickable {
         hideInfo = NBTUtil.getBoolean(nbt, "hideInfo", DEFAULT_HIDE_INFO);
         invert = NBTUtil.getBoolean(nbt, "invert", DEFAULT_INVERT) || nbt.getBoolean("invertDistance");
         taxiCab = NBTUtil.getBoolean(nbt, "taxiCabDist", DEFAULT_TAXI_CAB);
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
     }
 
     @Override
@@ -208,6 +212,11 @@ public class TaskLocation implements ITaskTickable {
     @Override
     public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest) {
         return null;
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

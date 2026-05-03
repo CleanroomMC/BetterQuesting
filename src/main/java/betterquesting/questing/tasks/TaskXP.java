@@ -26,11 +26,13 @@ public class TaskXP implements ITaskTickable {
     private static final boolean DEFAULT_LEVELS = true;
     private static final int DEFAULT_AMOUNT = 30;
     private static final boolean DEFAULT_CONSUME = true;
+    private static final boolean DEFAULT_OPTIONAL = false;
     private final Set<UUID> completeUsers = new TreeSet<>();
     private final HashMap<UUID, Long> userProgress = new HashMap<>();
     public boolean levels = DEFAULT_LEVELS;
     public int amount = DEFAULT_AMOUNT;
     public boolean consume = DEFAULT_CONSUME;
+    public boolean optional = DEFAULT_OPTIONAL;
 
     @Override
     public ResourceLocation getFactoryID() {
@@ -116,6 +118,7 @@ public class TaskXP implements ITaskTickable {
         NBTUtil.setInteger(nbt, "amount", amount, DEFAULT_AMOUNT, reduce);
         NBTUtil.setBoolean(nbt, "isLevels", levels, DEFAULT_LEVELS, reduce);
         NBTUtil.setBoolean(nbt, "consume", consume, DEFAULT_CONSUME, reduce);
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
         return nbt;
     }
 
@@ -124,6 +127,7 @@ public class TaskXP implements ITaskTickable {
         amount = NBTUtil.getInteger(nbt, "amount", DEFAULT_AMOUNT);
         levels = NBTUtil.getBoolean(nbt, "isLevels", DEFAULT_LEVELS);
         consume = NBTUtil.getBoolean(nbt, "consume", DEFAULT_CONSUME);
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
     }
 
     @Override
@@ -216,6 +220,11 @@ public class TaskXP implements ITaskTickable {
     public long getUsersProgress(UUID uuid) {
         Long n = userProgress.get(uuid);
         return n == null ? 0 : n;
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

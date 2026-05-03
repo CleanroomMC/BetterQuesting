@@ -1,5 +1,6 @@
 package betterquesting.questing.tasks;
 
+import betterquesting.NBTUtil;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -25,6 +26,9 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 public class TaskCheckbox implements ITask {
+    private static final boolean DEFAULT_OPTIONAL = false;
+
+    public boolean optional = DEFAULT_OPTIONAL;
     private final Set<UUID> completeUsers = new TreeSet<>();
 
     @Override
@@ -64,11 +68,13 @@ public class TaskCheckbox implements ITask {
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt, boolean reduce) {
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
         return nbt;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
     }
 
     @Override
@@ -111,6 +117,11 @@ public class TaskCheckbox implements ITask {
     @SideOnly(Side.CLIENT)
     public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest) {
         return null;
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

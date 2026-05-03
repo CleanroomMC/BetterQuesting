@@ -44,6 +44,7 @@ public class TaskInteractItem implements ITask {
     private static final boolean DEFAULT_ON_INTERACT = true;
     private static final boolean DEFAULT_ON_HIT = false;
     private static final int DEFAULT_REQUIRED = 1;
+    private static final boolean DEFAULT_OPTIONAL = false;
     private final Set<UUID> completeUsers = new TreeSet<>();
     private final TreeMap<UUID, Integer> userProgress = new TreeMap<>();
 
@@ -56,6 +57,7 @@ public class TaskInteractItem implements ITask {
     public boolean onInteract = DEFAULT_ON_INTERACT;
     public boolean onHit = DEFAULT_ON_HIT;
     public int required = DEFAULT_REQUIRED;
+    public boolean optional = DEFAULT_OPTIONAL;
 
     @Override
     public String getUnlocalisedName() {
@@ -227,6 +229,7 @@ public class TaskInteractItem implements ITask {
         NBTUtil.setInteger(nbt, "requiredUses", required, DEFAULT_REQUIRED, reduce);
         NBTUtil.setBoolean(nbt, "onInteract", onInteract, DEFAULT_ON_INTERACT, reduce);
         NBTUtil.setBoolean(nbt, "onHit", onHit, DEFAULT_ON_HIT, reduce);
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
         return nbt;
     }
 
@@ -241,6 +244,7 @@ public class TaskInteractItem implements ITask {
         required = NBTUtil.getInteger(nbt, "requiredUses", DEFAULT_REQUIRED);
         onInteract = NBTUtil.getBoolean(nbt, "onInteract", DEFAULT_ON_INTERACT);
         onHit = NBTUtil.getBoolean(nbt, "onHit", DEFAULT_ON_HIT);
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
     }
 
     private void setUserProgress(UUID uuid, Integer progress) {
@@ -257,6 +261,11 @@ public class TaskInteractItem implements ITask {
         List<Tuple<UUID, Integer>> list = new ArrayList<>();
         uuids.forEach((key) -> list.add(new Tuple<>(key, getUsersProgress(key))));
         return list;
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package betterquesting.questing.tasks;
 
+import betterquesting.NBTUtil;
 import betterquesting.advancement.BqsAdvListener;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
@@ -38,6 +39,7 @@ import java.util.*;
 
 public class TaskTrigger implements ITask {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final boolean DEFAULT_OPTIONAL = false;
 
     private final Set<UUID> completeUsers = new TreeSet<>();
 
@@ -45,6 +47,7 @@ public class TaskTrigger implements ITask {
     private String critJson = "{}";
     private BqsAdvListener listener = null;
     private boolean needsSetup = true;
+    public boolean optional = DEFAULT_OPTIONAL;
 
     public String desc = "";
 
@@ -195,6 +198,7 @@ public class TaskTrigger implements ITask {
         nbt.setString("description", desc);
         nbt.setString("trigger", triggerID);
         nbt.setString("conditions", critJson);
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
         return nbt;
     }
 
@@ -203,6 +207,12 @@ public class TaskTrigger implements ITask {
         this.desc = nbt.getString("description");
         this.setTriggerID(nbt.getString("trigger"));
         this.setCriteriaJson(nbt.getString("conditions"));
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override

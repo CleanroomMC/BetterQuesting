@@ -35,12 +35,14 @@ public class TaskTame implements ITask {
     private static final int DEFAULT_REQUIRED = 1;
     private static final boolean DEFAULT_IGNORE_NBT = true;
     private static final boolean DEFAULT_SUBTYPES = true;
+    private static final boolean DEFAULT_OPTIONAL = false;
     private final Set<UUID> completeUsers = new TreeSet<>();
     public final HashMap<UUID, Integer> userProgress = new HashMap<>();
     public String idName = DEFAULT_ENTITY;
     public int required = DEFAULT_REQUIRED;
     public boolean ignoreNBT = DEFAULT_IGNORE_NBT;
     public boolean subtypes = DEFAULT_SUBTYPES;
+    public boolean optional = DEFAULT_OPTIONAL;
 
     /**
      * NBT representation of the intended target. Used only for NBT comparison checks
@@ -147,6 +149,7 @@ public class TaskTame implements ITask {
         NBTUtil.setBoolean(nbt, "subtypes", subtypes, DEFAULT_SUBTYPES, reduce);
         NBTUtil.setBoolean(nbt, "ignoreNBT", ignoreNBT, DEFAULT_IGNORE_NBT, reduce);
         NBTUtil.setTag(nbt, "targetNBT", targetTags, reduce);
+        NBTUtil.setBoolean(nbt, "optional", optional, DEFAULT_OPTIONAL, reduce);
 
         return nbt;
     }
@@ -158,6 +161,7 @@ public class TaskTame implements ITask {
         subtypes = NBTUtil.getBoolean(nbt, "subtypes", DEFAULT_SUBTYPES);
         ignoreNBT = NBTUtil.getBoolean(nbt, "ignoreNBT", DEFAULT_IGNORE_NBT);
         targetTags = nbt.getCompoundTag("targetNBT");
+        optional = NBTUtil.getBoolean(nbt, "optional", DEFAULT_OPTIONAL);
     }
 
     @Override
@@ -236,6 +240,11 @@ public class TaskTame implements ITask {
         List<Tuple<UUID, Integer>> list = new ArrayList<>();
         uuids.forEach((key) -> list.add(new Tuple<>(key, getUsersProgress(key))));
         return list;
+    }
+
+    @Override
+    public boolean ignored(UUID uuid) {
+        return optional;
     }
 
     @Override
