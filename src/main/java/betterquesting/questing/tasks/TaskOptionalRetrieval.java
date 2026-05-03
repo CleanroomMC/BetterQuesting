@@ -6,6 +6,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
 
+@Deprecated
 public class TaskOptionalRetrieval extends TaskRetrieval {
 
     @Override

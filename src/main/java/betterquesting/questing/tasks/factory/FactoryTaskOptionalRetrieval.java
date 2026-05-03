@@ -3,7 +3,7 @@ package betterquesting.questing.tasks.factory;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.registry.IFactoryData;
 import betterquesting.core.BetterQuesting;
-import betterquesting.questing.tasks.TaskOptionalRetrieval;
+import betterquesting.questing.tasks.TaskRetrieval;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
@@ -17,14 +17,17 @@ public class FactoryTaskOptionalRetrieval implements IFactoryData<ITask, NBTTagC
     }
 
     @Override
-    public TaskOptionalRetrieval createNew() {
-        return new TaskOptionalRetrieval();
+    public TaskRetrieval createNew() {
+        TaskRetrieval task = new TaskRetrieval();
+        task.optional = true;
+        return task;
     }
 
     @Override
-    public TaskOptionalRetrieval loadFromData(NBTTagCompound json) {
-        TaskOptionalRetrieval task = new TaskOptionalRetrieval();
+    public TaskRetrieval loadFromData(NBTTagCompound json) {
+        TaskRetrieval task = new TaskRetrieval();
         task.readFromNBT(json);
+        task.optional = true;
         return task;
     }
 }
