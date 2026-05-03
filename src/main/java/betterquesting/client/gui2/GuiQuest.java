@@ -47,6 +47,7 @@ import org.lwjgl.util.vector.Vector4f;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeedsRefresh {
 
@@ -390,13 +391,8 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         for (int i = 0; i < entries.size(); i++) {
             ITask tsk = entries.get(i).getValue();
 
-            String taskName = (i + 1) + ". " + QuestTranslation.translate(tsk.getUnlocalisedName());
-            if (tsk instanceof TaskRetrieval) {
-                EnumLogic entryLogic = ((TaskRetrieval) tsk).getEntryLogic();
-                if (entryLogic != EnumLogic.AND)
-                    taskName += " (" + entryLogic + ")";
-            }
-            PanelTextBox titleReward = new PanelTextBox(new GuiTransform(new Vector4f(), 0, yOffset, rectTask.getWidth(), 12, 0), taskName);
+            String titleText = (i + 1) + ". " + getTaskTitle(tsk, QuestingAPI.getQuestingUUID(mc.player));
+            PanelTextBox titleReward = new PanelTextBox(new GuiTransform(new Vector4f(), 0, yOffset, rectTask.getWidth(), 12, 0), titleText);
             titleReward.setColor(PresetColor.TEXT_HEADER.getColor()).setAlignment(1);
             titleReward.setEnabled(true);
             csTask.addPanel(titleReward);
@@ -423,6 +419,20 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         csTask.setScrollY(scrollPosition.getTaskScrollY());
         csTask.updatePanelScroll();
 
+    }
+
+    private static String getTaskTitle(ITask task, UUID uuid) {
+        String taskName = QuestTranslation.translate(task.getUnlocalisedName());
+        if (task instanceof TaskRetrieval retrieval) {
+            EnumLogic entryLogic = retrieval.getEntryLogic();
+            if (entryLogic != EnumLogic.AND) {
+                taskName += " (" + entryLogic + ")";
+            }
+        }
+        if (task.ignored(uuid)) {
+            return QuestTranslation.translate("bq_standard.task.is_optional") + " " + taskName;
+        }
+        return taskName;
     }
 
     private void refreshDescPanel(boolean hasReward) {
