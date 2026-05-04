@@ -67,7 +67,9 @@ import java.util.*;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, INeedsRefresh {
 
-    private ScrollPosition scrollPosition;
+    private static OpenTray openTray = OpenTray.NONE;
+
+    private final ScrollPosition scrollPosition;
 
     private IQuestLine selectedLine = null;
     private static int selectedLineId = -1;
@@ -76,7 +78,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
     private CanvasQuestLine cvQuest;
 
-    // Keep these separate for now
     private CanvasHoverTray cvChapterTray;
     private CanvasHoverTray cvDescTray;
     private CanvasHoverTray cvFrame;
@@ -95,10 +96,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
     private PanelButton btnDesign;
 
-    private static boolean trayLock;
-    private static boolean viewMode;
-    private int questsCompleted = 0;
-    private int totalQuests = 0;
+    private boolean trayLock;
+    private boolean viewMode;
 
     private final List<PanelButtonStorage<DBEntry<IQuestLine>>> btnListRef = new ArrayList<>();
 
@@ -106,10 +105,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         super(parent);
         trayLock = BQ_Settings.lockTray;
         viewMode = BQ_Settings.viewMode;
-
-        if (scrollPosition == null) {
-            scrollPosition = new ScrollPosition(0);
-        }
+        scrollPosition = new ScrollPosition(0);
     }
 
     @Override
@@ -138,7 +134,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         }
 
         boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player);
-        boolean preOpen = trayLock;
+        boolean preOpen = trayLock && openTray != OpenTray.NONE;
 
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
 
@@ -188,11 +184,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
         // === TRAY STATE ===
 
-        boolean chapterTrayOpened = false;
-        boolean descTrayOpened = trayLock && cvDescTray != null && cvDescTray.isTrayOpen();
-        if (preOpen && !descTrayOpened) {
-            chapterTrayOpened = true;
-        }
+        boolean chapterTrayOpened = preOpen && openTray == OpenTray.CHAPTER;
+        boolean descTrayOpened = preOpen && openTray == OpenTray.DESCRIPTION;
 
         // === CHAPTER TRAY ===
 
@@ -244,8 +237,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         PanelButton btnTrayToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 24, 32, 16, 0), -1, "");
         btnTrayToggle.setIcon(PresetIcon.ICON_BOOKMARK.getTexture(), selectedLineId < 0 && !chapterTrayOpened ? new GuiColorPulse(0xFFFFFFFF, 0xFF444444, 2F, 0F) : new GuiColorStatic(0xFFFFFFFF), 0);
         btnTrayToggle.setClickAction((b) -> {
-            cvFrame.setTrayState(cvChapterTray.isTrayOpen(), 200);
-            cvChapterTray.setTrayState(!cvChapterTray.isTrayOpen(), 200);
+            boolean wasOpen = cvChapterTray.isTrayOpen();
+            openTray = wasOpen ? OpenTray.NONE : OpenTray.CHAPTER;
+            cvFrame.setTrayState(wasOpen, 200);
+            cvChapterTray.setTrayState(!wasOpen, 200);
             btnTrayToggle.setIcon(PresetIcon.ICON_BOOKMARK.getTexture());
         });
         btnTrayToggle.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.title.quest_lines")));
@@ -253,8 +248,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
         PanelButton btnDescToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 40, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_DESC.getTexture());
         btnDescToggle.setClickAction((b) -> {
-            cvFrame.setTrayState(cvDescTray.isTrayOpen(), 200);
-            cvDescTray.setTrayState(!cvDescTray.isTrayOpen(), 200);
+            boolean wasOpen = cvDescTray.isTrayOpen();
+            openTray = wasOpen ? OpenTray.NONE : OpenTray.DESCRIPTION;
+            cvFrame.setTrayState(wasOpen, 200);
+            cvDescTray.setTrayState(!wasOpen, 200);
         });
         btnDescToggle.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.gui.description")));
         cvBackground.addPanel(btnDescToggle);
@@ -581,18 +578,18 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     }
 
     private void refreshQuestCompletion() {
-        EntityPlayer player = mc.player;
-        UUID playerUUId = QuestingAPI.getQuestingUUID(player);
+        UUID playerUUID = QuestingAPI.getQuestingUUID(mc.player);
 
         if (selectedLine == null) {
             return;
         }
 
-        questsCompleted = 0;
-        totalQuests = 0;
+        int questsCompleted = 0;
+        int totalQuests = 0;
+        var database = Objects.requireNonNull(QuestingAPI.getAPI(ApiReference.QUEST_DB));
 
         for (DBEntry<IQuestLineEntry> entry : selectedLine.getEntries()) {
-            IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(entry.getID());
+            IQuest quest = database.getValue(entry.getID());
 
             if (quest.getProperty(NativeProps.LOGIC_QUEST) == EnumLogic.XOR) {
                 // Subtract the number of requirements - 1 to simulate only doing 1 task for XOR requirements
@@ -601,7 +598,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
             totalQuests++;
 
-            if (quest.isComplete(playerUUId)) {
+            if (quest.isComplete(playerUUID)) {
                 questsCompleted++;
             }
         }
@@ -704,6 +701,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         panelButtonQuest.setTextures(newTexture, newTexture, newTexture);
         cvQuest.setZoom(2f);
         cvQuest.centerOn(panelButtonQuest);
+    }
+
+    enum OpenTray {
+        NONE, CHAPTER, DESCRIPTION
     }
 
     public static class ScrollPosition{
