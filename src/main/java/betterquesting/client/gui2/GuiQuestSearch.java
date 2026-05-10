@@ -15,6 +15,7 @@ import betterquesting.api2.client.gui.panels.lists.CanvasQuestSearch;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.client.BookmarkManager;
 import betterquesting.misc.QuestSearchEntry;
 import net.minecraft.client.gui.GuiScreen;
 
@@ -84,8 +85,8 @@ public class GuiQuestSearch extends GuiScreenCanvas {
         CanvasQuestSearch canvasQuestSearch = new CanvasQuestSearch(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 32, 8, 24), 0), mc.player);
         canvasQuestSearch.setQuestOpenCallback(questSearchEntry -> {
             acceptCallback(questSearchEntry);
-            GuiHome.bookmark = new GuiQuest(this, questSearchEntry.getQuest().getID());
-            mc.displayGuiScreen(GuiHome.bookmark);
+            BookmarkManager.INSTANCE.setBookmark(this, questSearchEntry.getQuest().getID());
+            mc.displayGuiScreen(BookmarkManager.INSTANCE.getBookmark());
         });
         canvasQuestSearch.setQuestHighlightCallback(questSearchEntry -> {
             mc.displayGuiScreen(parent);

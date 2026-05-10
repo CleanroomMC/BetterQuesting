@@ -52,8 +52,6 @@ import java.util.function.Consumer;
 
 @SideOnly(Side.CLIENT)
 public class GuiHome extends GuiScreenCanvas {
-    public static GuiScreen bookmark;
-
     public GuiHome(GuiScreen parent) {
         super(parent);
     }

@@ -23,7 +23,7 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
-import betterquesting.client.gui2.GuiHome;
+import betterquesting.client.BookmarkManager;
 import betterquesting.client.gui2.GuiQuest;
 import betterquesting.client.gui2.GuiQuestLines;
 import betterquesting.client.themes.ThemeRegistry;
@@ -105,8 +105,9 @@ public class EventHandler {
         Minecraft mc = Minecraft.getMinecraft();
 
         if (mc.currentScreen == null && BQ_Keybindings.openQuests.isPressed()) {
-            if (BQ_Settings.useBookmark && GuiHome.bookmark != null) {
-                mc.displayGuiScreen(GuiHome.bookmark);
+            GuiScreen bookmark = BookmarkManager.INSTANCE.getBookmark();
+            if (BQ_Settings.useBookmark && bookmark != null) {
+                mc.displayGuiScreen(bookmark);
             } else {
                 GuiScreen guiToDisplay = ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE);
                 if (BQ_Settings.useBookmark && BQ_Settings.skipHome)

@@ -44,6 +44,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.client.BookmarkManager;
 import betterquesting.client.gui2.editors.GuiQuestEditor;
 import betterquesting.client.gui2.editors.GuiQuestLinesEditor;
 import betterquesting.client.gui2.editors.designer.GuiDesigner;
@@ -76,9 +77,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private CanvasQuestLine cvQuest;
 
     // Keep these separate for now
-    private static CanvasHoverTray cvChapterTray;
-    private static CanvasHoverTray cvDescTray;
-    private static CanvasHoverTray cvFrame;
+    private CanvasHoverTray cvChapterTray;
+    private CanvasHoverTray cvDescTray;
+    private CanvasHoverTray cvFrame;
 
     private CanvasScrolling cvDesc;
     private PanelVScrollBar scDesc;
@@ -121,7 +122,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     public void initPanel() {
         super.initPanel();
 
-        GuiHome.bookmark = this;
+        BookmarkManager.INSTANCE.setBookmark(this);
         // If we move to quest gui - we set skip home to true
         if (!BQ_Settings.skipHome) {
             ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip Home", false).set(true);
@@ -137,11 +138,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         }
 
         boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player);
-        boolean preOpen = false;
-        // First time load, if tray locked - let the tray open
-        if (trayLock && cvChapterTray == null && cvDescTray == null) preOpen = true;
-        else if (trayLock && cvChapterTray != null && cvChapterTray.isTrayOpen()) preOpen = true;
-        else if (trayLock && cvDescTray != null && cvDescTray.isTrayOpen()) preOpen = true;
+        boolean preOpen = trayLock;
 
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
 
@@ -191,9 +188,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
         // === TRAY STATE ===
 
-        boolean chapterTrayOpened = trayLock && cvChapterTray != null && cvChapterTray.isTrayOpen();
+        boolean chapterTrayOpened = false;
         boolean descTrayOpened = trayLock && cvDescTray != null && cvDescTray.isTrayOpen();
-        if (preOpen && !chapterTrayOpened && !descTrayOpened) {
+        if (preOpen && !descTrayOpened) {
             chapterTrayOpened = true;
         }
 
@@ -461,9 +458,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         {
             @SuppressWarnings("unchecked")
             DBEntry<IQuest> quest = ((PanelButtonStorage<DBEntry<IQuest>>) btn).getStoredValue();
-            GuiHome.bookmark = new GuiQuest(this, quest.getID());
+            BookmarkManager.INSTANCE.setBookmark(this, quest.getID());
 
-            mc.displayGuiScreen(GuiHome.bookmark);
+            mc.displayGuiScreen(BookmarkManager.INSTANCE.getBookmark());
         }
     }
 

@@ -33,16 +33,15 @@ import java.util.UUID;
 
 public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
     public final GuiRectangle rect;
-    public final EntityPlayer player;
     public final IGuiTexture txFrame;
 
     public PanelButtonQuest(GuiRectangle rect, int id, String txt, DBEntry<IQuest> value) {
         super(rect, id, txt, value);
         this.rect = rect;
 
-        player = Minecraft.getMinecraft().player;
+        EntityPlayer player = Minecraft.getMinecraft().player;
         EnumQuestState qState = value == null ? EnumQuestState.LOCKED : value.getValue().getState(player);
-        IGuiColor txIconCol = null;
+        IGuiColor txIconCol;
         boolean lock = false;
 
         if (value != null) {
@@ -67,7 +66,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
         if (!this.getTransform().contains(mx, my)) return null;
 
         DBEntry<IQuest> value = this.getStoredValue();
-        return value == null ? Collections.emptyList() : getQuestTooltip(value.getValue(), player, value.getID());
+        return value == null ? Collections.emptyList() : getQuestTooltip(value.getValue(), Minecraft.getMinecraft().player, value.getID());
     }
 
     private List<String> getQuestTooltip(IQuest quest, EntityPlayer player, int qID) {

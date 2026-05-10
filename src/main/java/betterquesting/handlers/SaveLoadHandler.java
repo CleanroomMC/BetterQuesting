@@ -8,6 +8,7 @@ import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api2.utils.BQThreadedIO;
+import betterquesting.client.BookmarkManager;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.commands.admin.QuestCommandDefaults;
@@ -78,7 +79,7 @@ public class SaveLoadHandler {
         hasUpdate = false;
 
         if (BetterQuesting.proxy.isClient()) {
-            GuiHome.bookmark = null;
+            BookmarkManager.INSTANCE.reset();
             QuestNotification.resetNotices();
         }
 
@@ -165,7 +166,7 @@ public class SaveLoadHandler {
             PartyManager.INSTANCE.reset();
 
             if (BetterQuesting.proxy.isClient()) {
-                GuiHome.bookmark = null;
+                BookmarkManager.INSTANCE.reset();
                 QuestNotification.resetNotices();
             }
 

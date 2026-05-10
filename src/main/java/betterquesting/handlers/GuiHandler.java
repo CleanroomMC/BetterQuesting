@@ -2,11 +2,13 @@ package betterquesting.handlers;
 
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.blocks.TileSubmitStation;
+import betterquesting.client.BookmarkManager;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.gui2.GuiQuestHelp;
 import betterquesting.client.gui2.editors.GuiEditLootGroup;
 import betterquesting.client.gui2.inventory.ContainerSubmitStation;
 import betterquesting.client.gui2.inventory.GuiSubmitStation;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -37,8 +39,9 @@ public class GuiHandler implements IGuiHandler {
             return new GuiEditLootGroup(null);
         }
         else if(ID == 3) {
-            if(BQ_Settings.useBookmark && GuiHome.bookmark != null) {
-                return GuiHome.bookmark;
+            GuiScreen bookmark = BookmarkManager.INSTANCE.getBookmark();
+            if(BQ_Settings.useBookmark && bookmark != null) {
+                return bookmark;
             }
             else {
                 return new GuiHome(null);
