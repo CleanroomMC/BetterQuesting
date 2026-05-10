@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GuiScreenCanvas extends GuiScreen implements IScene {
+public class GuiScreenCanvas extends GuiScreen implements IScene, IRenderedStackProvider {
     private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
     private final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
     private final GuiTransform transform = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0);
@@ -35,6 +35,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
     private boolean useMargins = true;
     private boolean useDefaultBG = false;
     private boolean isVolatile = false;
+    private ItemStack renderedStack = ItemStack.EMPTY;
 
     public final GuiScreen parent;
 
@@ -404,7 +405,18 @@ public class GuiScreenCanvas extends GuiScreen implements IScene {
 
     @Override
     protected void drawHoveringText(List<String> textLines, int x, int y, @Nonnull FontRenderer font) {
-        RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
+        RenderUtils.drawHoveringText(this, textLines, x, y, width, height, -1, font);
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack getRenderedStack() {
+        return renderedStack;
+    }
+
+    @Override
+    public void setRenderedStack(@Nonnull ItemStack stack) {
+        renderedStack = stack;
     }
 
     private void confirmClose(int id) {

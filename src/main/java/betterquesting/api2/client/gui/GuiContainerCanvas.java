@@ -28,7 +28,7 @@ import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 // This will probably be rewritten at a later date once I reimplement Minecraft's inventory controls natively into their own isolated canvas elements
-public class GuiContainerCanvas extends GuiContainer implements IScene {
+public class GuiContainerCanvas extends GuiContainer implements IScene, IRenderedStackProvider {
     private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
     private final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
     private final GuiTransform transform = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0);
@@ -36,6 +36,7 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
     private boolean useMargins = true;
     private boolean useDefaultBG = false;
     private boolean isVolatile = false;
+    private ItemStack renderedStack = ItemStack.EMPTY;
 
     public final GuiScreen parent;
 
@@ -396,7 +397,18 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
 
     @Override
     protected void drawHoveringText(List<String> textLines, int x, int y, FontRenderer font) {
-        RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
+        RenderUtils.drawHoveringText(this, textLines, x, y, width, height, -1, font);
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack getRenderedStack() {
+        return renderedStack;
+    }
+
+    @Override
+    public void setRenderedStack(@Nonnull ItemStack stack) {
+        renderedStack = stack;
     }
 
     public void confirmClose(int id) {

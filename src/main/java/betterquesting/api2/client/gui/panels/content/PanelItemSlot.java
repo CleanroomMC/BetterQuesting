@@ -4,6 +4,7 @@ import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.misc.IRenderedStackProvider;
 import betterquesting.api2.client.gui.resources.textures.ColorTexture;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.resources.textures.LayeredTexture;
@@ -75,6 +76,11 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
             }
 
             Minecraft mc = Minecraft.getMinecraft();
+            if (mc.currentScreen instanceof IRenderedStackProvider) {
+                ItemStack representativeStack = ttStack.getBaseStack().copy();
+                representativeStack.setCount(ttStack.stackSize);
+                ((IRenderedStackProvider) mc.currentScreen).setRenderedStack(representativeStack);
+            }
             return ttStack.getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
         }
 
