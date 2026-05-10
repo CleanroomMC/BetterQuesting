@@ -55,12 +55,9 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
         super.setStoredValue(value);
 
         if (value != null) {
-            Minecraft mc = Minecraft.getMinecraft();
             this.setIcon(oreDict || value.getBaseStack().getItemDamage() == OreDictionary.WILDCARD_VALUE ? new OreDictTexture(1F, value, showCount, true) : new ItemTexture(value, showCount, true), 1);
-            this.setTooltip(value.getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
         } else {
             this.setIcon(null);
-            this.setTooltip(null);
         }
 
         updateOreStacks();
