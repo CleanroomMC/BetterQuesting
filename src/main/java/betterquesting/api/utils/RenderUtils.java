@@ -22,6 +22,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,19 +33,19 @@ import java.util.Locale;
 public class RenderUtils {
     public static final String REGEX_NUMBER = "[^\\.0123456789-]"; // I keep screwing this up so now it's reusable
 
-    public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text) {
+    public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, @Nullable String text) {
         RenderItemStack(mc, stack, x, y, text, Color.WHITE.getRGB());
     }
 
-    public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, Color color) {
+    public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, @Nullable String text, Color color) {
         RenderItemStack(mc, stack, x, y, text, color.getRGB());
     }
 
-    public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, int color) {
+    public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, @Nullable String text, int color) {
         RenderItemStack(mc, stack, x, y, 16F, text, color);
     }
 
-    public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, float z, String text, int color) {
+    public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, float z, @Nullable String text, int color) {
         if (stack == null || stack.isEmpty()) {
             return;
         }
@@ -70,7 +71,9 @@ public class RenderUtils {
         try {
             itemRender.renderItemAndEffectIntoGUI(stack, x, y);
 
-            if (stack.getCount() != 1 || text != null) {
+            // Custom ItemStack text
+            if (stack.getCount() != 1 || (text != null && !text.isEmpty())) {
+                String textToDraw = text == null ? String.valueOf(stack.getCount()) : text;
                 GlStateManager.pushMatrix();
 
                 int w = getStringWidth(text, font);
@@ -94,7 +97,7 @@ public class RenderUtils {
                 GlStateManager.disableDepth();
                 GlStateManager.disableBlend();
 
-                font.drawString(text, 0, 0, 16777215, true);
+                font.drawStringWithShadow(textToDraw, 0, 0, 16777215);
 
                 GlStateManager.enableLighting();
                 GlStateManager.enableDepth();
@@ -103,7 +106,7 @@ public class RenderUtils {
                 GlStateManager.popMatrix();
             }
 
-            itemRender.renderItemOverlayIntoGUI(font, stack, x, y, "");
+            itemRender.renderItemOverlayIntoGUI(font, stack, x, y, null); // Pass null to skip rendering default ItemStack text
         } catch (Exception e) {
             BetterQuesting.logger.warn("Unabled to render item " + stack, e);
         }
