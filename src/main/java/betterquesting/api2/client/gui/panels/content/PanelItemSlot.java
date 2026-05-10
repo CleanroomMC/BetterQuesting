@@ -42,12 +42,12 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
     }
 
     public PanelItemSlot(IGuiRect rect, int id, BigItemStack value, boolean showCount, boolean oreDict) {
-        super(rect, id, "", value);
+        super(rect, id, "");
         this.showCount = showCount;
         this.oreDict = oreDict;
 
         this.setTextures(PresetTexture.ITEM_FRAME.getTexture(), PresetTexture.ITEM_FRAME.getTexture(), new LayeredTexture(PresetTexture.ITEM_FRAME.getTexture(), new ColorTexture(PresetColor.ITEM_HIGHLIGHT.getColor(), new GuiPadding(1, 1, 1, 1))));
-        this.setStoredValue(value); // Need to run this again because of the instatiation order of showCount
+        this.setStoredValue(value); // Make sure to run this because the super overload doesn't (as this depends on instantiation order of showCount)
     }
 
     @Override

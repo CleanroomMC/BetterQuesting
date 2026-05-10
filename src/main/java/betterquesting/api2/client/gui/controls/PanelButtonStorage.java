@@ -12,6 +12,11 @@ public class PanelButtonStorage<T> extends PanelButton {
         this.setStoredValue(value);
     }
 
+    // Overload that doesn't call setStoredValue()
+    protected PanelButtonStorage(IGuiRect rect, int id, String txt) {
+        super(rect, id, txt);
+    }
+
     public PanelButtonStorage<T> setStoredValue(T value) {
         this.stored = value;
         return this;

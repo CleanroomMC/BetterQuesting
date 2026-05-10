@@ -103,7 +103,7 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
 
             @Override
             protected boolean addResult(IFactoryData<IReward, NBTTagCompound> entry, int index, int cachedWidth) {
-                this.addPanel(new PanelButtonStorage<>(new GuiRectangle(0, index * 16, cachedWidth, 16, 0), 1, entry.getRegistryName().toString(), entry));
+                this.addPanelToBuffer(new PanelButtonStorage<>(new GuiRectangle(0, index * 16, cachedWidth, 16, 0), 1, entry.getRegistryName().toString(), entry));
                 return true;
             }
         };

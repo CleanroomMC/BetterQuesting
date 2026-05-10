@@ -107,14 +107,14 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
                 PanelButtonStorage<DBEntry<IQuest>> btnAdd = new PanelButtonStorage<>(new GuiRectangle(0, index * 16, 16, 16, 0), 2, "", entry);
                 btnAdd.setIcon(PresetIcon.ICON_POSITIVE.getTexture());
                 btnAdd.setActive(!containsReq(quest, entry.getID()));
-                this.addPanel(btnAdd);
+                this.addPanelToBuffer(btnAdd);
 
                 PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(16, index * 16, width - 32, 16, 0), 1, QuestTranslation.translate(entry.getValue().getProperty(NativeProps.NAME)), entry);
-                this.addPanel(btnEdit);
+                this.addPanelToBuffer(btnEdit);
 
                 PanelButtonStorage<DBEntry<IQuest>> btnDel = new PanelButtonStorage<>(new GuiRectangle(width - 16, index * 16, 16, 16, 0), 4, "", entry);
                 btnDel.setIcon(PresetIcon.ICON_TRASH.getTexture());
-                this.addPanel(btnDel);
+                this.addPanelToBuffer(btnDel);
 
                 return true;
             }

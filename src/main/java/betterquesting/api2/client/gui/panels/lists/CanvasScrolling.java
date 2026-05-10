@@ -492,17 +492,20 @@ public class CanvasScrolling implements IGuiCanvas {
         float zs = zoomScale.readValue();
 
         for (IGuiPanel panel : guiPanels) {
+            IGuiRect transform = panel.getTransform();
+            int transformX = transform.getX();
+            int transformY = transform.getY();
             if (first) {
-                left = panel.getTransform().getX();
-                top = panel.getTransform().getY();
-                right = panel.getTransform().getX() + panel.getTransform().getWidth();
-                bottom = panel.getTransform().getY() + panel.getTransform().getHeight();
+                left = transformX;
+                top = transformY;
+                right = transformX + transform.getWidth();
+                bottom = transformY + transform.getHeight();
                 first = false;
             } else {
-                left = Math.min(left, panel.getTransform().getX());
-                top = Math.min(top, panel.getTransform().getY());
-                right = Math.max(right, panel.getTransform().getX() + panel.getTransform().getWidth());
-                bottom = Math.max(bottom, panel.getTransform().getY() + panel.getTransform().getHeight());
+                left = Math.min(left, transformX);
+                top = Math.min(top, transformY);
+                right = Math.max(right, transformX + transform.getWidth());
+                bottom = Math.max(bottom, transformY + transform.getHeight());
             }
         }
 
@@ -511,8 +514,8 @@ public class CanvasScrolling implements IGuiCanvas {
         top -= margin;
         bottom += margin;
 
-        right -= (int) Math.ceil(this.getTransform().getWidth() / zs);
-        bottom -= (int) Math.ceil(this.getTransform().getHeight() / zs);
+        right -= (int) Math.ceil(transform.getWidth() / zs);
+        bottom -= (int) Math.ceil(transform.getHeight() / zs);
 
         if (extendedScroll) {
             scrollBounds.x = Math.min(left, right);
