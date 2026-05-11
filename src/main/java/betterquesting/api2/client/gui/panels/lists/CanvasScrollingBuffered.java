@@ -10,7 +10,8 @@ import betterquesting.api2.client.gui.panels.IGuiPanel;
 public class CanvasScrollingBuffered extends CanvasScrolling {
 
     private final List<IGuiPanel> buffer = new ArrayList<>();
-    private boolean requiresSorting;
+    /* If panels should be sorted by depth. Once set, should not be unset. */
+    private boolean hasMultipleDepths;
 
     public CanvasScrollingBuffered(IGuiRect rect) {
         super(rect);
@@ -26,16 +27,17 @@ public class CanvasScrollingBuffered extends CanvasScrolling {
             return;
 
         guiPanels.addAll(buffer);
+        int depth = guiPanels.get(0).getTransform().getDepth();
         for (IGuiPanel panel : buffer) {
-            if (requiresSorting || panel.getTransform().getDepth() != guiPanels.get(0).getTransform().getDepth()) {
-                requiresSorting = true;
+            if (hasMultipleDepths || panel.getTransform().getDepth() != depth) {
+                hasMultipleDepths = true;
             }
             cullingManager.addPanel(panel, true);
             panel.initPanel();
         }
         buffer.clear();
 
-        if (requiresSorting) {
+        if (hasMultipleDepths) {
             guiPanels.sort(ComparatorGuiDepth.INSTANCE);
         }
 
@@ -48,8 +50,7 @@ public class CanvasScrollingBuffered extends CanvasScrolling {
         if (panel == null || guiPanels.contains(panel)) return;
 
         guiPanels.add(panel);
-        if (requiresSorting || panel.getTransform().getDepth() != guiPanels.get(0).getTransform().getDepth()) {
-            requiresSorting = true;
+        if (hasMultipleDepths || panel.getTransform().getDepth() != guiPanels.get(0).getTransform().getDepth()) {
             guiPanels.sort(ComparatorGuiDepth.INSTANCE);
         }
 
@@ -64,6 +65,6 @@ public class CanvasScrollingBuffered extends CanvasScrolling {
     public void resetCanvas()
     {
         super.resetCanvas();
-        requiresSorting = false;
+        hasMultipleDepths = false;
     }
 }

@@ -76,10 +76,10 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
             }
 
             Minecraft mc = Minecraft.getMinecraft();
-            if (mc.currentScreen instanceof IRenderedStackProvider) {
+            if (mc.currentScreen instanceof IRenderedStackProvider renderedStackProvider) {
                 ItemStack representativeStack = ttStack.getBaseStack().copy();
                 representativeStack.setCount(ttStack.stackSize);
-                ((IRenderedStackProvider) mc.currentScreen).setRenderedStack(representativeStack);
+                renderedStackProvider.setRenderedStack(representativeStack);
             }
             return ttStack.getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
         }

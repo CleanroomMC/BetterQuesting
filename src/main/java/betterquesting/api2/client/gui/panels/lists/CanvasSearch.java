@@ -1,7 +1,6 @@
 package betterquesting.api2.client.gui.panels.lists;
 
 import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.core.BetterQuesting;
 import com.google.common.base.Stopwatch;
 
 import java.util.*;
