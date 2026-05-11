@@ -51,6 +51,7 @@ public class CanvasScrollingBuffered extends CanvasScrolling {
 
         guiPanels.add(panel);
         if (hasMultipleDepths || panel.getTransform().getDepth() != guiPanels.get(0).getTransform().getDepth()) {
+            hasMultipleDepths = true;
             guiPanels.sort(ComparatorGuiDepth.INSTANCE);
         }
 
