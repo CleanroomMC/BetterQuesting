@@ -24,20 +24,7 @@ import java.io.InputStream;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -58,12 +45,31 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.SystemUtils;
 
 public class TextEditorFrame extends JFrame {
 
     private static final int initialRowCount = 30;
     private static final int defaultColumns = 60;
     private static BufferedImage logoCache = null;
+
+    // This fixes a crash on some environments by explicitly specifying the look and feel,
+    // And providing a backup (the cross platform one), if the system one fails.
+    static {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException |
+                 IllegalAccessException e) {
+            BetterQuesting.logger.fatal("Failed to set default look and feel, defaulting to cross platform... ", e);
+
+            try {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException |
+                     IllegalAccessException e2) {
+                BetterQuesting.logger.fatal("Failed to set cross platform look and feel!", e2);
+            }
+        }
+    }
 
     // This is NOT a cache.
     // This contains windows that is open.
@@ -371,7 +377,11 @@ public class TextEditorFrame extends JFrame {
                 putValue(MNEMONIC_KEY, (int) 'U');
                 putValue(SHORT_DESCRIPTION, "Undo");
                 putValue(LONG_DESCRIPTION, "Undo");
-                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke('Z', InputEvent.CTRL_DOWN_MASK));
+
+                int modifierKeyCode;
+                if (SystemUtils.IS_OS_MAC) modifierKeyCode = InputEvent.META_DOWN_MASK;
+                else modifierKeyCode = InputEvent.CTRL_DOWN_MASK;
+                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke('Z', modifierKeyCode));
             }
 
             public void actionPerformed(ActionEvent e) {
@@ -389,7 +399,11 @@ public class TextEditorFrame extends JFrame {
                 putValue(MNEMONIC_KEY, (int) 'R');
                 putValue(SHORT_DESCRIPTION, "Redo");
                 putValue(LONG_DESCRIPTION, "Redo");
-                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke('Y', InputEvent.CTRL_DOWN_MASK));
+
+                int modifierKeyCode;
+                if (SystemUtils.IS_OS_MAC) modifierKeyCode = InputEvent.META_DOWN_MASK;
+                else modifierKeyCode = InputEvent.CTRL_DOWN_MASK;
+                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke('Y', modifierKeyCode));
             }
 
             public void actionPerformed(ActionEvent e) {
