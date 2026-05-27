@@ -34,6 +34,7 @@ public class NativeProps {
     public static final IPropertyType<Boolean> LOCKED_PROGRESS = new PropertyTypeBoolean(new ResourceLocation(ModReference.MODID, "lockedProgress"), false);
     public static final IPropertyType<Boolean> SIMULTANEOUS = new PropertyTypeBoolean(new ResourceLocation(ModReference.MODID, "simultaneous"), false);
     public static final IPropertyType<Boolean> IGNORES_VIEW_MODE = new PropertyTypeBoolean(new ResourceLocation(ModReference.MODID, "ignoresView"), false);
+    public static final IPropertyType<Boolean> SKIP_COMPLETION_COUNT = new PropertyTypeBoolean(new ResourceLocation(ModReference.MODID, "skipCompletionCount"), false);
 
     public static final IPropertyType<EnumQuestVisibility> VISIBILITY = new PropertyTypeEnum<>(new ResourceLocation(ModReference.MODID, "visibility"), findVisibility());
     public static final IPropertyType<EnumLogic> LOGIC_TASK = new PropertyTypeEnum<>(new ResourceLocation(ModReference.MODID, "taskLogic"), EnumLogic.AND);

@@ -18,7 +18,7 @@ betterquesting.title.party_invite=ユーザーを招待
 betterquesting.title.select_theme=テーマを選択
 betterquesting.title.importers=インポーター
 betterquesting.title.submit_station=提出ステーション
-betterquesting.title.completion=%d/%d : 完了
+betterquesting.title.completion=%d/%d : 完了 (%s%%)
 
 betterquesting.btn.rewards=報酬
 betterquesting.btn.tasks=タスク

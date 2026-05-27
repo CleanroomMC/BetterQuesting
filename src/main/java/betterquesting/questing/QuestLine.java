@@ -27,6 +27,7 @@ public class QuestLine extends RandomIndexDatabase<IQuestLineEntry> implements I
         this.setupValue(NativeProps.DESC, "No Description");
         this.setupValue(NativeProps.ICON, new BigItemStack(Items.BOOK));
         this.setupValue(NativeProps.VISIBILITY, NativeProps.VISIBILITY.getDefault());
+        this.setupValue(NativeProps.IGNORES_VIEW_MODE, false);
         this.setupValue(NativeProps.BG_IMAGE);
         this.setupValue(NativeProps.BG_SIZE);
     }

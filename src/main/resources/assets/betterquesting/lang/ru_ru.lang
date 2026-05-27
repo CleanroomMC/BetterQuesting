@@ -18,7 +18,7 @@ betterquesting.title.party_invite=Пригласить игроков
 betterquesting.title.select_theme=Выбрать тему
 betterquesting.title.importers=Импортеры
 betterquesting.title.submit_station=Станция отправки
-betterquesting.title.completion=Завершение: %d/%d
+betterquesting.title.completion=Завершение: %d/%d (%s%%)
 
 betterquesting.btn.rewards=Награды
 betterquesting.btn.tasks=Задания

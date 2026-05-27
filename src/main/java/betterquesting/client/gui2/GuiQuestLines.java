@@ -53,21 +53,24 @@ import betterquesting.handlers.ConfigHandler;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.util.vector.Vector4f;
 
 import javax.annotation.Nonnull;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, INeedsRefresh {
 
     private static OpenTray openTray = OpenTray.NONE;
+    private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.##");
 
     private final ScrollPosition scrollPosition;
 
@@ -91,6 +94,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private PanelTextBox txTitle;
     private PanelTextBox txDesc;
     private PanelTextBox completionText;
+    private PanelTextBox globalCompletionText;
 
     private PanelButton claimAll;
 
@@ -198,8 +202,12 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         });
         cvBackground.addPanel(cvChapterTray);
 
-        cvLines = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 16, 8), 0));
+        cvLines = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 20, 16, 8), 0));
         cvChapterTray.getCanvasOpen().addPanel(cvLines);
+
+        globalCompletionText = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 1F, 0F), new GuiPadding(24, 8, 16, -20), 0), "");
+        globalCompletionText.setColor(PresetColor.TEXT_HEADER.getColor());
+        cvChapterTray.getCanvasOpen().addPanel(globalCompletionText);
 
         scLines = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-16, 8, 8, 8), 0));
         cvLines.setScrollDriverY(scLines);
@@ -470,7 +478,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         for (DBEntry<IQuestLine> dbEntry : lineList) {
             IQuestLine ql = dbEntry.getValue();
             EnumQuestVisibility vis = ql.getProperty(NativeProps.VISIBILITY);
-            if (!canEdit && vis == EnumQuestVisibility.HIDDEN) continue;
+
+            if (!canEdit && vis == EnumQuestVisibility.HIDDEN && (!viewMode || ql.getProperty(NativeProps.IGNORES_VIEW_MODE)))
+                continue;
 
             boolean show = false;
             boolean unlocked = false;
@@ -513,11 +523,13 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         }
 
         if (cvChapterTray.isTrayOpen()) buildChapterList();
+        refreshGlobalCompletion();
     }
 
     private boolean isQuestCompletedForQuestline(UUID playerID, @Nonnull IQuest q) {
         if (q.isComplete(playerID)) return true; // Completed quest
-        if (q.getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN) return true; // Always hidden quest
+        if (q.getProperty(NativeProps.SKIP_COMPLETION_COUNT)) return true; // Always counted as true
+        if (q.getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN && q.getProperty(NativeProps.IGNORES_VIEW_MODE)) return true; // Always hidden quest
         if (q.getProperty(NativeProps.LOGIC_QUEST) == EnumLogic.XOR) { // Quest with choice
             int reqCount = 0;
             for (int qRequirementId : q.getRequirements()) {
@@ -578,31 +590,71 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     }
 
     private void refreshQuestCompletion() {
+        if (selectedLine == null) return;
+
         UUID playerUUID = QuestingAPI.getQuestingUUID(mc.player);
 
-        if (selectedLine == null) {
-            return;
-        }
-
-        int questsCompleted = 0;
-        int totalQuests = 0;
         var database = Objects.requireNonNull(QuestingAPI.getAPI(ApiReference.QUEST_DB));
+        int completed = 0;
+        int total = 0;
 
         for (DBEntry<IQuestLineEntry> entry : selectedLine.getEntries()) {
             IQuest quest = database.getValue(entry.getID());
 
+            if (quest.getProperty(NativeProps.SKIP_COMPLETION_COUNT)) continue;
+            if (quest.getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN && quest.getProperty(NativeProps.IGNORES_VIEW_MODE)) continue;
             if (quest.getProperty(NativeProps.LOGIC_QUEST) == EnumLogic.XOR) {
                 // Subtract the number of requirements - 1 to simulate only doing 1 task for XOR requirements
-                totalQuests = totalQuests - Math.max(0, quest.getRequirements().length - 1);
+                total = total - Math.max(0, quest.getRequirements().length - 1);
             }
 
-            totalQuests++;
+            total++;
 
             if (quest.isComplete(playerUUID)) {
-                questsCompleted++;
+                completed++;
             }
         }
-        completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
+        completionText.setText(completionText("betterquesting.title.completion", completed, total));
+    }
+
+    private void refreshGlobalCompletion() {
+        if (globalCompletionText == null) return;
+
+        UUID playerUUID = QuestingAPI.getQuestingUUID(mc.player);
+        var database = Objects.requireNonNull(QuestingAPI.getAPI(ApiReference.QUEST_DB));
+        IntSet seen = new IntArraySet();
+        int completed = 0;
+        int total = 0;
+
+        for (var visChapter : visChapters) {
+            IQuestLine line = visChapter.getFirst().getValue();
+            if (line.getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN && line.getProperty(NativeProps.IGNORES_VIEW_MODE)) continue;
+            for (var entry : line.getEntries()) {
+                int questId = entry.getID();
+                if (!seen.add(questId)) continue; // already counted in another visible line
+                IQuest quest = database.getValue(questId);
+
+                if (quest.getProperty(NativeProps.SKIP_COMPLETION_COUNT)) continue;
+                if (quest.getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN && quest.getProperty(NativeProps.IGNORES_VIEW_MODE)) continue;
+                if (quest.getProperty(NativeProps.LOGIC_QUEST) == EnumLogic.XOR) {
+                    // Subtract the number of requirements - 1 to simulate only doing 1 task for XOR requirements
+                    total = total - Math.max(0, quest.getRequirements().length - 1);
+                }
+
+                total++;
+
+                if (quest.isComplete(playerUUID)) {
+                    completed++;
+                }
+            }
+        }
+
+        globalCompletionText.setText(completionText("betterquesting.title.completion_total", completed, total));
+    }
+
+    private static String completionText(String key, int completed, int total) {
+        String percent = total > 0 ? PERCENT_FORMAT.format(completed * 100.0 / total) : "0";
+        return QuestTranslation.translate(key, completed, total, percent);
     }
 
     private void openQuestLine(DBEntry<IQuestLine> q) {
@@ -707,7 +759,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         NONE, CHAPTER, DESCRIPTION
     }
 
-    public static class ScrollPosition{
+    public static class ScrollPosition {
         public ScrollPosition(int chapterScrollY) {
             this.chapterScrollY = chapterScrollY;
         }
