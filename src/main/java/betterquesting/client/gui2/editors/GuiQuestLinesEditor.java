@@ -170,7 +170,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         btnDesign.setActive(selected != null);
         cvRight.addPanel(btnDesign);
 
-        btnTextEditor = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, new GuiPadding(-16, 48, 0, -64), 0), 8, "Aa");
+        btnTextEditor = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, new GuiPadding(-16, 48, 0, -64), 0), 9, "Aa");
         btnTextEditor.setActive(selected != null);
         cvRight.addPanel(btnTextEditor);
 
@@ -290,8 +290,13 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>) btn).getStoredValue();
             int order = QuestLineDatabase.INSTANCE.getOrderIndex(entry.getID());
-            if (order > 0) SendReorder(order);
-        } else if (btn.getButtonID() == 8) // Big Description Editor
+            if (order > 0) SendReorder(order, -1);
+        } else if (btn.getButtonID() == 7 && btn instanceof PanelButtonStorage) // Move Down
+        {
+            DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>) btn).getStoredValue();
+            int order = QuestLineDatabase.INSTANCE.getOrderIndex(entry.getID());
+            if (order > 0) SendReorder(order, 1);
+        } else if (btn.getButtonID() == 9) // Big Description Editor
         {
             mc.displayGuiScreen(new GuiQuestDescEditor<>(this, selected, QuestTranslation.translate("betterquesting.title.edit_line"), () -> SendChanges(new DBEntry<>(selID, selected))));
         }
@@ -305,13 +310,16 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
 
         for (DBEntry<IQuestLine> entry : QuestLineDatabase.INSTANCE.getSortedEntries()) {
             IQuestLine ql = entry.getValue();
-            PanelButtonStorage<DBEntry<IQuestLine>> tmp = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, w - 32, 16, 0), 5, QuestTranslation.translate(ql.getUnlocalisedName()), entry);
+            PanelButtonStorage<DBEntry<IQuestLine>> tmp = new PanelButtonStorage<>(new GuiRectangle(8, i * 16, w - 24, 16, 0), 5, QuestTranslation.translate(ql.getUnlocalisedName()), entry);
             tmp.setActive(entry.getID() != selID);
             lineList.addPanel(tmp);
-            lineList.addPanel(new PanelButtonStorage<>(new GuiRectangle(w - 32, i * 16, 16, 16, 0), 6, "", entry).setIcon(PresetIcon.ICON_TRASH.getTexture()));
-            PanelButton btnUp = new PanelButtonStorage<>(new GuiRectangle(w - 16, i * 16, 16, 16, 0), 7, "", entry).setIcon(PresetIcon.ICON_UP.getTexture());
+            PanelButton btnUp = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 8, 8, 0), 7, "", entry).setIcon(PresetIcon.ICON_UP.getTexture());
             btnUp.setActive(QuestLineDatabase.INSTANCE.getSortedEntries().size() > 1);
             lineList.addPanel(btnUp);
+            PanelButton btnDown = new PanelButtonStorage<>(new GuiRectangle(0, i * 16 + 8, 8, 8, 0), 8, "", entry).setIcon(PresetIcon.ICON_DOWN.getTexture());
+            btnDown.setActive(QuestLineDatabase.INSTANCE.getSortedEntries().size() > 1);
+            lineList.addPanel(btnDown);
+            lineList.addPanel(new PanelButtonStorage<>(new GuiRectangle(w - 16, i * 16, 16, 16, 0), 6, "", entry).setIcon(PresetIcon.ICON_TRASH.getTexture()));
             i++;
         }
     }
@@ -328,7 +336,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         NetChapterEdit.sendEdit(payload);
     }
 
-    private void SendReorder(int indexToShift) {
+    private void SendReorder(int indexToShift, int direction) {
         if (indexToShift < 0) return;
         List<DBEntry<IQuestLine>> entries = QuestLineDatabase.INSTANCE.getSortedEntries();
         if (indexToShift >= entries.size()) return;
@@ -337,7 +345,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             chapterIDs[i] = entries.get(i).getID();
         }
 
-        int indexFrom = (indexToShift - 1 + chapterIDs.length) % chapterIDs.length;
+        int indexFrom = (indexToShift + direction + chapterIDs.length) % chapterIDs.length;
         int tmp = chapterIDs[indexToShift];
         chapterIDs[indexToShift] = chapterIDs[indexFrom];
         chapterIDs[indexFrom] = tmp;
