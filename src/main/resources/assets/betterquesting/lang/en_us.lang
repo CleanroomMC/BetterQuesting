@@ -85,6 +85,7 @@ betterquesting.gui.quest_line=Quest Line
 betterquesting.gui.database=Database
 betterquesting.gui.selection=Selection
 betterquesting.gui.search=Search
+betterquesting.gui.history=Quest History
 betterquesting.gui.folder=Folder
 betterquesting.gui.party_invites=Invites
 betterquesting.gui.party_members=Members

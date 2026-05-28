@@ -152,13 +152,19 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         btnSearch.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.gui.search")));
         cvBackground.addPanel(btnSearch);
 
+        // History Button
+        PanelButton btnHistory = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -56, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_BOOKS.getTexture());
+        btnHistory.setClickAction(this::openHistory);
+        btnHistory.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.gui.history")));
+        cvBackground.addPanel(btnHistory);
+
         if (canEdit) {
-            PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -56, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
+            PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -72, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
             btnEdit.setClickAction((b) -> mc.displayGuiScreen(new GuiQuestLinesEditor(this)));
             btnEdit.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.edit")));
             cvBackground.addPanel(btnEdit);
 
-            btnDesign = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 24, -56, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_SORT.getTexture());
+            btnDesign = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 24, -72, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_SORT.getTexture());
             btnDesign.setClickAction($ -> mc.displayGuiScreen(new GuiDesigner(this, selectedLine)));
             btnDesign.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.designer")));
             cvBackground.addPanel(btnDesign);
@@ -685,13 +691,24 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
     private void openSearch(PanelButton panelButton) {
         GuiQuestSearch guiQuestSearch = new GuiQuestSearch(this);
-        guiQuestSearch.setCallback(entry -> {
-            openQuestLine(entry.getQuestLineEntry());
-            int selectedQuestId = entry.getQuest().getID();
-            Optional<PanelButtonQuest> targetQuestButton = cvQuest.getQuestButtons().stream().filter(panelButtonQuest -> panelButtonQuest.getStoredValue().getID() == selectedQuestId).findFirst();
-            targetQuestButton.ifPresent(this::highlightButton);
-        });
+        guiQuestSearch.setCallback(entry -> openQuestEntry(entry.getQuestLineEntry(), entry.getQuest().getID()));
         mc.displayGuiScreen(guiQuestSearch);
+    }
+
+    private void openHistory(PanelButton panelButton) {
+        GuiQuestHistory guiQuestHistory = new GuiQuestHistory(this);
+        guiQuestHistory.setCallback(entry -> openQuestEntry(entry.getQuestLineEntry(), entry.getQuest().getID()));
+        mc.displayGuiScreen(guiQuestHistory);
+    }
+
+    private void openQuestEntry(DBEntry<IQuestLine> questLine, int questId) {
+        openQuestLine(questLine);
+
+        Optional<PanelButtonQuest> targetQuestButton = cvQuest.getQuestButtons()
+            .stream()
+            .filter(panelButtonQuest -> panelButtonQuest.getStoredValue().getID() == questId)
+            .findFirst();
+        targetQuestButton.ifPresent(this::highlightButton);
     }
 
     private void highlightButton(PanelButtonQuest panelButtonQuest) {
