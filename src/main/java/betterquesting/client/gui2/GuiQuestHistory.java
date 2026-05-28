@@ -21,6 +21,9 @@ import java.util.function.Consumer;
 
 public class GuiQuestHistory extends GuiScreenCanvas {
     private Consumer<QuestHistoryEntry> callback;
+    private CanvasQuestHistory canvasQuestHistory;
+    private int historyScrollY;
+    private boolean restoreHistoryScroll;
 
     public GuiQuestHistory(GuiScreen parent) {
         super(parent);
@@ -46,8 +49,9 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         cvInner.addPanel(txtTitle);
 
         GuiTransform listTransform = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 8, 24), 0);
-        CanvasQuestHistory canvasQuestHistory = new CanvasQuestHistory(listTransform, mc.player);
+        canvasQuestHistory = new CanvasQuestHistory(listTransform, mc.player);
         canvasQuestHistory.setQuestOpenCallback(entry -> {
+            saveHistoryScroll();
             acceptCallback(entry);
             BookmarkManager.INSTANCE.setBookmark(this, entry.getQuest().getID());
             mc.displayGuiScreen(BookmarkManager.INSTANCE.getBookmark());
@@ -58,6 +62,7 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         PanelVScrollBar scDb = new PanelVScrollBar(scTransform);
         cvInner.addPanel(scDb);
         canvasQuestHistory.setScrollDriverY(scDb);
+        restoreHistoryScroll = historyScrollY > 0;
     }
 
     private void createExitButton(CanvasEmpty cvInner) {
@@ -75,5 +80,54 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         if (callback != null) {
             callback.accept(entry);
         }
+    }
+
+    @Override
+    public void drawPanel(int mx, int my, float partialTick) {
+        super.drawPanel(mx, my, partialTick);
+        restoreHistoryScroll();
+    }
+
+    @Override
+    public boolean onMouseRelease(int mx, int my, int click) {
+        try {
+            return super.onMouseRelease(mx, my, click);
+        } finally {
+            saveHistoryScroll();
+        }
+    }
+
+    @Override
+    public boolean onMouseScroll(int mx, int my, int scroll) {
+        try {
+            return super.onMouseScroll(mx, my, scroll);
+        } finally {
+            saveHistoryScroll();
+        }
+    }
+
+    // History entries are buffered into the list, so keep reapplying until the scroll can be restored.
+    private void restoreHistoryScroll() {
+        if (!restoreHistoryScroll || canvasQuestHistory == null) {
+            return;
+        }
+
+        if (canvasQuestHistory.isSearching()) {
+            return;
+        }
+
+        canvasQuestHistory.setScrollY(historyScrollY);
+        canvasQuestHistory.updatePanelScroll();
+        restoreHistoryScroll = false;
+    }
+
+    // Save the scroll position so it can be restored later
+    // (e.g. when opening a quest and returning back to the history list)
+    private void saveHistoryScroll() {
+        if (canvasQuestHistory == null) {
+            return;
+        }
+
+        historyScrollY = canvasQuestHistory.getScrollY();
     }
 }
