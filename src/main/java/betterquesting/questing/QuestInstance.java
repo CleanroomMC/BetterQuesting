@@ -208,14 +208,18 @@ public class QuestInstance implements IQuest {
 
         synchronized (completeUsers) {
             NBTTagCompound entry = getCompletionInfo(pID);
+            long timestamp = System.currentTimeMillis();
 
             if (entry == null) {
                 entry = new NBTTagCompound();
                 this.completeUsers.put(pID, entry);
             }
 
+            // Protect against misuse, if setComplete wasn't called (for some reason). Should "never" happen.
+            ensureLastCompletedAt(entry, timestamp);
+
             entry.setBoolean("claimed", true);
-            entry.setLong("timestamp", System.currentTimeMillis());
+            entry.setLong("timestamp", timestamp);
             DirtyPlayerMarker.markDirty(pID);
         }
 
@@ -232,6 +236,10 @@ public class QuestInstance implements IQuest {
 
             if (!entry.getBoolean("claimed") && getProperty(NativeProps.REPEAT_TIME) >= 0) // Complete but repeatable
             {
+                // A reset repeatable keeps its completion record for history, but its submit timestamp is cleared.
+                // Keep reporting it as submittable until update() can stamp the new completion time.
+                if (entry.getLong("timestamp") <= 0) return true;
+
                 if (tasks.size() <= 0) return true;
 
                 int done = 0;
@@ -279,6 +287,7 @@ public class QuestInstance implements IQuest {
 
             entry.setBoolean("claimed", false);
             entry.setLong("timestamp", timestamp);
+            entry.setLong(IQuest.LAST_COMPLETED_AT_TAG, timestamp);
             DirtyPlayerMarker.markDirty(uuid);
         }
     }
@@ -512,16 +521,26 @@ public class QuestInstance implements IQuest {
             NBTTagCompound entry = this.getCompletionInfo(uuid);
 
             if (entry != null) {
+                ensureLastCompletedAt(entry, entry.getLong("timestamp"));
                 entry.setBoolean("claimed", true);
                 entry.setLong("timestamp", timestamp);
             } else {
                 entry = new NBTTagCompound();
                 entry.setBoolean("claimed", true);
                 entry.setLong("timestamp", timestamp);
+                entry.setLong(IQuest.LAST_COMPLETED_AT_TAG, timestamp);
                 completeUsers.put(uuid, entry);
             }
             DirtyPlayerMarker.markDirty(uuid);
         }
+    }
+
+    private void ensureLastCompletedAt(NBTTagCompound entry, long fallbackTimestamp) {
+        if (entry.hasKey(IQuest.LAST_COMPLETED_AT_TAG, Constants.NBT.TAG_LONG)) {
+            return;
+        }
+
+        entry.setLong(IQuest.LAST_COMPLETED_AT_TAG, fallbackTimestamp);
     }
 
     @Override
