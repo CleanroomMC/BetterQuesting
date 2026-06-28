@@ -287,7 +287,7 @@ public class QuestInstance implements IQuest {
 
             entry.setBoolean("claimed", false);
             entry.setLong("timestamp", timestamp);
-            entry.setLong(IQuest.LAST_COMPLETED_AT_TAG, timestamp);
+            entry.setLong("last_completed_at", timestamp);
             DirtyPlayerMarker.markDirty(uuid);
         }
     }
@@ -340,6 +340,25 @@ public class QuestInstance implements IQuest {
             }
             DirtyPlayerMarker.markDirty(uuid);
         }
+    }
+
+    /**
+     * Get the timestamp of the last time this quest was completed by the given player.
+     * @param uuid The questing UUID for the player.
+     * @return Timestamp of last completion.
+     *         For quests completed before this was added, it will return the timestamp value (may be inaccurate for repeatable quests).
+     *         For quests not completed, it will return 0.
+     */
+    @Override
+    public long getLastCompletedAt(UUID uuid) {
+        NBTTagCompound completionInfo = getCompletionInfo(uuid);
+        if (completionInfo == null) return 0;
+
+        if (completionInfo.hasKey("last_completed_at", Constants.NBT.TAG_LONG)) {
+            return completionInfo.getLong("last_completed_at");
+        }
+
+        return completionInfo.getLong("timestamp");
     }
 
     /**
@@ -528,7 +547,7 @@ public class QuestInstance implements IQuest {
                 entry = new NBTTagCompound();
                 entry.setBoolean("claimed", true);
                 entry.setLong("timestamp", timestamp);
-                entry.setLong(IQuest.LAST_COMPLETED_AT_TAG, timestamp);
+                entry.setLong("last_completed_at", timestamp);
                 completeUsers.put(uuid, entry);
             }
             DirtyPlayerMarker.markDirty(uuid);
@@ -536,11 +555,11 @@ public class QuestInstance implements IQuest {
     }
 
     private void ensureLastCompletedAt(NBTTagCompound entry, long fallbackTimestamp) {
-        if (entry.hasKey(IQuest.LAST_COMPLETED_AT_TAG, Constants.NBT.TAG_LONG)) {
+        if (entry.hasKey("last_completed_at", Constants.NBT.TAG_LONG)) {
             return;
         }
 
-        entry.setLong(IQuest.LAST_COMPLETED_AT_TAG, fallbackTimestamp);
+        entry.setLong("last_completed_at", fallbackTimestamp);
     }
 
     @Override

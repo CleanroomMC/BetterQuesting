@@ -36,6 +36,7 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
     private Consumer<QuestHistoryEntry> questOpenCallback;
     private final EntityPlayer player;
     private RepeatableFilter repeatableFilter = RepeatableFilter.SHOW_ALL;
+    private StandardFilter standardFilter = StandardFilter.SHOW_ALL;
 
     public CanvasQuestHistory(IGuiRect rect, EntityPlayer player) {
         super(rect);
@@ -79,7 +80,7 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
                 }
 
                 boolean repeatable = quest.getProperty(NativeProps.REPEAT_TIME) >= 0;
-                boolean pendingRewards = repeatable && quest.canClaimBasically(player);
+                boolean pendingRewards = quest.canClaimBasically(player);
                 historyEntries.put(questId, new QuestHistoryEntry(questEntry, questLine, timestamp, repeatable, pendingRewards));
             }
         }
@@ -101,6 +102,8 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
             if (repeatableFilter == RepeatableFilter.SHOW_PENDING_REWARDS && !entry.hasPendingRewards()) {
                 return;
             }
+        } else if (standardFilter == StandardFilter.SHOW_PENDING_REWARDS && !entry.hasPendingRewards()) {
+            return;
         }
 
         results.add(entry);
@@ -150,12 +153,13 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
 
     private String getHistoryDetails(QuestHistoryEntry entry) {
         String timestamp = formatTimestamp(entry.getCompletionTimestamp());
-        if (!entry.isRepeatable()) {
-            return QuestTranslation.translate("betterquesting.gui.history.completed_at", timestamp);
-        }
 
         if (entry.hasPendingRewards()) {
             return QuestTranslation.translate("betterquesting.gui.history.pending_rewards_at", timestamp);
+        }
+
+        if (!entry.isRepeatable()) {
+            return QuestTranslation.translate("betterquesting.gui.history.completed_at", timestamp);
         }
 
         return QuestTranslation.translate("betterquesting.gui.history.last_completed_at", timestamp);
@@ -184,10 +188,20 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
         updatePanelScroll();
     }
 
+    public void setStandardFilter(StandardFilter standardFilter) {
+        if (this.standardFilter == standardFilter) {
+            return;
+        }
+
+        this.standardFilter = standardFilter;
+        refreshSearch();
+        updatePanelScroll();
+    }
+
     public enum RepeatableFilter {
-        HIDE("betterquesting.gui.history.repeatable_filter.hide"),
-        SHOW_PENDING_REWARDS("betterquesting.gui.history.repeatable_filter.pending_rewards"),
-        SHOW_ALL("betterquesting.gui.history.repeatable_filter.all");
+        HIDE("betterquesting.gui.history.filter.hide"),
+        SHOW_PENDING_REWARDS("betterquesting.gui.history.filter.with_rewards"),
+        SHOW_ALL("betterquesting.gui.history.filter.all");
 
         private static final RepeatableFilter[] VALUES = values();
 
@@ -212,6 +226,37 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
         }
 
         public RepeatableFilter next() {
+            return VALUES[(ordinal() + 1) % VALUES.length];
+        }
+    }
+
+    public enum StandardFilter {
+        SHOW_PENDING_REWARDS("betterquesting.gui.history.filter.with_rewards"),
+        SHOW_ALL("betterquesting.gui.history.filter.all");
+
+        private static final StandardFilter[] VALUES = values();
+
+        private final String translationKey;
+
+        StandardFilter(String translationKey) {
+            this.translationKey = translationKey;
+        }
+
+        public String getTranslationKey() {
+            return translationKey;
+        }
+
+        public static StandardFilter fromName(String name) {
+            for (StandardFilter value : VALUES) {
+                if (value.name().equalsIgnoreCase(name)) {
+                    return value;
+                }
+            }
+
+            return SHOW_ALL;
+        }
+
+        public StandardFilter next() {
             return VALUES[(ordinal() + 1) % VALUES.length];
         }
     }

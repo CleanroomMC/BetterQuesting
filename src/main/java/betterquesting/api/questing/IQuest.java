@@ -11,37 +11,16 @@ import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
 public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer {
-    String LAST_COMPLETED_AT_TAG = "last_completed_at";
-
     EnumQuestState getState(EntityPlayer player);
 
     @Nullable
     NBTTagCompound getCompletionInfo(UUID uuid);
-
-    /**
-     * Get the timestamp of the last time this quest was completed by the given player.
-     * @param uuid The questing UUID for the player.
-     * @return Timestamp of last completion.
-     *         For quests completed before this was added, it will return the timestamp value (may be inaccurate for repeatable quests).
-     *         For quests not completed, it will return 0.
-     */
-    default long getLastCompletedAt(UUID uuid) {
-        NBTTagCompound completionInfo = getCompletionInfo(uuid);
-        if (completionInfo == null) return 0;
-
-        if (completionInfo.hasKey(LAST_COMPLETED_AT_TAG, Constants.NBT.TAG_LONG)) {
-            return completionInfo.getLong(LAST_COMPLETED_AT_TAG);
-        }
-
-        return completionInfo.getLong("timestamp");
-    }
 
     void setCompletionInfo(UUID uuid, @Nullable NBTTagCompound nbt);
 
@@ -72,6 +51,8 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTa
     void claimReward(EntityPlayer player);
 
     void setClaimed(UUID uuid, long timestamp);
+
+    long getLastCompletedAt(UUID uuid);
 
     void resetUser(@Nullable UUID uuid, boolean fullReset);
 

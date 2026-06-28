@@ -31,8 +31,10 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
     private final IGuiTexture[] texStates = new IGuiTexture[3];
     private IGuiColor[] colStates = new IGuiColor[]{new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(255, 255, 255, 255), new GuiColorStatic(16777120)};
     private IGuiTexture texIcon = null;
+    private String txtIcon = null;
     private IGuiColor colIcon = null;
     private int icoPadding = 0;
+    private int iconAlign = 1;
     private List<String> tooltip = null;
     private boolean txtShadow = true;
     private String btnText;
@@ -92,8 +94,30 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
     public PanelButton setIcon(IGuiTexture icon, IGuiColor color, int padding) {
         this.texIcon = icon;
+        this.txtIcon = null;
         this.colIcon = color;
         this.icoPadding = padding * 2;
+        return this;
+    }
+
+    public PanelButton setIconText(String icon) {
+        return this.setIconText(icon, 0);
+    }
+
+    public PanelButton setIconText(String icon, int padding) {
+        return this.setIconText(icon, null, padding);
+    }
+
+    public PanelButton setIconText(String icon, IGuiColor color, int padding) {
+        this.texIcon = null;
+        this.txtIcon = icon;
+        this.colIcon = color;
+        this.icoPadding = padding * 2;
+        return this;
+    }
+
+    public PanelButton setIconAlignment(int align) {
+        this.iconAlign = MathHelper.clamp(align, 0, 2);
         return this;
     }
 
@@ -155,6 +179,8 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
     @Override
     public void drawPanel(int mx, int my, float partialTick) {
         IGuiRect bounds = this.getTransform();
+        FontRenderer font = Minecraft.getMinecraft().fontRenderer;
+
         GlStateManager.pushMatrix();
         GlStateManager.color(1F, 1F, 1F, 1F);
         this.setHovered(bounds.contains(mx, my));
@@ -171,38 +197,89 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
             t.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);
         }
 
+        int isz = getIconWidth(font, bounds);
+
         if (texIcon != null) {
-            int isz = Math.min(bounds.getHeight() - icoPadding, bounds.getWidth() - icoPadding);
 
             if (isz > 0) {
+                int iconX = bounds.getX() + getIconOffset(bounds.getWidth(), isz, icoPadding / 2, iconAlign);
+                int iconY = bounds.getY() + (bounds.getHeight() / 2) - (isz / 2);
+
                 if (colIcon != null) {
-                    texIcon.drawTexture(bounds.getX() + (bounds.getWidth() / 2) - (isz / 2), bounds.getY() + (bounds.getHeight() / 2) - (isz / 2), isz, isz, 0F, partialTick, colIcon);
+                    texIcon.drawTexture(iconX, iconY, isz, isz, 0F, partialTick, colIcon);
                 } else {
-                    texIcon.drawTexture(bounds.getX() + (bounds.getWidth() / 2) - (isz / 2), bounds.getY() + (bounds.getHeight() / 2) - (isz / 2), isz, isz, 0F, partialTick);
+                    texIcon.drawTexture(iconX, iconY, isz, isz, 0F, partialTick);
                 }
             }
+        } else if (txtIcon != null && txtIcon.length() > 0 && isz > 0) {
+            int iconX = bounds.getX() + getIconOffset(bounds.getWidth(), isz, icoPadding / 2, iconAlign);
+            int iconY = getTextOffsetY(bounds);
+            int iconColor = colIcon != null ? colIcon.getRGB() : colStates[curState].getRGB();
+
+            font.drawString(txtIcon, iconX, iconY, iconColor, false);
         }
 
         if (btnText != null && btnText.length() > 0) {
-            drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX(), bounds.getY() + bounds.getHeight() / 2 - 4, bounds.getWidth(), colStates[curState].getRGB(), txtShadow, textAlign);
+            int textX = bounds.getX();
+            int textWidth = bounds.getWidth();
+
+            if (isz > 0) {
+                int textInset = isz + (icoPadding / 2) + 2;
+
+                if (iconAlign == 0) {
+                    textX += textInset;
+                    textWidth -= textInset;
+                } else if (iconAlign == 2) {
+                    textWidth -= textInset;
+                }
+            }
+
+            if (textWidth > 0) {
+                float offset = getTextOffset(font, btnText, textWidth, textAlign);
+                font.drawString(btnText, textX + offset, getTextOffsetY(bounds), colStates[curState].getRGB(), txtShadow);
+            }
         }
 
         GlStateManager.popMatrix();
     }
 
-    private static void drawCenteredString(FontRenderer font, String text, int x, int y, int width, int color, boolean shadow, int align) {
+    private int getIconWidth(FontRenderer font, IGuiRect bounds) {
+        if (texIcon != null) {
+            return Math.max(0, Math.min(bounds.getHeight() - icoPadding, bounds.getWidth() - icoPadding));
+        }
+
+        if (txtIcon == null || txtIcon.length() <= 0) {
+            return 0;
+        }
+
+        return Math.max(0, Math.min(RenderUtils.getStringWidth(txtIcon, font), bounds.getWidth() - icoPadding));
+    }
+
+    private static int getTextOffsetY(IGuiRect bounds) {
+        return bounds.getY() + bounds.getHeight() / 2 - 4;
+    }
+
+
+
+    private static int getIconOffset(int width, int size, int padding, int align) {
         switch (align) {
-            case 0: {
-                font.drawString(text, x + 4, y, color, shadow);
-                break;
-            }
-            case 2: {
-                font.drawString(text, x + width - RenderUtils.getStringWidth(text, font) / 2F - 4, y, color, shadow);
-                break;
-            }
-            default: {
-                font.drawString(text, x + Math.floorDiv(width, 2) - RenderUtils.getStringWidth(text, font) / 2F, y, color, shadow);
-            }
+            case 0:
+                return padding;
+            case 2:
+                return width - size - padding;
+            default:
+                return (width / 2) - (size / 2);
+        }
+    }
+
+    private static float getTextOffset(FontRenderer font, String text, int width, int align) {
+        switch (align) {
+            case 0:
+                return 4;
+            case 2:
+                return width - RenderUtils.getStringWidth(text, font) / 2F - 4;
+            default:
+                return Math.floorDiv(width, 2) - RenderUtils.getStringWidth(text, font) / 2F;
         }
     }
 
