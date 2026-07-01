@@ -10,6 +10,7 @@ import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
@@ -19,6 +20,7 @@ import betterquesting.questing.QuestLineDatabase;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.TextFormatting;
 
 import java.text.DateFormat;
 import java.util.ArrayDeque;
@@ -35,8 +37,8 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
     private List<QuestHistoryEntry> historyList;
     private Consumer<QuestHistoryEntry> questOpenCallback;
     private final EntityPlayer player;
-    private RepeatableFilter repeatableFilter = RepeatableFilter.SHOW_ALL;
-    private StandardFilter standardFilter = StandardFilter.SHOW_ALL;
+    private TypeFilter typeFilter = TypeFilter.SHOW_ALL;
+    private ClaimableFilter claimableFilter = ClaimableFilter.SHOW_ALL;
 
     public CanvasQuestHistory(IGuiRect rect, EntityPlayer player) {
         super(rect);
@@ -94,15 +96,13 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
 
     @Override
     protected void queryMatches(QuestHistoryEntry entry, String query, ArrayDeque<QuestHistoryEntry> results) {
-        if (entry.isRepeatable()) {
-            if (repeatableFilter == RepeatableFilter.HIDE) {
-                return;
-            }
+        if (claimableFilter == ClaimableFilter.SHOW_PENDING_REWARDS && !entry.hasPendingRewards()) {
+            return;
+        }
 
-            if (repeatableFilter == RepeatableFilter.SHOW_PENDING_REWARDS && !entry.hasPendingRewards()) {
-                return;
-            }
-        } else if (standardFilter == StandardFilter.SHOW_PENDING_REWARDS && !entry.hasPendingRewards()) {
+        if (typeFilter == TypeFilter.ONLY_REPEATABLE && !entry.isRepeatable()) {
+            return;
+        } else if (typeFilter == TypeFilter.NON_REPEATABLE && entry.isRepeatable()) {
             return;
         }
 
@@ -178,45 +178,59 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
         this.questOpenCallback = questOpenCallback;
     }
 
-    public void setRepeatableFilter(RepeatableFilter repeatableFilter) {
-        if (this.repeatableFilter == repeatableFilter) {
+    public void setTypeFilter(TypeFilter typeFilter) {
+        if (this.typeFilter == typeFilter) {
             return;
         }
 
-        this.repeatableFilter = repeatableFilter;
+        this.typeFilter = typeFilter;
         refreshSearch();
         updatePanelScroll();
     }
 
-    public void setStandardFilter(StandardFilter standardFilter) {
-        if (this.standardFilter == standardFilter) {
+    public void setClaimableFilter(ClaimableFilter claimableFilter) {
+        if (this.claimableFilter == claimableFilter) {
             return;
         }
 
-        this.standardFilter = standardFilter;
+        this.claimableFilter = claimableFilter;
         refreshSearch();
         updatePanelScroll();
     }
 
-    public enum RepeatableFilter {
-        HIDE("betterquesting.gui.history.filter.hide"),
-        SHOW_PENDING_REWARDS("betterquesting.gui.history.filter.with_rewards"),
-        SHOW_ALL("betterquesting.gui.history.filter.all");
 
-        private static final RepeatableFilter[] VALUES = values();
+    public enum TypeFilter {
+        SHOW_ALL("betterquesting.gui.history.filter.type.all", null),
+        ONLY_REPEATABLE("betterquesting.gui.history.filter.type.only", PresetColor.QUEST_ICON_REPEATABLE.getColor()),
+        NON_REPEATABLE("betterquesting.gui.history.filter.type.hide", PresetColor.QUEST_ICON_COMPLETE.getColor());
+
+        private static final TypeFilter[] VALUES = values();
 
         private final String translationKey;
+        private final IGuiColor color;
 
-        RepeatableFilter(String translationKey) {
+        TypeFilter(String translationKey, IGuiColor color) {
             this.translationKey = translationKey;
+            this.color = color;
         }
 
-        public String getTranslationKey() {
-            return translationKey;
+        public List<String> getTooltip() {
+            List<String> list = new ArrayList<>();
+            list.add(QuestTranslation.translate("betterquesting.gui.history.filter.type"));
+            list.add("");
+            for (var value : VALUES) {
+                if (value == this) list.add(TextFormatting.YELLOW + QuestTranslation.translate(translationKey));
+                else list.add(TextFormatting.DARK_GRAY + QuestTranslation.translate(value.translationKey));
+            }
+            return list;
         }
 
-        public static RepeatableFilter fromName(String name) {
-            for (RepeatableFilter value : VALUES) {
+        public IGuiColor getColor() {
+            return color;
+        }
+
+        public static TypeFilter fromName(String name) {
+            for (TypeFilter value : VALUES) {
                 if (value.name().equalsIgnoreCase(name)) {
                     return value;
                 }
@@ -225,29 +239,42 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
             return SHOW_ALL;
         }
 
-        public RepeatableFilter next() {
+        public TypeFilter next() {
             return VALUES[(ordinal() + 1) % VALUES.length];
         }
     }
 
-    public enum StandardFilter {
-        SHOW_PENDING_REWARDS("betterquesting.gui.history.filter.with_rewards"),
-        SHOW_ALL("betterquesting.gui.history.filter.all");
+    public enum ClaimableFilter {
+        SHOW_ALL("betterquesting.gui.history.filter.claimable.all", null),
+        SHOW_PENDING_REWARDS("betterquesting.gui.history.filter.claimable.with_rewards", PresetColor.QUEST_ICON_PENDING.getColor());
 
-        private static final StandardFilter[] VALUES = values();
+        private static final ClaimableFilter[] VALUES = values();
 
         private final String translationKey;
+        private final IGuiColor color;
 
-        StandardFilter(String translationKey) {
+        ClaimableFilter(String translationKey, IGuiColor color) {
             this.translationKey = translationKey;
+            this.color = color;
         }
 
-        public String getTranslationKey() {
-            return translationKey;
+        public List<String> getTooltip() {
+            List<String> list = new ArrayList<>();
+            list.add(QuestTranslation.translate("betterquesting.gui.history.filter.claimable"));
+            list.add("");
+            for (var value : VALUES) {
+                if (value == this) list.add(TextFormatting.YELLOW + QuestTranslation.translate(translationKey));
+                else list.add(TextFormatting.DARK_GRAY + QuestTranslation.translate(value.translationKey));
+            }
+            return list;
         }
 
-        public static StandardFilter fromName(String name) {
-            for (StandardFilter value : VALUES) {
+        public IGuiColor getColor() {
+            return color;
+        }
+
+        public static ClaimableFilter fromName(String name) {
+            for (ClaimableFilter value : VALUES) {
                 if (value.name().equalsIgnoreCase(name)) {
                     return value;
                 }
@@ -256,7 +283,7 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
             return SHOW_ALL;
         }
 
-        public StandardFilter next() {
+        public ClaimableFilter next() {
             return VALUES[(ordinal() + 1) % VALUES.length];
         }
     }

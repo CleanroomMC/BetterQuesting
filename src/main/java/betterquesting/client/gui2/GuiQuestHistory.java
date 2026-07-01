@@ -3,7 +3,7 @@ package betterquesting.client.gui2;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.PanelButton;
-import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
@@ -13,6 +13,7 @@ import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestHistory;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BookmarkManager;
@@ -20,7 +21,6 @@ import betterquesting.handlers.ConfigHandler;
 import betterquesting.misc.QuestHistoryEntry;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.Configuration;
-import org.lwjgl.util.vector.Vector4f;
 
 import java.util.function.Consumer;
 
@@ -32,8 +32,8 @@ public class GuiQuestHistory extends GuiScreenCanvas {
     private PanelButton standardFilterButton;
     private int historyScrollY;
     private boolean restoreHistoryScroll;
-    private CanvasQuestHistory.RepeatableFilter repeatableFilter = CanvasQuestHistory.RepeatableFilter.fromName(BQ_Settings.historyRepeatableFilter);
-    private CanvasQuestHistory.StandardFilter standardFilter = CanvasQuestHistory.StandardFilter.fromName(BQ_Settings.historyStandardFilter);
+    private CanvasQuestHistory.TypeFilter typeFilter = CanvasQuestHistory.TypeFilter.fromName(BQ_Settings.historyTypeFilter);
+    private CanvasQuestHistory.ClaimableFilter claimableFilter = CanvasQuestHistory.ClaimableFilter.fromName(BQ_Settings.historyClaimableFilter);
 
     public GuiQuestHistory(GuiScreen parent) {
         super(parent);
@@ -60,18 +60,20 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         cvInner.addPanel(txtTitle);
 
         // Filter buttons
-        repeatableFilterButton = createFilterButton(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(4, 20, 2, -36), this::cycleRepeatableFilter);
-        standardFilterButton = createFilterButton(new Vector4f(0.5F, 0F, 1F, 0F), new GuiPadding(2, 20, 4, -36), this::cycleStandardFilter);
-        repeatableFilterButton.setIconText(QuestTranslation.translate("betterquesting.gui.history.repeatables"), PresetColor.TEXT_AUX_1.getColor(), 4);
-        standardFilterButton.setIconText(QuestTranslation.translate("betterquesting.gui.history.standard"), PresetColor.TEXT_AUX_1.getColor(), 4);
+        repeatableFilterButton = new PanelButton(new GuiRectangle(0, 0, 16, 16), -1, "");
+        repeatableFilterButton.setClickAction(this::cycleTypeFilter);
+
+        standardFilterButton = new PanelButton(new GuiRectangle(18, 0, 16, 16), -1, "");
+        standardFilterButton.setClickAction(this::cycleClaimableFilter);
+
         updateFilterButtons();
         cvInner.addPanel(repeatableFilterButton);
         cvInner.addPanel(standardFilterButton);
 
         // Quest History list (main content)
-        canvasQuestHistory = new CanvasQuestHistory(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 40, 8, 24), 0), mc.player);
-        canvasQuestHistory.setRepeatableFilter(repeatableFilter);
-        canvasQuestHistory.setStandardFilter(standardFilter);
+        canvasQuestHistory = new CanvasQuestHistory(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 20, 8, 24), 0), mc.player);
+        canvasQuestHistory.setTypeFilter(typeFilter);
+        canvasQuestHistory.setClaimableFilter(claimableFilter);
         canvasQuestHistory.setQuestOpenCallback(entry -> {
             saveHistoryScroll();
             acceptCallback(entry);
@@ -80,7 +82,7 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         });
         cvInner.addPanel(canvasQuestHistory);
 
-        PanelVScrollBar scDb = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 40, 0, 24), 0));
+        PanelVScrollBar scDb = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 20, 0, 24), 0));
         cvInner.addPanel(scDb);
         canvasQuestHistory.setScrollDriverY(scDb);
         restoreHistoryScroll = historyScrollY > 0;
@@ -96,80 +98,36 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         }
     }
 
-    private PanelButton createFilterButton(Vector4f anchor, GuiPadding padding, Consumer<PanelButton> clickAction) {
-        PanelButton filterButton = new PanelButton(new GuiTransform(anchor, padding, 0), -1, "");
-        filterButton.setClickAction(clickAction);
-        filterButton.setTextures(PresetTexture.BTN_CLEAN_0.getTexture(), PresetTexture.BTN_CLEAN_1.getTexture(), PresetTexture.BTN_CLEAN_2.getTexture());
-        filterButton.setIconAlignment(0);
-        filterButton.setTextShadow(false);
-        filterButton.setTextAlignment(1);
-        return filterButton;
-    }
-
-    private void cycleRepeatableFilter(PanelButton button) {
-        repeatableFilter = repeatableFilter.next();
+    private void cycleTypeFilter(PanelButton button) {
+        typeFilter = typeFilter.next();
         applyFilterChanges();
     }
 
-    private void cycleStandardFilter(PanelButton button) {
-        standardFilter = standardFilter.next();
+    private void cycleClaimableFilter(PanelButton button) {
+        claimableFilter = claimableFilter.next();
         applyFilterChanges();
     }
 
     private void applyFilterChanges() {
-        BQ_Settings.historyRepeatableFilter = repeatableFilter.name();
-        BQ_Settings.historyStandardFilter = standardFilter.name();
-        ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "History Repeatable Filter", "SHOW_ALL").set(BQ_Settings.historyRepeatableFilter);
-        ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "History Standard Filter", "SHOW_ALL").set(BQ_Settings.historyStandardFilter);
+        BQ_Settings.historyTypeFilter = typeFilter.name();
+        BQ_Settings.historyClaimableFilter = claimableFilter.name();
+        ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "History Type Filter", "SHOW_ALL").set(BQ_Settings.historyTypeFilter);
+        ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "History Claimable Filter", "SHOW_ALL").set(BQ_Settings.historyClaimableFilter);
         ConfigHandler.config.save();
 
         saveHistoryScroll();
         restoreHistoryScroll = historyScrollY > 0;
         updateFilterButtons();
 
-        canvasQuestHistory.setRepeatableFilter(repeatableFilter);
-        canvasQuestHistory.setStandardFilter(standardFilter);
+        canvasQuestHistory.setTypeFilter(typeFilter);
+        canvasQuestHistory.setClaimableFilter(claimableFilter);
     }
 
     private void updateFilterButtons() {
-        updateRepeatableFilterButton();
-        updateStandardFilterButton();
-    }
-
-    private void updateRepeatableFilterButton() {
-        updateFilterButton(repeatableFilterButton,
-                           QuestTranslation.translate(repeatableFilter.getTranslationKey()),
-                           getRepeatableFilterColor());
-    }
-
-    private void updateStandardFilterButton() {
-        updateFilterButton(standardFilterButton,
-                           QuestTranslation.translate(standardFilter.getTranslationKey()),
-                           getStandardFilterColor());
-    }
-
-    private void updateFilterButton(PanelButton button, String state, IGuiColor color) {
-        button.setText(state);
-        button.setTextHighlight(PresetColor.BTN_DISABLED.getColor(), color, color);
-    }
-
-    private IGuiColor getRepeatableFilterColor() {
-        switch (repeatableFilter) {
-            case HIDE:
-                return PresetColor.QUEST_LINE_LOCKED.getColor();
-            case SHOW_PENDING_REWARDS:
-                return PresetColor.QUEST_ICON_PENDING_STATIC.getColor();
-            default:
-                return PresetColor.QUEST_LINE_COMPLETE.getColor();
-        }
-    }
-
-    private IGuiColor getStandardFilterColor() {
-        if (standardFilter == CanvasQuestHistory.StandardFilter.SHOW_PENDING_REWARDS) {
-            return PresetColor.QUEST_ICON_PENDING_STATIC.getColor();
-        }
-
-        return PresetColor.QUEST_LINE_COMPLETE.getColor();
+        repeatableFilterButton.setTooltip(typeFilter.getTooltip());
+        repeatableFilterButton.setIcon(PresetIcon.ICON_REFRESH.getTexture(), typeFilter.getColor(), 0);
+        standardFilterButton.setTooltip(claimableFilter.getTooltip());
+        standardFilterButton.setIcon(PresetIcon.ICON_CHEST.getTexture(), claimableFilter.getColor(), 0);
     }
 
     @Override
