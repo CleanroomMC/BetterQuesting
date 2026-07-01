@@ -25,11 +25,13 @@ public class GuiQuestHistory extends GuiScreenCanvas {
 
     private static CanvasQuestHistory.TypeFilter typeFilter = CanvasQuestHistory.TypeFilter.SHOW_ALL;
     private static CanvasQuestHistory.ClaimableFilter claimableFilter = CanvasQuestHistory.ClaimableFilter.SHOW_ALL;
+    private static CanvasQuestHistory.ChronologicalOrder order = CanvasQuestHistory.ChronologicalOrder.NEWEST;
 
     private Consumer<QuestHistoryEntry> callback;
     private CanvasQuestHistory canvasQuestHistory;
     private PanelButton repeatableFilterButton;
     private PanelButton standardFilterButton;
+    private PanelButton orderButton;
     private int historyScrollY;
     private boolean restoreHistoryScroll;
 
@@ -64,14 +66,19 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         standardFilterButton = new PanelButton(new GuiRectangle(18, 0, 16, 16), -1, "");
         standardFilterButton.setClickAction(this::cycleClaimableFilter);
 
+        orderButton = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), -1, "");
+        orderButton.setClickAction(this::toggleOrder);
+
         updateFilterButtons();
         cvInner.addPanel(repeatableFilterButton);
         cvInner.addPanel(standardFilterButton);
+        cvInner.addPanel(orderButton);
 
         // Quest History list (main content)
         canvasQuestHistory = new CanvasQuestHistory(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 20, 8, 24), 0), mc.player);
         canvasQuestHistory.setTypeFilter(typeFilter);
         canvasQuestHistory.setClaimableFilter(claimableFilter);
+        canvasQuestHistory.setOrder(order);
         canvasQuestHistory.setQuestOpenCallback(entry -> {
             saveHistoryScroll();
             acceptCallback(entry);
@@ -106,6 +113,11 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         applyFilterChanges();
     }
 
+    private void toggleOrder(PanelButton button) {
+        order = order.next();
+        applyFilterChanges();
+    }
+
     private void applyFilterChanges() {
         saveHistoryScroll();
         restoreHistoryScroll = historyScrollY > 0;
@@ -113,6 +125,7 @@ public class GuiQuestHistory extends GuiScreenCanvas {
 
         canvasQuestHistory.setTypeFilter(typeFilter);
         canvasQuestHistory.setClaimableFilter(claimableFilter);
+        canvasQuestHistory.setOrder(order);
     }
 
     private void updateFilterButtons() {
@@ -120,6 +133,8 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         repeatableFilterButton.setIcon(PresetIcon.ICON_REFRESH.getTexture(), typeFilter.getColor(), 0);
         standardFilterButton.setTooltip(claimableFilter.getTooltip());
         standardFilterButton.setIcon(PresetIcon.ICON_CHEST.getTexture(), claimableFilter.getColor(), 0);
+        orderButton.setTooltip(order.getTooltip());
+        orderButton.setIcon(order.getTexture());
     }
 
     @Override

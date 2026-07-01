@@ -11,7 +11,9 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.misc.QuestHistoryEntry;
@@ -23,14 +25,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextFormatting;
 
 import java.text.DateFormat;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHistoryEntry> {
@@ -39,6 +34,7 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
     private final EntityPlayer player;
     private TypeFilter typeFilter = TypeFilter.SHOW_ALL;
     private ClaimableFilter claimableFilter = ClaimableFilter.SHOW_ALL;
+    private ChronologicalOrder order = ChronologicalOrder.NEWEST;
 
     public CanvasQuestHistory(IGuiRect rect, EntityPlayer player) {
         super(rect);
@@ -51,7 +47,20 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
             historyList = collectHistory();
         }
 
-        return historyList.iterator();
+        if (order == ChronologicalOrder.NEWEST) return historyList.iterator();
+
+        final ListIterator<QuestHistoryEntry> li = historyList.listIterator(historyList.size());
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return li.hasPrevious();
+            }
+
+            @Override
+            public QuestHistoryEntry next() {
+                return li.previous();
+            }
+        };
     }
 
     private List<QuestHistoryEntry> collectHistory() {
@@ -198,6 +207,15 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
         updatePanelScroll();
     }
 
+    public void setOrder(ChronologicalOrder order) {
+        if (this.order == order) {
+            return;
+        }
+
+        this.order = order;
+        refreshSearch();
+        updatePanelScroll();
+    }
 
     public enum TypeFilter {
         SHOW_ALL("betterquesting.gui.history.filter.type.all", null),
@@ -264,6 +282,40 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
         }
 
         public ClaimableFilter next() {
+            return VALUES[(ordinal() + 1) % VALUES.length];
+        }
+    }
+
+    public enum ChronologicalOrder {
+        NEWEST("betterquesting.gui.history.order.newest", PresetIcon.ICON_DOWN.getTexture()),
+        OLDEST("betterquesting.gui.history.order.oldest", PresetIcon.ICON_UP.getTexture());
+
+        private static final ChronologicalOrder[] VALUES = values();
+
+        private final String translationKey;
+        private final IGuiTexture texture;
+
+        ChronologicalOrder(String translationKey, IGuiTexture texture) {
+            this.translationKey = translationKey;
+            this.texture = texture;
+        }
+
+        public List<String> getTooltip() {
+            List<String> list = new ArrayList<>();
+            list.add(QuestTranslation.translate("betterquesting.gui.history.order"));
+            list.add("");
+            for (var value : VALUES) {
+                if (value == this) list.add(TextFormatting.YELLOW + QuestTranslation.translate(translationKey));
+                else list.add(TextFormatting.DARK_GRAY + QuestTranslation.translate(value.translationKey));
+            }
+            return list;
+        }
+
+        public IGuiTexture getTexture() {
+            return texture;
+        }
+
+        public ChronologicalOrder next() {
             return VALUES[(ordinal() + 1) % VALUES.length];
         }
     }
