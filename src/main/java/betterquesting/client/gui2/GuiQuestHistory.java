@@ -1,11 +1,10 @@
 package betterquesting.client.gui2;
 
-import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.PanelButton;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
@@ -17,14 +16,15 @@ import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BookmarkManager;
-import betterquesting.handlers.ConfigHandler;
 import betterquesting.misc.QuestHistoryEntry;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.common.config.Configuration;
 
 import java.util.function.Consumer;
 
 public class GuiQuestHistory extends GuiScreenCanvas {
+
+    private static CanvasQuestHistory.TypeFilter typeFilter = CanvasQuestHistory.TypeFilter.SHOW_ALL;
+    private static CanvasQuestHistory.ClaimableFilter claimableFilter = CanvasQuestHistory.ClaimableFilter.SHOW_ALL;
 
     private Consumer<QuestHistoryEntry> callback;
     private CanvasQuestHistory canvasQuestHistory;
@@ -32,8 +32,6 @@ public class GuiQuestHistory extends GuiScreenCanvas {
     private PanelButton standardFilterButton;
     private int historyScrollY;
     private boolean restoreHistoryScroll;
-    private CanvasQuestHistory.TypeFilter typeFilter = CanvasQuestHistory.TypeFilter.fromName(BQ_Settings.historyTypeFilter);
-    private CanvasQuestHistory.ClaimableFilter claimableFilter = CanvasQuestHistory.ClaimableFilter.fromName(BQ_Settings.historyClaimableFilter);
 
     public GuiQuestHistory(GuiScreen parent) {
         super(parent);
@@ -109,12 +107,6 @@ public class GuiQuestHistory extends GuiScreenCanvas {
     }
 
     private void applyFilterChanges() {
-        BQ_Settings.historyTypeFilter = typeFilter.name();
-        BQ_Settings.historyClaimableFilter = claimableFilter.name();
-        ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "History Type Filter", "SHOW_ALL").set(BQ_Settings.historyTypeFilter);
-        ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "History Claimable Filter", "SHOW_ALL").set(BQ_Settings.historyClaimableFilter);
-        ConfigHandler.config.save();
-
         saveHistoryScroll();
         restoreHistoryScroll = historyScrollY > 0;
         updateFilterButtons();

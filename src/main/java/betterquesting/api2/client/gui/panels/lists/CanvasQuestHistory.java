@@ -229,16 +229,6 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
             return color;
         }
 
-        public static TypeFilter fromName(String name) {
-            for (TypeFilter value : VALUES) {
-                if (value.name().equalsIgnoreCase(name)) {
-                    return value;
-                }
-            }
-
-            return SHOW_ALL;
-        }
-
         public TypeFilter next() {
             return VALUES[(ordinal() + 1) % VALUES.length];
         }
@@ -271,16 +261,6 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
 
         public IGuiColor getColor() {
             return color;
-        }
-
-        public static ClaimableFilter fromName(String name) {
-            for (ClaimableFilter value : VALUES) {
-                if (value.name().equalsIgnoreCase(name)) {
-                    return value;
-                }
-            }
-
-            return SHOW_ALL;
         }
 
         public ClaimableFilter next() {
