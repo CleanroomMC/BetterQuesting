@@ -33,8 +33,8 @@ public class GuiQuestHistory extends GuiScreenCanvas {
 
     private Consumer<QuestHistoryEntry> callback;
     private CanvasQuestHistory canvasQuestHistory;
-    private PanelButton repeatableFilterButton;
-    private PanelButton standardFilterButton;
+    private PanelButton typeFilterButton;
+    private PanelButton claimableFilterButton;
     private PanelButton orderButton;
     private int historyScrollY;
     private boolean restoreHistoryScroll;
@@ -74,15 +74,15 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         cvInner.addPanel(txtTitle);
 
         // Filter buttons
-        repeatableFilterButton = new PanelButton(new GuiRectangle(0, 0, 16, 16), -1, "");
-        repeatableFilterButton.setClickAction(this::cycleTypeFilter);
+        typeFilterButton = new PanelButton(new GuiRectangle(0, 0, 16, 16), -1, "");
+        typeFilterButton.setClickAction(this::cycleTypeFilter);
         updateTypeFilterButton();
-        cvInner.addPanel(repeatableFilterButton);
+        cvInner.addPanel(typeFilterButton);
 
-        standardFilterButton = new PanelButton(new GuiRectangle(18, 0, 16, 16), -1, "");
-        standardFilterButton.setClickAction(this::cycleClaimableFilter);
+        claimableFilterButton = new PanelButton(new GuiRectangle(18, 0, 16, 16), -1, "");
+        claimableFilterButton.setClickAction(this::cycleClaimableFilter);
         updateClaimableFilterButton();
-        cvInner.addPanel(standardFilterButton);
+        cvInner.addPanel(claimableFilterButton);
 
         orderButton = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), -1, "");
         orderButton.setClickAction(this::toggleOrder);
@@ -146,13 +146,13 @@ public class GuiQuestHistory extends GuiScreenCanvas {
     }
 
     private void updateTypeFilterButton() {
-        repeatableFilterButton.setTooltip(makeTooltip(QuestTranslation.translate("betterquesting.gui.history.filter.type"), typeFilter, CanvasQuestHistory.TypeFilter.values(), CanvasQuestHistory.TypeFilter::getText));
-        repeatableFilterButton.setIcon(PresetIcon.ICON_REFRESH.getTexture(), typeFilter.getColor(), 0);
+        typeFilterButton.setTooltip(makeTooltip(QuestTranslation.translate("betterquesting.gui.history.filter.type"), typeFilter, CanvasQuestHistory.TypeFilter.values(), CanvasQuestHistory.TypeFilter::getText));
+        typeFilterButton.setIcon(PresetIcon.ICON_REFRESH.getTexture(), typeFilter.getColor(), 0);
     }
 
     private void updateClaimableFilterButton() {
-        standardFilterButton.setTooltip(makeTooltip(QuestTranslation.translate("betterquesting.gui.history.filter.claimable"), claimableFilter, CanvasQuestHistory.ClaimableFilter.values(), CanvasQuestHistory.ClaimableFilter::getText));
-        standardFilterButton.setIcon(PresetIcon.ICON_CHEST.getTexture(), claimableFilter.getColor(), 0);
+        claimableFilterButton.setTooltip(makeTooltip(QuestTranslation.translate("betterquesting.gui.history.filter.claimable"), claimableFilter, CanvasQuestHistory.ClaimableFilter.values(), CanvasQuestHistory.ClaimableFilter::getText));
+        claimableFilterButton.setIcon(PresetIcon.ICON_CHEST.getTexture(), claimableFilter.getColor(), 0);
     }
 
     private void updateOrderButton() {
