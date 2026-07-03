@@ -22,7 +22,6 @@ import betterquesting.questing.QuestLineDatabase;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextFormatting;
 
 import java.text.DateFormat;
 import java.util.*;
@@ -232,15 +231,8 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
             this.color = color;
         }
 
-        public List<String> getTooltip() {
-            List<String> list = new ArrayList<>();
-            list.add(QuestTranslation.translate("betterquesting.gui.history.filter.type"));
-            list.add("");
-            for (var value : VALUES) {
-                if (value == this) list.add(TextFormatting.YELLOW + QuestTranslation.translate(translationKey));
-                else list.add(TextFormatting.DARK_GRAY + QuestTranslation.translate(value.translationKey));
-            }
-            return list;
+        public String getText() {
+            return QuestTranslation.translate(translationKey);
         }
 
         public IGuiColor getColor() {
@@ -266,15 +258,8 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
             this.color = color;
         }
 
-        public List<String> getTooltip() {
-            List<String> list = new ArrayList<>();
-            list.add(QuestTranslation.translate("betterquesting.gui.history.filter.claimable"));
-            list.add("");
-            for (var value : VALUES) {
-                if (value == this) list.add(TextFormatting.YELLOW + QuestTranslation.translate(translationKey));
-                else list.add(TextFormatting.DARK_GRAY + QuestTranslation.translate(value.translationKey));
-            }
-            return list;
+        public String getText() {
+            return QuestTranslation.translate(translationKey);
         }
 
         public IGuiColor getColor() {
@@ -300,15 +285,8 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
             this.texture = texture;
         }
 
-        public List<String> getTooltip() {
-            List<String> list = new ArrayList<>();
-            list.add(QuestTranslation.translate("betterquesting.gui.history.order"));
-            list.add("");
-            for (var value : VALUES) {
-                if (value == this) list.add(TextFormatting.YELLOW + QuestTranslation.translate(translationKey));
-                else list.add(TextFormatting.DARK_GRAY + QuestTranslation.translate(value.translationKey));
-            }
-            return list;
+        public String getText() {
+            return QuestTranslation.translate(translationKey);
         }
 
         public IGuiTexture getTexture() {
