@@ -1,5 +1,6 @@
 package betterquesting.client.gui2;
 
+import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.misc.GuiAlign;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class GuiQuestHistory extends GuiScreenCanvas {
+public class GuiQuestHistory extends GuiScreenCanvas implements INeedsRefresh {
 
     private static CanvasQuestHistory.TypeFilter typeFilter = CanvasQuestHistory.TypeFilter.SHOW_ALL;
     private static CanvasQuestHistory.ClaimableFilter claimableFilter = CanvasQuestHistory.ClaimableFilter.SHOW_ALL;
@@ -182,6 +183,12 @@ public class GuiQuestHistory extends GuiScreenCanvas {
         } finally {
             saveHistoryScroll();
         }
+    }
+
+    @Override
+    public void refreshGui() {
+        this.applyFilterChanges();
+        canvasQuestHistory.refreshSearch();
     }
 
     // History entries are buffered into the list, so keep reapplying until the scroll can be restored.
