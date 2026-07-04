@@ -193,7 +193,6 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
 
         this.typeFilter = typeFilter;
         refreshSearch();
-        updatePanelScroll();
     }
 
     public void setClaimableFilter(ClaimableFilter claimableFilter) {
@@ -203,7 +202,6 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
 
         this.claimableFilter = claimableFilter;
         refreshSearch();
-        updatePanelScroll();
     }
 
     public void setOrder(ChronologicalOrder order) {
@@ -213,7 +211,6 @@ public class CanvasQuestHistory extends CanvasSearch<QuestHistoryEntry, QuestHis
 
         this.order = order;
         refreshSearch();
-        updatePanelScroll();
     }
 
     public enum TypeFilter {
