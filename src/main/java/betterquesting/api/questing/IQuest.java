@@ -17,7 +17,6 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer {
-
     EnumQuestState getState(EntityPlayer player);
 
     @Nullable
@@ -52,6 +51,8 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTa
     void claimReward(EntityPlayer player);
 
     void setClaimed(UUID uuid, long timestamp);
+
+    long getLastCompletedAt(UUID uuid);
 
     void resetUser(@Nullable UUID uuid, boolean fullReset);
 

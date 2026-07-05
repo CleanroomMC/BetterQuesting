@@ -106,13 +106,13 @@ public enum PresetTexture {
         reg.setDefaultTexture(BTN_NORMAL_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(84, 0, 12, 12), new GuiPadding(2, 2, 2, 3)));
         reg.setDefaultTexture(BTN_NORMAL_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(96, 0, 12, 12), new GuiPadding(2, 2, 2, 3)));
 
-        reg.setDefaultTexture(BTN_CLEAN_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(108, 0, 12, 12), new GuiPadding(2, 2, 2, 2)));
-        reg.setDefaultTexture(BTN_CLEAN_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(120, 0, 12, 12), new GuiPadding(2, 2, 2, 2)));
-        reg.setDefaultTexture(BTN_CLEAN_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(132, 0, 12, 12), new GuiPadding(2, 2, 2, 2)));
+        reg.setDefaultTexture(BTN_CLEAN_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(108, 0, 12, 12), new GuiPadding(2, 2, 2, 3)));
+        reg.setDefaultTexture(BTN_CLEAN_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(120, 0, 12, 12), new GuiPadding(2, 2, 2, 3)));
+        reg.setDefaultTexture(BTN_CLEAN_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(132, 0, 12, 12), new GuiPadding(2, 2, 2, 3)));
 
-        reg.setDefaultTexture(BTN_ALT_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(144, 0, 12, 12), new GuiPadding(2, 2, 2, 2)));
-        reg.setDefaultTexture(BTN_ALT_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(156, 0, 12, 12), new GuiPadding(2, 2, 2, 2)));
-        reg.setDefaultTexture(BTN_ALT_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(178, 0, 12, 12), new GuiPadding(2, 2, 2, 2)));
+        reg.setDefaultTexture(BTN_ALT_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(144, 0, 12, 12), new GuiPadding(2, 2, 2, 3)));
+        reg.setDefaultTexture(BTN_ALT_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(156, 0, 12, 12), new GuiPadding(2, 2, 2, 3)));
+        reg.setDefaultTexture(BTN_ALT_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(168, 0, 12, 12), new GuiPadding(2, 2, 2, 3)));
 
         reg.setDefaultTexture(HOTBAR_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(190, 0, 12, 12), new GuiPadding(3, 3, 2, 2)));
         reg.setDefaultTexture(HOTBAR_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(202, 0, 12, 12), new GuiPadding(3, 3, 3, 3)));
